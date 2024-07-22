@@ -235,3 +235,6 @@ $RECYCLE.BIN/
 *.lnk
 
 *.properties
+
+gradlew
+*.bat
