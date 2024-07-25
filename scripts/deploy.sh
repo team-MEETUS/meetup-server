@@ -10,7 +10,7 @@ JAR_NAME=$(basename $BUILD_JAR)
 echo ">>> build 파일명: $JAR_NAME" >> /home/ubuntu/deploy.log
 
 echo ">>> build 파일 복사" >> /home/ubuntu/deploy.log
-DEPLOY_PATH=/home/ubuntu/app/
+DEPLOY_PATH=/home/ubuntu/app/build/libs
 
 if [ -f "$DEPLOY_PATH/gradlew" ]; then
     echo ">>> gradlew 파일이 이미 존재합니다. 복사를 건너뜁니다." >> /home/ubuntu/deploy.log
