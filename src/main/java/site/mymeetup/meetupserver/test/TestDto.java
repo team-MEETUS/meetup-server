@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,4 +14,6 @@ import lombok.NoArgsConstructor;
 public class TestDto {
     private Long testId;
     private String name;
+    private Timestamp createDate;
+    private Timestamp updateDate;
 }

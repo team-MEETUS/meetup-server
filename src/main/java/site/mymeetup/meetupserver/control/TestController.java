@@ -9,6 +9,7 @@ import site.mymeetup.meetupserver.test.TestDto;
 import site.mymeetup.meetupserver.test.TestService;
 
 @RestController
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class TestController {
     private final TestService testService;
