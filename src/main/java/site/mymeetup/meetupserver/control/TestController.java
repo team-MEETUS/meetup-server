@@ -12,7 +12,7 @@ import site.mymeetup.meetupserver.test.TestService;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class TestController {
-    // test 주석
+    // test 주석 테스트
     private final TestService testService;
 
     @ResponseStatus(HttpStatus.OK)
