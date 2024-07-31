@@ -234,4 +234,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-*.properties
+application-secret.properties
