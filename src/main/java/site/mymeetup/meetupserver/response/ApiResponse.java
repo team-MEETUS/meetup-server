@@ -2,6 +2,7 @@ package site.mymeetup.meetupserver.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import site.mymeetup.meetupserver.exception.ErrorCode;
 
 @Getter
 @AllArgsConstructor
@@ -14,15 +15,8 @@ public class ApiResponse<T> {
         return new ApiResponse<>(true, data, null);
     }
 
-    public static ApiResponse<?> error(String code, String message) {
-        return new ApiResponse<>(false, null, new ApiError(code, message));
-
+    public static ApiResponse<?> error(ErrorCode errorCode) {
+        return new ApiResponse<>(false, null, new ApiError(errorCode.getCode(), errorCode.getMessage()));
     }
 
-    @Getter
-    @AllArgsConstructor
-    public static class ApiError {
-        private String code;
-        private String message;
-    }
 }
