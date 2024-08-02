@@ -1,4 +1,4 @@
-package site.mymeetup.meetupserver.control;
+package site.mymeetup.meetupserver.test;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
