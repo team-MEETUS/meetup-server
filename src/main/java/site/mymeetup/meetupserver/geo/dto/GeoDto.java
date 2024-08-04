@@ -1,6 +1,5 @@
 package site.mymeetup.meetupserver.geo.dto;
 
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +8,7 @@ import site.mymeetup.meetupserver.geo.entity.Geo;
 public class GeoDto {
 
     @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @NoArgsConstructor
     public static class GeoRespDto {
         private Long geoId;
         private String city;
