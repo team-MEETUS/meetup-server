@@ -10,7 +10,7 @@ public class GeoDto {
     @Getter
     @NoArgsConstructor
     public static class GeoRespDto {
-        private long geoId;
+        private Long geoId;
         private String city;
         private String district;
         private String county;
