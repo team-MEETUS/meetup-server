@@ -13,6 +13,7 @@ import site.mymeetup.meetupserver.response.ApiResponse;
 public class GeoController {
     private final GeoService geoService;
 
+    // 전체 지역 조회
     @GetMapping("/geos")
     public ApiResponse<?> getAllGeo() {
         return ApiResponse.success(geoService.getAllGeo());

@@ -13,7 +13,7 @@ import lombok.*;
 @Entity
 public class Geo {
     @Id
-    private long geoId;
+    private Long geoId;
 
     private String city;
 
