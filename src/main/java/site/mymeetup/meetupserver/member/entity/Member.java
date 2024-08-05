@@ -1,18 +1,12 @@
 package site.mymeetup.meetupserver.member.entity;
 
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import site.mymeetup.meetupserver.MemberAndInterest.entity.MemberAndInterest;
 import site.mymeetup.meetupserver.common.Role;
 import lombok.*;
-import org.springframework.security.core.userdetails.UserDetails;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 
 @Entity
 @Data
