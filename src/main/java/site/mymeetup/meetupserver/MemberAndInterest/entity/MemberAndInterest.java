@@ -1,4 +1,4 @@
-package site.mymeetup.meetupserver.member.entity;
+package site.mymeetup.meetupserver.MemberAndInterest.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Table(name = "memberAndInterest")
+@Table(name = "member_and_interest")
 @Entity
 public class MemberAndInterest {
     @Id
