@@ -3,6 +3,7 @@ package site.mymeetup.meetupserver.member.entity;
 import jakarta.persistence.*;
 import site.mymeetup.meetupserver.common.Role;
 import lombok.*;
+import site.mymeetup.meetupserver.common.entity.BaseEntity;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 
 import java.sql.Timestamp;
@@ -16,10 +17,9 @@ import java.time.LocalDateTime;
 
 //UserDetails 관련 우선 주석 처리함
     //public class Member implements UserDetails {
-    public class Member {
+    public class Member extends BaseEntity {
 
     @Id    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="MEMBER_ID")
     private Long memberId;
 
     //핸드폰으로 로그인
@@ -68,13 +68,9 @@ import java.time.LocalDateTime;
     @Column(nullable = false)
     private Timestamp updateDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="member_and_interest_id", nullable = false)
-    public MemberAndInterest memberAndInterest;
-
     //== 생성자 ==//
     @Builder
-    public Member(String phone, String nickname, String birth, int gender, Role role, int status, Geo geo, MemberAndInterest memberAndInterest, String originalImg, String saveImg) {
+    public Member(String phone, String nickname, String birth, int gender, Role role, int status, Geo geo, String originalImg, String saveImg) {
         this.phone = phone;
         this.nickname = nickname;
         this.birth = birth;
@@ -82,7 +78,6 @@ import java.time.LocalDateTime;
         this.role = role;
         this.status = status;
         this.geo = geo;
-        this.memberAndInterest = memberAndInterest; // 단일 관심사 설정
         this.originalImg = originalImg;
         this.saveImg = saveImg;
     }
