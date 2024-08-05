@@ -5,6 +5,29 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    // S3
+    NO_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "I40001", "파일 확장자가 존재하지 않습니다."),
+    INVALID_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "I40002", "유효하지 않은 파일 확장자입니다."),
+    IMAGE_BAD_REQUEST(HttpStatus.BAD_REQUEST, "I40003", "이미지 값이 기존과 일치하지 않습니다."),
+    IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "I40401", "이미지를 찾을 수 없습니다."),
+    IO_EXCEPTION_ON_IMAGE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "I50001", "이미지 업로드 중 입출력 예외가 발생했습니다."),
+    PUT_OBJECT_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "I50002", "S3에 이미지 업로드 중 예외가 발생했습니다."),
+    IO_EXCEPTION_ON_IMAGE_DELETE(HttpStatus.INTERNAL_SERVER_ERROR, "I50003", "이미지 삭제 중 입출력 예외가 발생했습니다."),
+
+    // 모임
+    CREW_NOT_FOUND(HttpStatus.NOT_FOUND, "C40401", "존재하지 않는 모임입니다."),
+
+    // 관심사
+    INTEREST_BAD_REQUEST(HttpStatus.BAD_REQUEST, "I40001", "관심사 대분류에 속한 소분류가 아닙니다."),
+    INTEREST_BIG_NOT_FOUND(HttpStatus.NOT_FOUND, "I40401", "존재하지 않는 관심사입니다."),
+    INTEREST_SMALL_NOT_FOUND(HttpStatus.NOT_FOUND, "I40402", "존재하지 않는 상세 관심사입니다."),
+
+    // 지역
+    GEO_NOT_FOUND(HttpStatus.NOT_FOUND, "G40401", "존재하지 않는 지역입니다."),
+  
+    // 채팅
+    CHAT_NOT_FOUND(HttpStatus.BAD_REQUEST, "C40001", "존재하지 않는 모임 채팅방입니다."),
+
     // 테스트
     NOT_FOUND_DEPT(HttpStatus.NOT_FOUND, "T-40401", "존재하지 않는 테스트입니다.");
 
