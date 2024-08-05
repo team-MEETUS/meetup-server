@@ -10,14 +10,14 @@ import site.mymeetup.meetupserver.crew.service.CrewService;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/crews")
 @RequiredArgsConstructor
 public class CrewController {
     private final CrewService crewService;
 
     // 모임 등록
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/crews")
+    @PostMapping
     public ApiResponse<?> createCrew(@RequestPart MultipartFile image,
                                      @RequestPart @Valid CrewDto.CrewSaveReqDto crewSaveReqDto) {
         CrewDto.CrewSaveRespDto crewSaveRespDto = crewService.createCrew(crewSaveReqDto, image);
@@ -26,7 +26,7 @@ public class CrewController {
 
     // 모임 수정
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/crews/{crewId}")
+    @PutMapping("/{crewId}")
     public ApiResponse<?> updateCrew(@PathVariable("crewId") Long crewId,
                                      @RequestPart MultipartFile image,
                                      @RequestPart @Valid CrewDto.CrewSaveReqDto crewSaveReqDto) {
@@ -36,7 +36,7 @@ public class CrewController {
 
     // 모임 삭제
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/crews/{crewId}")
+    @DeleteMapping("/{crewId}")
     public ApiResponse<?> deleteCrew(@PathVariable("crewId") Long crewId) {
         crewService.deleteCrew(crewId);
         return ApiResponse.success(null);

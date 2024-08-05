@@ -19,7 +19,7 @@ import java.util.Optional;
 public class Crew extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long crewId;
+    private Long crewId;
 
     @Column(nullable = false)
     private String name;
