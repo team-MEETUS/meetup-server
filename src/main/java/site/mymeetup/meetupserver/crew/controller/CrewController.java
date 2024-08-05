@@ -23,4 +23,14 @@ public class CrewController {
         CrewDto.CrewSaveRespDto crewSaveRespDto = crewService.createCrew(crewSaveReqDto, image);
         return ApiResponse.success(crewSaveRespDto);
     }
+
+    // 모임 수정
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/crews/{crewId}")
+    public ApiResponse<?> updateCrew(@PathVariable("crewId") Long crewId,
+                                     @RequestPart MultipartFile image,
+                                     @RequestPart @Valid CrewDto.CrewSaveReqDto crewSaveReqDto) {
+        CrewDto.CrewSaveRespDto crewSaveRespDto = crewService.updateCrew(crewId, crewSaveReqDto, image);
+        return ApiResponse.success(crewSaveRespDto);
+    }
 }

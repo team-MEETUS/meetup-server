@@ -8,6 +8,7 @@ import site.mymeetup.meetupserver.interest.entity.InterestBig;
 import site.mymeetup.meetupserver.interest.entity.InterestSmall;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Builder
 @AllArgsConstructor
@@ -52,4 +53,17 @@ public class Crew extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "interest_small_id", nullable = true)
     private InterestSmall interestSmall;
+
+    // updateCrew
+    public void updateCrew(Crew updateCrew) {
+        Optional.ofNullable(updateCrew.getName()).ifPresent(name -> this.name = name);
+        Optional.ofNullable(updateCrew.getIntro()).ifPresent(intro -> this.intro = intro);
+        Optional.ofNullable(updateCrew.getContent()).ifPresent(content -> this.content = content);
+        Optional.of(updateCrew.getMax()).ifPresent(max -> this.max = max);
+        Optional.ofNullable(updateCrew.getGeo()).ifPresent(geo -> this.geo = geo);
+        Optional.ofNullable(updateCrew.getInterestBig()).ifPresent(interestBig -> this.interestBig = interestBig);
+        this.interestSmall = updateCrew.getInterestSmall();
+        Optional.ofNullable(updateCrew.getOriginalImg()).ifPresent(originalImg -> this.originalImg = originalImg);
+        Optional.ofNullable(updateCrew.getSaveImg()).ifPresent(saveImg -> this.saveImg = saveImg);
+    }
 }
