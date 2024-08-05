@@ -10,6 +10,8 @@ import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.interest.entity.InterestBig;
 import site.mymeetup.meetupserver.interest.entity.InterestSmall;
 
+import java.time.LocalDateTime;
+
 public class CrewDto {
 
     @Getter
@@ -58,6 +60,39 @@ public class CrewDto {
         @Builder
         public CrewSaveRespDto(Crew crew) {
             this.crewId = crew.getCrewId();
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class CrewSelectRespDto {
+        private Long crewId;
+        private String name;
+        private String intro;
+        private String content;
+        private int max;
+        private String originalImg;
+        private String saveImg;
+        private LocalDateTime createDate;
+        private LocalDateTime updateDate;
+        private Geo geo;
+        private InterestBig interestBig;
+        private InterestSmall interestSmall;
+
+        @Builder
+        public CrewSelectRespDto(Crew crew) {
+            this.crewId = crew.getCrewId();
+            this.name = crew.getName();
+            this.intro = crew.getIntro();
+            this.content = crew.getContent();
+            this.max = crew.getMax();
+            this.originalImg = crew.getOriginalImg();
+            this.saveImg = crew.getSaveImg();
+            this.createDate = crew.getCreateDate();
+            this.updateDate = crew.getUpdateDate();
+            this.geo = crew.getGeo();
+            this.interestBig = crew.getInterestBig();
+            this.interestSmall = crew.getInterestSmall();
         }
     }
 

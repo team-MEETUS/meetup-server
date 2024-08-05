@@ -41,4 +41,11 @@ public class CrewController {
         crewService.deleteCrew(crewId);
         return ApiResponse.success(null);
     }
+
+    // 특정 모임 상세 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{crewId}")
+    public ApiResponse<?> getCrewByCrewId(@PathVariable("crewId") Long crewId) {
+        return ApiResponse.success(crewService.getCrewByCrewId(crewId));
+    }
 }
