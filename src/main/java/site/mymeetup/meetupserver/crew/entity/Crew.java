@@ -66,4 +66,9 @@ public class Crew extends BaseEntity {
         Optional.ofNullable(updateCrew.getOriginalImg()).ifPresent(originalImg -> this.originalImg = originalImg);
         Optional.ofNullable(updateCrew.getSaveImg()).ifPresent(saveImg -> this.saveImg = saveImg);
     }
+
+    // deleteCrew
+    public void changeStatus(int status) {
+        this.status = status;
+    }
 }

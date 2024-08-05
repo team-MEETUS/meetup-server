@@ -33,4 +33,12 @@ public class CrewController {
         CrewDto.CrewSaveRespDto crewSaveRespDto = crewService.updateCrew(crewId, crewSaveReqDto, image);
         return ApiResponse.success(crewSaveRespDto);
     }
+
+    // 모임 삭제
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/crews/{crewId}")
+    public ApiResponse<?> deleteCrew(@PathVariable("crewId") Long crewId) {
+        crewService.deleteCrew(crewId);
+        return ApiResponse.success(null);
+    }
 }
