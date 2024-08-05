@@ -9,4 +9,6 @@ public interface CrewService {
 
     CrewDto.CrewSaveRespDto updateCrew(Long crewId, CrewDto.CrewSaveReqDto crewSaveReqDto, MultipartFile image);
 
+    void deleteCrew(Long crewId);
+
 }

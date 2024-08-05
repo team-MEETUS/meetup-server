@@ -30,14 +30,17 @@ public class CrewServiceImpl implements CrewService {
         // geoId로 Geo 객체 조회
         Geo geo = geoRepository.findById(crewSaveReqDto.getGeoId())
                 .orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
+
         // interestBigId로 InterestBig 객체 조회
         InterestBig interestBig = interestBigRepository.findById(crewSaveReqDto.getInterestBigId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INTEREST_BIG_NOT_FOUND));
+
         // interestSmallId로 InterestSmall 객체 조회
         InterestSmall interestSmall = null;
         if (crewSaveReqDto.getInterestSmallId() != null) {
             interestSmall  = interestSmallRepository.findById(crewSaveReqDto.getInterestSmallId())
                     .orElseThrow(() -> new CustomException(ErrorCode.INTEREST_SMALL_NOT_FOUND));
+
             // interestSmall의 interestBig 값이 interestBig와 같은지 확인
             if (interestSmall.getInterestBig().getInterestBigId() != interestBig.getInterestBigId()) {
                 throw new CustomException(ErrorCode.INTEREST_BAD_REQUEST);
@@ -113,5 +116,16 @@ public class CrewServiceImpl implements CrewService {
         Crew updateCrew = crewRepository.save(crew);
 
         return CrewDto.CrewSaveRespDto.builder().crew(updateCrew).build();
+    }
+
+    // 모임 삭제
+    public void deleteCrew(Long crewId) {
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+        // 삭제할 모임 상태값 변경
+        crew.changeStatus(0);
+        // DB 수정
+        crewRepository.save(crew);
     }
 }
