@@ -44,6 +44,20 @@ dependencies {
 
     // WebFlux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    //mongodb
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+
+    //jwt
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
+
+    //oauth2
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    //redis
+//    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.3.1'
 }
 
 tasks.named('test') {
