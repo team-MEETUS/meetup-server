@@ -19,4 +19,8 @@ public class ApiResponse<T> {
         return new ApiResponse<>(false, null, new ApiError(errorCode.getCode(), errorCode.getMessage()));
     }
 
+    public static ApiResponse<?> error(String code, String message) {
+        return new ApiResponse<>(false, null, new ApiError(code, message));
+    }
+
 }
