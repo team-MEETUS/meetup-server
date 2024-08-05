@@ -11,4 +11,5 @@ public interface CrewService {
 
     void deleteCrew(Long crewId);
 
+    CrewDto.CrewSelectRespDto getCrewByCrewId(Long crewId);
 }

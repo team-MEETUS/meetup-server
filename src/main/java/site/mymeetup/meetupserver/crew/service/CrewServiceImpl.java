@@ -128,4 +128,11 @@ public class CrewServiceImpl implements CrewService {
         // DB 수정
         crewRepository.save(crew);
     }
+
+    // 특정 모임 조회
+    public CrewDto.CrewSelectRespDto getCrewByCrewId(Long crewId) {
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+        return CrewDto.CrewSelectRespDto.builder().crew(crew).build();
+    }
 }
