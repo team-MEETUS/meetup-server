@@ -1,12 +1,13 @@
 package site.mymeetup.meetupserver.member.entity;
 
 import jakarta.persistence.*;
-import site.mymeetup.meetupserver.common.Role;
 import lombok.*;
 import site.mymeetup.meetupserver.common.entity.BaseEntity;
 import site.mymeetup.meetupserver.geo.entity.Geo;
+import site.mymeetup.meetupserver.member.role.Role;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Builder
 @Entity
@@ -63,7 +64,23 @@ public class Member extends BaseEntity {
 
     private String saveImg;
 
-
+    // 멤버 수정
+    public void updateMember(Member updateMember) {
+        this.geo = updateMember.getGeo();
+        //==핸드폰 번호 수정의 경우 인증 과정 필요 - 수정 예정==
+        Optional.ofNullable(updateMember.getPhone()).ifPresent(phone -> this.phone = phone);
+        //==신규 카카오/네이버 계정 추가, 혹은 기존 카카오/네이버 계정정보 수정의 경우 인증 과정 필요 - 수정 예정 ==
+        this.kakao = updateMember.getKakao();
+        this.naver = updateMember.getNaver();
+        //==비밀번호 수정의 경우 인증 과정 필요 - 수정 예정==
+        this.password = updateMember.getPassword();
+        Optional.ofNullable(updateMember.getNickname()).ifPresent(nickname -> this.nickname = nickname);
+        this.intro = updateMember.getIntro();
+        Optional.ofNullable(updateMember.getBirth()).ifPresent(birth -> this.birth = birth);
+        Optional.of(updateMember.getGender()).ifPresent(gender -> this.gender = gender);
+        this.originalImg = updateMember.getOriginalImg();
+        this.saveImg = updateMember.getSaveImg();
+    }
 
 }
 
