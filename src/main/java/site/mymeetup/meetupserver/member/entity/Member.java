@@ -8,85 +8,84 @@ import site.mymeetup.meetupserver.geo.entity.Geo;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
+@Builder
 @Entity
-@Data
+@AllArgsConstructor
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "member")
 
 //UserDetails 관련 우선 주석 처리함
-    //public class Member implements UserDetails {
-    public class Member extends BaseEntity {
+//public class Member implements UserDetails {
+public class Member extends BaseEntity {
 
-    @Id    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long memberId;
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long memberId;
 
-    //핸드폰으로 로그인
-    @Column(unique = true, nullable = false)
-    private String phone;
+//핸드폰으로 로그인
+@Column(unique = true, nullable = false)
+private String phone;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "geo_id", nullable = false)
-    private Geo geo;
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "geo_id", nullable = false)
+private Geo geo;
 
-    @Column(unique = true)
-    private String kakao;
+@Column(unique = true)
+private String kakao;
 
-    @Column(unique = true)
-    private String naver;
+@Column(unique = true)
+private String naver;
 
-    private String password;
+private String password;
 
-    @Column(nullable = false)
-    private String nickname;
+@Column(nullable = false)
+private String nickname;
 
-    private String intro;
+private String intro;
 
-    @Column(nullable = false)
-    private String birth;
+@Column(nullable = false)
+private String birth;
 
-    @Column(nullable = false)
-    private int gender;
+@Column(nullable = false)
+private int gender;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
+@Column(nullable = false)
+@Enumerated(EnumType.STRING)
+private Role role;
 
-    @Column(nullable = false)
-    private int status;
+@Column(nullable = false)
+private int status;
 
-    private LocalDateTime dead_date;
+private LocalDateTime deadDate;
 
-    private String originalImg;
+private String originalImg;
 
-    private String saveImg;
+private String saveImg;
 
-    @Column(nullable = false)
-    private Timestamp createDate;
 
-    @Column(nullable = false)
-    private Timestamp updateDate;
+//==updateMember==//
+public void updateMember(Member updateMember){
+    Optional.ofNullable(updateMember.getGeo()).ifPresent(geo -> this.geo = geo);
+    //==핸드폰 번호 수정의 경우 인증 과정 필요 - 수정 예정==
+    //Optional.ofNullable(updateMember.getPhone()).ifPresent(phone -> this.phone = phone);
+    //==신규 카카오/네이버 계정 추가, 혹은 기존 카카오/네이버 계정정보 수정의 경우 인증 과정 필요 - 수정 예정 ==
+    //Optional.ofNullable(updateMember.getKakao()).ifPresent(kakao -> this.kakao = kakao);
+    //Optional.ofNullable(updateMember.getNaver()).ifPresent(naver -> this.naver = naver);
+    //==비밀번호 수정의 경우 인증 과정 필요 - 수정 예정==
+    //Optional.ofNullable(updateMember.getPassword()).ifPresent(password -> this.password = password);
+    Optional.ofNullable(updateMember.getNickname()).ifPresent(nickname -> this.nickname = nickname);
+    this.intro = updateMember.getIntro();
+    Optional.ofNullable(updateMember.getOriginalImg()).ifPresent(originalImg -> this.originalImg = originalImg);
+    Optional.ofNullable(updateMember.getSaveImg()).ifPresent(saveImg -> this.saveImg = saveImg);
+}
 
-    //== 생성자 ==//
-    @Builder
-    public Member(String phone, String nickname, String birth, int gender, Role role, int status, Geo geo, String originalImg, String saveImg) {
-        this.phone = phone;
-        this.nickname = nickname;
-        this.birth = birth;
-        this.gender = gender;
-        this.role = role;
-        this.status = status;
-        this.geo = geo;
-        this.originalImg = originalImg;
-        this.saveImg = saveImg;
-    }
-
-    //==update==//
-    public void updateMember(String phone, String password){
-        this.phone = phone;
-        this.password = password;
-    }
+//==deleteMember==//
+public void changeMemberStatus(int status){
+    this.status = status;
+}
 
     //========== UserDetails implements ==========//
     /**
