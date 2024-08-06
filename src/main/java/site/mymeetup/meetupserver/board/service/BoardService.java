@@ -12,4 +12,6 @@ public interface BoardService {
     List<String> uploadImage(MultipartFile[] images);
 
     BoardDto.BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardDto.BoardSaveReqDto boardSaveReqDto);
+
+    List<BoardDto.BoardRespDto> getBoardByCrewId(Long crewId);
 }

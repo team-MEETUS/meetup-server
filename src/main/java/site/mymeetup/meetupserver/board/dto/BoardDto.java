@@ -10,6 +10,8 @@ import site.mymeetup.meetupserver.board.entity.Board;
 import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 
+import java.time.LocalDateTime;
+
 public class BoardDto {
 
     @Getter
@@ -45,11 +47,38 @@ public class BoardDto {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class BoardSaveRespDto {
-        private Long BoardId;
+        private Long boardId;
 
         @Builder
         public BoardSaveRespDto(Board board) {
-            this.BoardId = board.getBoardId();
+            this.boardId = board.getBoardId();
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class BoardRespDto {
+        private Long boardId;
+        private String title;
+        private String content;
+        private String category;
+        private int hit;
+        private int status;
+        private Long crewMemberId;
+        private LocalDateTime createDate;
+        private LocalDateTime updateDate;
+
+        @Builder
+        public BoardRespDto(Board board) {
+            this.boardId = board.getBoardId();
+            this.title = board.getTitle();
+            this.content = board.getContent();
+            this.category = board.getCategory();
+            this.hit = board.getHit();
+            this.status = board.getStatus();
+            this.crewMemberId = board.getCrewMember().getCrewAndMemberId();
+            this.createDate = board.getCreateDate();
+            this.updateDate = board.getUpdateDate();
         }
     }
 
