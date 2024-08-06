@@ -39,4 +39,11 @@ public class BoardController {
         return ApiResponse.success(boardService.uploadImage(images));
     }
 
+    // 게시글 목록 전체 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    public ApiResponse<?> getBoardByCrewId(@PathVariable Long crewId) {
+        return ApiResponse.success(boardService.getBoardByCrewId(crewId));
+    }
+
 }
