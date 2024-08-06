@@ -14,8 +14,14 @@ public enum ErrorCode {
     PUT_OBJECT_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "I50002", "S3에 이미지 업로드 중 예외가 발생했습니다."),
     IO_EXCEPTION_ON_IMAGE_DELETE(HttpStatus.INTERNAL_SERVER_ERROR, "I50003", "이미지 삭제 중 입출력 예외가 발생했습니다."),
 
+    // 회원
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M40401", "존재하지 않는 회원입니다."),
+
     // 모임
     CREW_NOT_FOUND(HttpStatus.NOT_FOUND, "C40401", "존재하지 않는 모임입니다."),
+
+    // 모임원
+    ALREADY_CREW_MEMBER(HttpStatus.BAD_REQUEST, "CM40001", "이미 모임원 입니다."),
 
     // 관심사
     INTEREST_BAD_REQUEST(HttpStatus.BAD_REQUEST, "I40001", "관심사 대분류에 속한 소분류가 아닙니다."),
