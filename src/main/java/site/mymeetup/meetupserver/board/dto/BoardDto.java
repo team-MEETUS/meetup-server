@@ -26,6 +26,8 @@ public class BoardDto {
         @NotNull(message = "카테고리는 필수 선택사항입니다.")
         private String category;
 
+        private int status;
+
         private Long crewId;
         private Long crewMemberId;
 
@@ -34,6 +36,7 @@ public class BoardDto {
                     .title(title)
                     .content(content)
                     .category(category)
+                    .status(1)
                     .crew(crew)
                     .crewMember(crewMember)
                     .build();
