@@ -11,7 +11,7 @@ import site.mymeetup.meetupserver.member.entity.Member;
 @Getter
 @Table(name = "crew_and_member")
 @Entity
-public class CrewAndMember extends BaseEntity {
+public class CrewMember extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long crewAndMemberId;
