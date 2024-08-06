@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import site.mymeetup.meetupserver.common.Role;
+import site.mymeetup.meetupserver.member.Role;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.member.entity.Member;
 
@@ -36,8 +36,8 @@ public class MemberDto {
         @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
 
-        //DTO -> Entity
-        public Member toEntity(Geo geo) {
+        //회원가입 DTO -> Entity
+        public Member goEntity(Geo geo) {
             return Member.builder()
                     .geo(geo)                    
                     .phone(phone)
@@ -48,6 +48,23 @@ public class MemberDto {
                     .gender(gender)
                     .role(Role.ROLE_USER)
                     .status(1)
+                    .build();
+        }
+
+        //DTO -> Entity(회원수정)
+        public Member toEntity(Geo geo, String originalImg, String saveImg) {
+            return Member.builder()
+                    .geo(geo)
+                    .phone(phone)
+                    .password(password)
+                    .nickname(nickname)
+                    .intro(intro)
+                    .birth(birth)
+                    .gender(gender)
+                    .role(Role.ROLE_USER)
+                    .status(1)
+                    .originalImg(originalImg != null ? originalImg : "test.jpg")
+                    .saveImg(saveImg != null ? saveImg : "test.jpg")
                     .build();
         }
     }
