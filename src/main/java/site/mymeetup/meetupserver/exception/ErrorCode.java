@@ -18,7 +18,9 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M40401", "존재하지 않는 회원입니다."),
 
     // 모임
+    CREW_BAD_REQUEST(HttpStatus.BAD_REQUEST, "C40001", "올바르지 않은 파라미터 값 입니다."),
     CREW_NOT_FOUND(HttpStatus.NOT_FOUND, "C40401", "존재하지 않는 모임입니다."),
+    INVALID_PAGE_NUMBER(HttpStatus.BAD_REQUEST, "C40002", "유효하지 않은 페이지 넘버 입니다."),
 
     // 모임원
     ALREADY_CREW_MEMBER(HttpStatus.BAD_REQUEST, "CM40001", "이미 모임원 입니다."),

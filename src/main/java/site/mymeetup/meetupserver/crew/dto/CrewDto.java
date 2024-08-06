@@ -71,6 +71,7 @@ public class CrewDto {
         private String intro;
         private String content;
         private int max;
+        private int totalMember;
         private String originalImg;
         private String saveImg;
         private LocalDateTime createDate;
@@ -85,6 +86,7 @@ public class CrewDto {
             this.name = crew.getName();
             this.intro = crew.getIntro();
             this.content = crew.getContent();
+            this.totalMember = crew.getTotalMember();
             this.max = crew.getMax();
             this.originalImg = crew.getOriginalImg();
             this.saveImg = crew.getSaveImg();
