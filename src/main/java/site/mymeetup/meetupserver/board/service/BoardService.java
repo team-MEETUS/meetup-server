@@ -14,4 +14,6 @@ public interface BoardService {
     BoardDto.BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardDto.BoardSaveReqDto boardSaveReqDto);
 
     List<BoardDto.BoardRespDto> getBoardByCrewId(Long crewId);
+
+    List<BoardDto.BoardRespDto> getBoardBYCrewIdAndCategory(Long crewId, String category);
 }
