@@ -10,4 +10,6 @@ public interface BoardService {
     BoardDto.BoardSaveRespDto createBoard(Long crewId, BoardDto.BoardSaveReqDto boardSaveReqDto);
 
     List<String> uploadImage(MultipartFile[] images);
+
+    BoardDto.BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardDto.BoardSaveReqDto boardSaveReqDto);
 }

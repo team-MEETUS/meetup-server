@@ -6,6 +6,8 @@ import site.mymeetup.meetupserver.common.entity.BaseEntity;
 import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 
+import java.util.Optional;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,4 +41,12 @@ public class Board extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "crew_and_member_id")
     private CrewMember crewMember;
+
+    // updateBoard
+    public void updateBoard(Board updateBoard) {
+        Optional.ofNullable(updateBoard.getTitle()).ifPresent(title -> this.title = title);
+        Optional.ofNullable(updateBoard.getContent()).ifPresent(content -> this.content = content);
+        Optional.ofNullable(updateBoard.getCategory()).ifPresent(category -> this.category = category);
+        Optional.of(updateBoard.getStatus()).ifPresent(status -> this.status = status);
+    }
 }
