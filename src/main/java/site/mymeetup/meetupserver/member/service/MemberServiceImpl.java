@@ -2,7 +2,6 @@ package site.mymeetup.meetupserver.member.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import site.mymeetup.meetupserver.memberAndInterest.repository.MemberAndInterestRepository;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.geo.entity.Geo;
@@ -16,8 +15,6 @@ import site.mymeetup.meetupserver.member.repository.MemberRepository;
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final GeoRepository geoRepository;
-    private final MemberAndInterestRepository memberAndInterestRepository;
-    //private final S3ImageService s3ImageService;
 
     // 회원 가입
     public MemberDto.MemberSaveRespDto createMember(MemberDto.MemberSaveReqDto memberSaveReqDto) {
@@ -25,7 +22,7 @@ public class MemberServiceImpl implements MemberService {
         Geo geo = geoRepository.findById(memberSaveReqDto.getGeoId())
                 .orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
 
-        Member member = memberRepository.save(memberSaveReqDto.toEntity(geo));
+        Member member = memberRepository.save(memberSaveReqDto.goEntity(geo));
         return MemberDto.MemberSaveRespDto.builder().member(member).build();
     }
 
