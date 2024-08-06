@@ -10,12 +10,7 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    // 핸드폰 번호로 멤버 찾기
-    Optional<Member> findByPhoneAndStatus(String phone, String status);
+    // 핸드폰 번호와 상태값으로 멤버 찾기
+    Optional<Member> findByPhoneAndStatus(String phone, Integer status);
 
-    // 카카오로 멤버 찾기
-    Optional<Member> findByKakao(String kakao);
-
-    // 네이버로 멤버 찾기
-    Optional<Member> findByNaver(String naver);
 }
