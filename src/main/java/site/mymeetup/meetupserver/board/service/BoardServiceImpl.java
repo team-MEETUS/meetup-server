@@ -35,6 +35,11 @@ public class BoardServiceImpl implements BoardService {
         CrewMember crewMember = crewMemberRepository.findById(boardSaveReqDto.getCrewMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
+        // crewMember 일반인 경우 공지 예외 처리
+        if (boardSaveReqDto.getCategory().equals("공지") && crewMember.getStatus() == 1) {
+            throw new CustomException(ErrorCode.BOARD_ACCESS_DENIED);
+        }
+
         // dto -> entity
         Board board = boardRepository.save(boardSaveReqDto.toEntity(crew, crewMember));
         return BoardDto.BoardSaveRespDto.builder().board(board).build();
