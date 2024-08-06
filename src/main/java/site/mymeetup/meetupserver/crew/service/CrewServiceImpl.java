@@ -67,8 +67,8 @@ public class CrewServiceImpl implements CrewService {
         // 모임 멤버 등록
         // 현재 로그인 한 사용자 정보 가져오기
         Long memberId = 101L;   // 테스트용
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+        Member member = memberRepository.findById(memberId) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         CrewMember crewMember = CrewMember.builder()
                 .status(3)
@@ -154,5 +154,32 @@ public class CrewServiceImpl implements CrewService {
         Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
         return CrewDto.CrewSelectRespDto.builder().crew(crew).build();
+    }
+
+    // 모임 가입 신청
+    @Override
+    public void signUpCrew(Long crewId) {
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findById(memberId) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 모임원으로 존재하는지 검증
+        CrewMember isCrewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId);
+        if (isCrewMember != null) {
+            throw new CustomException(ErrorCode.ALREADY_CREW_MEMBER);
+        }
+
+        // 모임멤버 추가
+        CrewMember crewMember = CrewMember.builder()
+                .status(4)
+                .crew(crew)
+                .member(member)
+                .build();
+        crewMemberRepository.save(crewMember);
     }
 }
