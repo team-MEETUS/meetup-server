@@ -1,10 +1,10 @@
 package site.mymeetup.meetupserver.member.entity;
 
 import jakarta.persistence.*;
-import site.mymeetup.meetupserver.member.role.Role;
 import lombok.*;
 import site.mymeetup.meetupserver.common.entity.BaseEntity;
 import site.mymeetup.meetupserver.geo.entity.Geo;
+import site.mymeetup.meetupserver.member.role.Role;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
