@@ -24,6 +24,13 @@ public enum ErrorCode {
 
     // 모임원
     ALREADY_CREW_MEMBER(HttpStatus.BAD_REQUEST, "CM40001", "이미 모임원 입니다."),
+    CREW_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "CM40401", "존재하지 않는 모임원입니다."),
+
+    // 게시판
+    BOARD_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40301", "일반 모임원은 공지 등록이 불가능합니다."),
+    BOARD_WRITER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40302", "작성자와 로그인 회원이 일치하지 않습니다."),
+    BOARD_CREW_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40303", "접근할 수 없는 게시글입니다."),
+    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "B40401", "존재하지 않는 게시글입니다."),
 
     // 관심사
     INTEREST_BAD_REQUEST(HttpStatus.BAD_REQUEST, "I40001", "관심사 대분류에 속한 소분류가 아닙니다."),
