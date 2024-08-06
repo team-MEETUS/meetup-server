@@ -1,6 +1,7 @@
 package site.mymeetup.meetupserver.member.dto;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import site.mymeetup.meetupserver.common.Role;
@@ -18,24 +19,25 @@ public class MemberDto {
         @NotEmpty(message = "핸드폰 번호는 필수 입력사항입니다")
         @Size(max = 300)
         private String phone;
-        @Size(min = 24, max = 300)
+        @Size(max = 300)
         private String password;
         @NotEmpty(message = "닉네임은 필수 입력사항입니다")
         @Size(max = 20)
         private String nickname;
         private String intro;
+        //@Patten(정규표현식)
         @NotEmpty(message = "생년월일은 필수 입력사항입니다")
         @Size(max = 20)
         private String birth;
-        @NotEmpty(message = "성별은 필수 입력사항입니다")
+        @NotNull(message = "성별은 필수 입력사항입니다")
         private int gender;
         private String originalImg;
         private String saveImg;
-        @NotEmpty(message = "관심지역은 필수 입력사항입니다")
+        @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
 
         //DTO -> Entity
-        public Member toEntity(Geo geo, String originalImg, String saveImg) {
+        public Member toEntity(Geo geo) {
             return Member.builder()
                     .geo(geo)                    
                     .phone(phone)
@@ -46,12 +48,9 @@ public class MemberDto {
                     .gender(gender)
                     .role(Role.ROLE_USER)
                     .status(1)
-                    .originalImg(originalImg != null ? originalImg : "default.jpg")
-                    .saveImg(saveImg != null ? saveImg : "default.jpg")
                     .build();
         }
     }
-
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -64,10 +63,9 @@ public class MemberDto {
         }
     }
 
-
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public class MemberSelectRespDto {
+    public static class MemberSelectRespDto {
         private Long memberId;
         private Geo geo;
         private String phone;
@@ -105,42 +103,3 @@ public class MemberDto {
     }
 }
 
-
-//    @Getter
-//    @NoArgsConstructor
-//    public static class MemberLoginReqDto {
-//        @NotEmpty(message = "전화번호는 필수 입력사항입니다.")
-//        @Size(max = 300)
-//        private String phone;
-//        @Size(min = 12, max = 300)
-//        private String password;
-//    }
-
-//    @Getter
-//    @NoArgsConstructor
-//    public static class MemberSNSLoginReqDto {
-//        @Size(max=300)
-//        private String kakao;
-//        @Size(max=300)
-//        private String naver;
-//    }
-
-//    @Getter
-//    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-//    public static class MemberLoginRespDto {
-//        private Long memberId;
-//        @Builder
-//        public MemberLoginRespDto(Member member) {
-//            this.memberId = member.getMemberId();
-//        }
-//    }
-
-//    @Getter
-//    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-//    public static class MemberSNSLoginRespDto {
-//        private Long memberId;
-//        @Builder
-//        public MemberSNSLoginRespDto(Member member) {
-//            this.memberId = member.getMemberId();
-//        }
-//    }
