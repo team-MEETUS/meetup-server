@@ -100,4 +100,20 @@ public class BoardServiceImpl implements BoardService {
 
         return BoardDto.BoardSaveRespDto.builder().board(updateBoard).build();
     }
+
+    // 게시글 목록 전체 조회
+    @Override
+    public List<BoardDto.BoardRespDto> getBoardByCrewId(Long crewId) {
+        List<BoardDto.BoardRespDto> list = new ArrayList<>();
+        List<Board> boardList = boardRepository.findBoardByCrewCrewId(crewId);
+
+        for (Board board : boardList) {
+            if (board.getStatus() != 0) {
+                BoardDto.BoardRespDto dto = BoardDto.BoardRespDto.builder().board(board).build();
+                list.add(dto);
+            }
+        }
+
+        return list;
+    }
 }
