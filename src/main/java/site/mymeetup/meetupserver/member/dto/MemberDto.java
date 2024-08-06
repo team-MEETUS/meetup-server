@@ -39,7 +39,7 @@ public class MemberDto {
         //회원가입 DTO -> Entity
         public Member goEntity(Geo geo) {
             return Member.builder()
-                    .geo(geo)                    
+                    .geo(geo)
                     .phone(phone)
                     .password(password)
                     .nickname(nickname)

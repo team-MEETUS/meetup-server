@@ -31,5 +31,13 @@ public class MemberController {
         return ApiResponse.success(memberService.getMemberByMemberId(memberId));
     }
 
-
+    // 회원 수정
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{memberId}")
+    public ApiResponse<?> updateMember(@PathVariable("memberId") Long memberId,
+                                       @RequestPart MultipartFile image,
+                                       @RequestPart @Valid MemberDto.MemberSaveReqDto memberSaveReqDto) {
+        MemberDto.MemberSaveRespDto memberSaveRespDto = memberService.updateMember(memberId, memberSaveReqDto, image);
+        return ApiResponse.success(memberSaveRespDto);
+    }
 }
