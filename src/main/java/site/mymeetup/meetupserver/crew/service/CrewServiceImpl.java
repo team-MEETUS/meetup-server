@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
 import site.mymeetup.meetupserver.crew.dto.CrewDto;
+import site.mymeetup.meetupserver.crew.dto.CrewMemberDto;
 import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 import site.mymeetup.meetupserver.crew.repository.CrewMemberRepository;
@@ -23,6 +24,7 @@ import site.mymeetup.meetupserver.interest.repository.InterestSmallRepository;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -159,7 +161,6 @@ public class CrewServiceImpl implements CrewService {
     public CrewDto.CrewSelectRespDto getCrewByCrewId(Long crewId) {
         Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
-        System.out.println(">>>>>>>>>>>" + crew.getInterestBig());
         return CrewDto.CrewSelectRespDto.builder().crew(crew).build();
     }
 
@@ -232,6 +233,19 @@ public class CrewServiceImpl implements CrewService {
         if ((interestBigId == null && interestSmallId == null) || (interestBigId != null && interestSmallId != null)) {
             throw new CustomException(ErrorCode.CREW_BAD_REQUEST);
         }
+    }
+
+    // 특정 모임의 모임원 조회
+    public List<CrewMemberDto.CrewMemberSelectRespDto> getCrewMemberByCrewId(Long crewId) {
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        List<Integer> statusList = Arrays.asList(1, 2, 3);
+        List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndStatusInOrderByStatusDesc(crewId, statusList);
+
+        return crewMembers.stream()
+                .map(CrewMemberDto.CrewMemberSelectRespDto::new)
+                .collect(Collectors.toList());
     }
 
 }

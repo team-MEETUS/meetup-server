@@ -76,7 +76,7 @@ public class BoardDto {
             this.category = board.getCategory();
             this.hit = board.getHit();
             this.status = board.getStatus();
-            this.crewMemberId = board.getCrewMember().getCrewAndMemberId();
+            this.crewMemberId = board.getCrewMember().getCrewMemberId();
             this.createDate = board.getCreateDate();
             this.updateDate = board.getUpdateDate();
         }

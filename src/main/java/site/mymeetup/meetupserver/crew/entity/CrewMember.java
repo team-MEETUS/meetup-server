@@ -14,16 +14,17 @@ import site.mymeetup.meetupserver.member.entity.Member;
 public class CrewMember extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long crewAndMemberId;
+    @Column(name = "crew_and_member_id")
+    private Long crewMemberId;
 
     @Column(nullable = false)
     private int status;
 
     @ManyToOne
-    @JoinColumn(name = "crewId")
+    @JoinColumn(name = "crew_id")
     private Crew crew;
 
     @ManyToOne
-    @JoinColumn(name = "memberId")
+    @JoinColumn(name = "member_id")
     private Member member;
 }
