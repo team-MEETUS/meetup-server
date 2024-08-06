@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import site.mymeetup.meetupserver.board.dto.BoardDto;
+import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveReqDto;
 import site.mymeetup.meetupserver.board.service.BoardService;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
@@ -19,7 +19,7 @@ public class BoardController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public ApiResponse<?> createBoard(@PathVariable Long crewId,
-                                      @RequestBody @Valid BoardDto.BoardSaveReqDto boardSaveReqDto) {
+                                      @RequestBody @Valid BoardSaveReqDto boardSaveReqDto) {
         return ApiResponse.success(boardService.createBoard(crewId, boardSaveReqDto));
     }
 
@@ -28,7 +28,7 @@ public class BoardController {
     @PutMapping("/{boardId}")
     public ApiResponse<?> updateBoard(@PathVariable Long crewId,
                                       @PathVariable Long boardId,
-                                      @RequestBody @Valid BoardDto.BoardSaveReqDto boardSaveReqDto) {
+                                      @RequestBody @Valid BoardSaveReqDto boardSaveReqDto) {
         return ApiResponse.success(boardService.updateBoard(crewId, boardId, boardSaveReqDto));
     }
 

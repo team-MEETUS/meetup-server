@@ -3,7 +3,9 @@ package site.mymeetup.meetupserver.board.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import site.mymeetup.meetupserver.board.dto.BoardDto;
+import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardRespDto;
+import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveRespDto;
+import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveReqDto;
 import site.mymeetup.meetupserver.board.entity.Board;
 import site.mymeetup.meetupserver.board.repository.BoardRepository;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
@@ -15,6 +17,7 @@ import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -27,7 +30,7 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 등록
     @Override
-    public BoardDto.BoardSaveRespDto createBoard(Long crewId, BoardDto.BoardSaveReqDto boardSaveReqDto) {
+    public BoardSaveRespDto createBoard(Long crewId, BoardSaveReqDto boardSaveReqDto) {
         // crewId로 Crew 객체 조회
         Crew crew = crewRepository.findById(crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
@@ -43,28 +46,21 @@ public class BoardServiceImpl implements BoardService {
 
         // dto -> entity
         Board board = boardRepository.save(boardSaveReqDto.toEntity(crew, crewMember));
-        return BoardDto.BoardSaveRespDto.builder().board(board).build();
+        return BoardSaveRespDto.builder().board(board).build();
     }
 
     // 게시글 이미지 저장
     @Override
     public List<String> uploadImage(MultipartFile[] images) {
-        List<String> imageUrls = new ArrayList<>();
-        String saveImg = null;
-
-        for (MultipartFile image : images) {
-            if (!image.isEmpty()) {
-                saveImg = s3ImageService.upload(image);
-                imageUrls.add(saveImg);
-            }
-        }
-
-        return imageUrls;
+        return Arrays.stream(images)
+                .filter(image -> !image.isEmpty())
+                .map(s3ImageService::upload)
+                .toList();
     }
 
     // 게시글 수정
     @Override
-    public BoardDto.BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardDto.BoardSaveReqDto boardSaveReqDto) {
+    public BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardSaveReqDto boardSaveReqDto) {
         // 해당 모임이 존재하는지 검증
         Crew crew = crewRepository.findById(crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
@@ -83,9 +79,9 @@ public class BoardServiceImpl implements BoardService {
         }
 
         // 작성자와 요청자가 일치하는지 검증
-//        if (!board.getCrewMember().getCrewAndMemberId().equals(crewMember.getCrewAndMemberId())) {
-//            throw new CustomException(ErrorCode.BOARD_WRITER_ACCESS_DENIED);
-//        }
+        if (!board.getCrewMember().getCrewMemberId().equals(crewMember.getCrewMemberId())) {
+            throw new CustomException(ErrorCode.BOARD_WRITER_ACCESS_DENIED);
+        }
 
         // Board 객체 업데이트
         board.updateBoard(boardSaveReqDto.toEntity(crew, crewMember));
@@ -98,28 +94,23 @@ public class BoardServiceImpl implements BoardService {
         // DB 수정
         Board updateBoard = boardRepository.save(board);
 
-        return BoardDto.BoardSaveRespDto.builder().board(updateBoard).build();
+        return BoardSaveRespDto.builder().board(updateBoard).build();
     }
 
     // 게시글 목록 전체 조회
     @Override
-    public List<BoardDto.BoardRespDto> getBoardByCrewId(Long crewId) {
-        List<BoardDto.BoardRespDto> list = new ArrayList<>();
+    public List<BoardRespDto> getBoardByCrewId(Long crewId) {
         List<Board> boardList = boardRepository.findBoardByCrewCrewId(crewId);
 
-        for (Board board : boardList) {
-            if (board.getStatus() != 0) {
-                BoardDto.BoardRespDto dto = BoardDto.BoardRespDto.builder().board(board).build();
-                list.add(dto);
-            }
-        }
-
-        return list;
+        return boardList.stream()
+                .filter(board -> board.getStatus() != 0)
+                .map(BoardRespDto::new)
+                .toList();
     }
 
     // 카테고리별 게시글 목록 조회
     @Override
-    public List<BoardDto.BoardRespDto> getBoardBYCrewIdAndCategory(Long crewId, String category) {
+    public List<BoardRespDto> getBoardBYCrewIdAndCategory(Long crewId, String category) {
         if (!category.equals("공지") && !category.equals("모임후기") && !category.equals("가입인사") && !category.equals("자유")) {
             throw new CustomException(ErrorCode.BOARD_CATEGORY_NOT_FOUND);
         }
@@ -128,7 +119,7 @@ public class BoardServiceImpl implements BoardService {
         
         return boardList.stream()
                 .filter(board -> board.getStatus() != 0)
-                .map(BoardDto.BoardRespDto::new)
+                .map(BoardRespDto::new)
                 .toList();
     }
 }

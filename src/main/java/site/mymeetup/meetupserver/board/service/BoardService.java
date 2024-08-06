@@ -1,19 +1,21 @@
 package site.mymeetup.meetupserver.board.service;
 
 import org.springframework.web.multipart.MultipartFile;
-import site.mymeetup.meetupserver.board.dto.BoardDto;
+import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveRespDto;
+import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardRespDto;
+import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveReqDto;
 
 import java.util.List;
 
 public interface BoardService {
 
-    BoardDto.BoardSaveRespDto createBoard(Long crewId, BoardDto.BoardSaveReqDto boardSaveReqDto);
+    BoardSaveRespDto createBoard(Long crewId, BoardSaveReqDto boardSaveReqDto);
 
     List<String> uploadImage(MultipartFile[] images);
 
-    BoardDto.BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardDto.BoardSaveReqDto boardSaveReqDto);
+    BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardSaveReqDto boardSaveReqDto);
 
-    List<BoardDto.BoardRespDto> getBoardByCrewId(Long crewId);
+    List<BoardRespDto> getBoardByCrewId(Long crewId);
 
-    List<BoardDto.BoardRespDto> getBoardBYCrewIdAndCategory(Long crewId, String category);
+    List<BoardRespDto> getBoardBYCrewIdAndCategory(Long crewId, String category);
 }
