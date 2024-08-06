@@ -83,9 +83,9 @@ public class BoardServiceImpl implements BoardService {
         }
 
         // 작성자와 요청자가 일치하는지 검증
-        if (!board.getCrewMember().getCrewAndMemberId().equals(crewMember.getCrewAndMemberId())) {
-            throw new CustomException(ErrorCode.BOARD_WRITER_ACCESS_DENIED);
-        }
+//        if (!board.getCrewMember().getCrewAndMemberId().equals(crewMember.getCrewAndMemberId())) {
+//            throw new CustomException(ErrorCode.BOARD_WRITER_ACCESS_DENIED);
+//        }
 
         // Board 객체 업데이트
         board.updateBoard(boardSaveReqDto.toEntity(crew, crewMember));
