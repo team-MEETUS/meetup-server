@@ -116,4 +116,19 @@ public class BoardServiceImpl implements BoardService {
 
         return list;
     }
+
+    // 카테고리별 게시글 목록 조회
+    @Override
+    public List<BoardDto.BoardRespDto> getBoardBYCrewIdAndCategory(Long crewId, String category) {
+        if (!category.equals("공지") && !category.equals("모임후기") && !category.equals("가입인사") && !category.equals("자유")) {
+            throw new CustomException(ErrorCode.BOARD_CATEGORY_NOT_FOUND);
+        }
+
+        List<Board> boardList = boardRepository.findBoardByCrew_CrewIdAndCategory(crewId, category);
+        
+        return boardList.stream()
+                .filter(board -> board.getStatus() != 0)
+                .map(BoardDto.BoardRespDto::new)
+                .toList();
+    }
 }
