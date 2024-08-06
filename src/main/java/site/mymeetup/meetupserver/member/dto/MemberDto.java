@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import site.mymeetup.meetupserver.member.Role;
+import site.mymeetup.meetupserver.member.role.Role;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.member.entity.Member;
 
