@@ -6,6 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
 import site.mymeetup.meetupserver.crew.dto.CrewDto;
 import site.mymeetup.meetupserver.crew.entity.Crew;
+import site.mymeetup.meetupserver.crew.entity.CrewMember;
+import site.mymeetup.meetupserver.crew.repository.CrewMemberRepository;
 import site.mymeetup.meetupserver.crew.repository.CrewRepository;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
@@ -15,6 +17,8 @@ import site.mymeetup.meetupserver.interest.entity.InterestBig;
 import site.mymeetup.meetupserver.interest.entity.InterestSmall;
 import site.mymeetup.meetupserver.interest.repository.InterestBigRepository;
 import site.mymeetup.meetupserver.interest.repository.InterestSmallRepository;
+import site.mymeetup.meetupserver.member.entity.Member;
+import site.mymeetup.meetupserver.member.repository.MemberRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +28,8 @@ public class CrewServiceImpl implements CrewService {
     private final InterestBigRepository interestBigRepository;
     private final InterestSmallRepository interestSmallRepository;
     private final S3ImageService s3ImageService;
+    private final MemberRepository memberRepository;
+    private final CrewMemberRepository crewMemberRepository;
 
     // 모임 등록
     public CrewDto.CrewSaveRespDto createCrew(CrewDto.CrewSaveReqDto crewSaveReqDto, MultipartFile image) {
@@ -57,6 +63,20 @@ public class CrewServiceImpl implements CrewService {
 
         // dto -> entity
         Crew crew = crewRepository.save(crewSaveReqDto.toEntity(geo, interestBig, interestSmall, originalImg, saveImg));
+
+        // 모임 멤버 등록
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findById(memberId) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        CrewMember crewMember = CrewMember.builder()
+                .status(3)
+                .crew(crew)
+                .member(member)
+                .build();
+        crewMemberRepository.save(crewMember);
+
         return CrewDto.CrewSaveRespDto.builder().crew(crew).build();
     }
 
@@ -134,5 +154,32 @@ public class CrewServiceImpl implements CrewService {
         Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
         return CrewDto.CrewSelectRespDto.builder().crew(crew).build();
+    }
+
+    // 모임 가입 신청
+    @Override
+    public void signUpCrew(Long crewId) {
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findById(memberId) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 모임원으로 존재하는지 검증
+        CrewMember isCrewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId);
+        if (isCrewMember != null) {
+            throw new CustomException(ErrorCode.ALREADY_CREW_MEMBER);
+        }
+
+        // 모임멤버 추가
+        CrewMember crewMember = CrewMember.builder()
+                .status(4)
+                .crew(crew)
+                .member(member)
+                .build();
+        crewMemberRepository.save(crewMember);
     }
 }
