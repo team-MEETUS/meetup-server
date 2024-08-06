@@ -25,6 +25,7 @@ public class BoardServiceImpl implements BoardService {
     private final CrewMemberRepository crewMemberRepository;
     private final S3ImageService s3ImageService;
 
+    // 게시글 등록
     @Override
     public BoardDto.BoardSaveRespDto createBoard(Long crewId, BoardDto.BoardSaveReqDto boardSaveReqDto) {
         // crewId로 Crew 객체 조회
@@ -45,6 +46,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardDto.BoardSaveRespDto.builder().board(board).build();
     }
 
+    // 게시글 이미지 저장
     @Override
     public List<String> uploadImage(MultipartFile[] images) {
         List<String> imageUrls = new ArrayList<>();
@@ -58,5 +60,44 @@ public class BoardServiceImpl implements BoardService {
         }
 
         return imageUrls;
+    }
+
+    // 게시글 수정
+    @Override
+    public BoardDto.BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardDto.BoardSaveReqDto boardSaveReqDto) {
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findById(crewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // crewAndMemberId로 CrewAndMember 객체 조회
+        CrewMember crewMember = crewMemberRepository.findById(boardSaveReqDto.getCrewMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        // 해당 게시글이 존재하는지 검증
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        // 요청된 모임의 게시글인지 검증
+        if (!board.getCrew().getCrewId().equals(crewId)) {
+            throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+        }
+
+        // 작성자와 요청자가 일치하는지 검증
+        if (!board.getCrewMember().getCrewAndMemberId().equals(crewMember.getCrewAndMemberId())) {
+            throw new CustomException(ErrorCode.BOARD_WRITER_ACCESS_DENIED);
+        }
+
+        // Board 객체 업데이트
+        board.updateBoard(boardSaveReqDto.toEntity(crew, crewMember));
+
+        // crewMember 권한 검증
+        if (board.getCrewMember().getStatus() == 1 && board.getCategory().equals("공지")) {
+            throw new CustomException(ErrorCode.BOARD_ACCESS_DENIED);
+        }
+
+        // DB 수정
+        Board updateBoard = boardRepository.save(board);
+
+        return BoardDto.BoardSaveRespDto.builder().board(updateBoard).build();
     }
 }

@@ -23,6 +23,15 @@ public class BoardController {
         return ApiResponse.success(boardService.createBoard(crewId, boardSaveReqDto));
     }
 
+    // 게시글 수정
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{boardId}")
+    public ApiResponse<?> updateBoard(@PathVariable Long crewId,
+                                      @PathVariable Long boardId,
+                                      @RequestBody @Valid BoardDto.BoardSaveReqDto boardSaveReqDto) {
+        return ApiResponse.success(boardService.updateBoard(crewId, boardId, boardSaveReqDto));
+    }
+
     // 게시글 이미지 ajax 처리
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/images")
