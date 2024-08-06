@@ -3,6 +3,8 @@ package site.mymeetup.meetupserver.crew.service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.crew.dto.CrewDto;
 
+import java.util.List;
+
 public interface CrewService {
 
     CrewDto.CrewSaveRespDto createCrew(CrewDto.CrewSaveReqDto crewSaveReqDto, MultipartFile image);
@@ -14,4 +16,6 @@ public interface CrewService {
     CrewDto.CrewSelectRespDto getCrewByCrewId(Long crewId);
 
     void signUpCrew(Long crewId);
+
+    List<CrewDto.CrewSelectRespDto> getAllCrewByInterest(String city, Long interestBigId, Long interestSmallId, int page);
 }

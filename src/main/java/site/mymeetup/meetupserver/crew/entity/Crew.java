@@ -36,6 +36,9 @@ public class Crew extends BaseEntity {
     @Column(nullable = false)
     private int status;
 
+    @Column(nullable = false)
+    private int totalMember;
+
     private String originalImg;
 
     private String saveImg;

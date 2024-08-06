@@ -1,6 +1,9 @@
 package site.mymeetup.meetupserver.crew.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
@@ -19,6 +22,9 @@ import site.mymeetup.meetupserver.interest.repository.InterestBigRepository;
 import site.mymeetup.meetupserver.interest.repository.InterestSmallRepository;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -153,6 +159,7 @@ public class CrewServiceImpl implements CrewService {
     public CrewDto.CrewSelectRespDto getCrewByCrewId(Long crewId) {
         Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+        System.out.println(">>>>>>>>>>>" + crew.getInterestBig());
         return CrewDto.CrewSelectRespDto.builder().crew(crew).build();
     }
 
@@ -182,4 +189,49 @@ public class CrewServiceImpl implements CrewService {
                 .build();
         crewMemberRepository.save(crewMember);
     }
+
+    // 관심사 별 모임 조회
+    @Override
+    public List<CrewDto.CrewSelectRespDto> getAllCrewByInterest(String city, Long interestBigId, Long interestSmallId, int page) {
+        // 검증
+        validateInputs(city, interestBigId, interestSmallId);
+
+        // 페이지 번호 유효성 검사
+        if (page < 0) {
+            throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
+        }
+
+        // 모임 리스트 조회
+        Page<Crew> crews = null;
+
+        if (city == null) {     // 비회원
+            crews = interestBigId != null
+                    ? crewRepository.findAllByInterestBig_InterestBigIdAndStatus(interestBigId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")))
+                    : crewRepository.findAllByInterestSmall_InterestSmallIdAndStatus(interestSmallId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")));
+        } else {                // 회원
+            crews = interestBigId != null
+                    ? crewRepository.findAllByGeo_CityAndInterestBig_InterestBigIdAndStatus(city, interestBigId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")))
+                    : crewRepository.findAllByGeo_CityAndInterestSmall_InterestSmallIdAndStatus(city, interestSmallId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")));
+        }
+
+        return crews.stream()
+                .map(CrewDto.CrewSelectRespDto::new)
+                .collect(Collectors.toList());
+    }
+
+    private void validateInputs(String city, Long interestBigId, Long interestSmallId) {
+        if (city != null) {
+            geoRepository.findFirstByCity(city).orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
+        }
+        if (interestBigId != null) {
+            interestBigRepository.findById(interestBigId).orElseThrow(() -> new CustomException(ErrorCode.INTEREST_BIG_NOT_FOUND));
+        }
+        if (interestSmallId != null) {
+            interestSmallRepository.findById(interestSmallId).orElseThrow(() -> new CustomException(ErrorCode.INTEREST_SMALL_NOT_FOUND));
+        }
+        if ((interestBigId == null && interestSmallId == null) || (interestBigId != null && interestSmallId != null)) {
+            throw new CustomException(ErrorCode.CREW_BAD_REQUEST);
+        }
+    }
+
 }

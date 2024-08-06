@@ -3,6 +3,7 @@ package site.mymeetup.meetupserver.crew.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.crew.dto.CrewDto;
@@ -55,5 +56,16 @@ public class CrewController {
     public ApiResponse<?> createCrewMember(@PathVariable("crewId") Long crewId) {
         crewService.signUpCrew(crewId);
         return ApiResponse.success(null);
+    }
+
+    // 관심사 별 모임 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    public ApiResponse<?> getAllCrew(@RequestParam(required = false) String city,
+                                     @RequestParam(required = false) Long interestBigId,
+                                     @RequestParam(required = false) Long interestSmallId,
+                                     @RequestParam(defaultValue = "0") int page) {
+
+        return ApiResponse.success(crewService.getAllCrewByInterest(city, interestBigId, interestSmallId, page));
     }
 }
