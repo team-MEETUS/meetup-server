@@ -81,4 +81,18 @@ public class MemberServiceImpl implements MemberService {
 
         return MemberDto.MemberSaveRespDto.builder().member(updatedMember).build();
     }
+    //회원 삭제
+    @Override
+    public MemberDto.MemberSaveRespDto deleteMember(Long memberId) {
+
+        // 핸드폰 번호로 해당 회원이 존재하는지 검증
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        // 회원 상태값 변경
+        member.changeMemberStatus(0);
+        // DB 수정
+        memberRepository.save(member);
+        return null;
+    }
+
 }

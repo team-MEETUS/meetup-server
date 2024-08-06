@@ -12,4 +12,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // id와 상태값으로 멤버 찾기
     Optional<Member> findByMemberIdAndStatus(Long memberId, Integer status);
+
 }
