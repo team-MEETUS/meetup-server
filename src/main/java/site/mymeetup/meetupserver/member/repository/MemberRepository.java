@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    // 핸드폰 번호와 상태값으로 멤버 찾기
-    Optional<Member> findByPhoneAndStatus(String phone, Integer status);
-
+    // id와 상태값으로 멤버 찾기
+    Optional<Member> findByMemberIdAndStatus(Long memberId, Integer status);
 }

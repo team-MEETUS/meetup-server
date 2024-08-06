@@ -67,8 +67,6 @@ public class Member extends BaseEntity {
     // 멤버 수정
     public void updateMember(Member updateMember) {
         this.geo = updateMember.getGeo();
-        //==핸드폰 번호 수정의 경우 인증 과정 필요 - 수정 예정==
-        Optional.ofNullable(updateMember.getPhone()).ifPresent(phone -> this.phone = phone);
         //==신규 카카오/네이버 계정 추가, 혹은 기존 카카오/네이버 계정정보 수정의 경우 인증 과정 필요 - 수정 예정 ==
         this.kakao = updateMember.getKakao();
         this.naver = updateMember.getNaver();
@@ -81,7 +79,6 @@ public class Member extends BaseEntity {
         this.originalImg = updateMember.getOriginalImg();
         this.saveImg = updateMember.getSaveImg();
     }
-
 }
 
 
