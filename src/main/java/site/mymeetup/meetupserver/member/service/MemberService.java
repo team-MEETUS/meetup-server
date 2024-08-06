@@ -11,4 +11,6 @@ public interface MemberService {
                                              MultipartFile image);
 
     MemberDto.MemberSelectRespDto getMemberByMemberId(Long memberId);
+
+    MemberDto.MemberSaveRespDto deleteMember(Long memberId);
 }

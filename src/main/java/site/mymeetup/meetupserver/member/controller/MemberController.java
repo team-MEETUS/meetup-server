@@ -40,4 +40,14 @@ public class MemberController {
         MemberDto.MemberSaveRespDto memberSaveRespDto = memberService.updateMember(memberId, memberSaveReqDto, image);
         return ApiResponse.success(memberSaveRespDto);
     }
+
+    //  회원 삭제
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{memberId}")
+    public ApiResponse<?> deleteMember(@PathVariable("memberId") Long memberId) {
+        memberService.deleteMember(memberId);
+        return ApiResponse.success(null);
+    }
+
+
 }
