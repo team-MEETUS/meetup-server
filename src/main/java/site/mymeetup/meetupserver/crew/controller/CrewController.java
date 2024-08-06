@@ -48,4 +48,12 @@ public class CrewController {
     public ApiResponse<?> getCrewByCrewId(@PathVariable("crewId") Long crewId) {
         return ApiResponse.success(crewService.getCrewByCrewId(crewId));
     }
+
+    // 모임 가입 신청
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{crewId}")
+    public ApiResponse<?> createCrewMember(@PathVariable("crewId") Long crewId) {
+        crewService.signUpCrew(crewId);
+        return ApiResponse.success(null);
+    }
 }
