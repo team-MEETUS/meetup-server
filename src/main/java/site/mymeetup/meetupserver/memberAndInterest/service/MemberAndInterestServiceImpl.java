@@ -1,10 +1,10 @@
-package site.mymeetup.meetupserver.MemberAndInterest.service;
+package site.mymeetup.meetupserver.memberAndInterest.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import site.mymeetup.meetupserver.MemberAndInterest.dto.MemberAndInterestDto;
-import site.mymeetup.meetupserver.MemberAndInterest.entity.MemberAndInterest;
-import site.mymeetup.meetupserver.MemberAndInterest.repository.MemberAndInterestRepository;
+import site.mymeetup.meetupserver.memberAndInterest.dto.MemberAndInterestDto;
+import site.mymeetup.meetupserver.memberAndInterest.entity.MemberAndInterest;
+import site.mymeetup.meetupserver.memberAndInterest.repository.MemberAndInterestRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;

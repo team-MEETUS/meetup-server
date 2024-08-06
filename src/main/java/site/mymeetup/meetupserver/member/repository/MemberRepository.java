@@ -10,13 +10,12 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    // 한 멤버 찾기(핸드폰 번호로)
-    @Query("select m from Member m where m.phone = :phone")
-    Optional<Member> getOneMemberByPhone(@Param("phone") String phone);
-    // 한 멤버 찾기(카카오)
-    @Query("select m from Member m where m.kakao = :kakao")
-    Optional<Member> getOneMemberByKakao(@Param("kakao") String kakao);
-    // 한 멤버 찾기(네이버)
-    @Query("select m from Member m where m.naver = :naver")
-    Optional<Member> getOneMemberByNaver(@Param("naver") String naver);
+    // 핸드폰 번호로 멤버 찾기
+    Optional<Member> findByPhoneAndStatus(String phone, String status);
+
+    // 카카오로 멤버 찾기
+    Optional<Member> findByKakao(String kakao);
+
+    // 네이버로 멤버 찾기
+    Optional<Member> findByNaver(String naver);
 }

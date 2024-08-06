@@ -1,10 +1,10 @@
-package site.mymeetup.meetupserver.MemberAndInterest.dto;
+package site.mymeetup.meetupserver.memberAndInterest.dto;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import site.mymeetup.meetupserver.MemberAndInterest.entity.MemberAndInterest;
+import site.mymeetup.meetupserver.memberAndInterest.entity.MemberAndInterest;
 
 public class MemberAndInterestDto {
 

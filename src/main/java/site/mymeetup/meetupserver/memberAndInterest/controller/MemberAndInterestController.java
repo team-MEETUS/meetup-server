@@ -1,9 +1,9 @@
-package site.mymeetup.meetupserver.MemberAndInterest.controller;
+package site.mymeetup.meetupserver.memberAndInterest.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import site.mymeetup.meetupserver.MemberAndInterest.service.MemberAndInterestService;
+import site.mymeetup.meetupserver.memberAndInterest.service.MemberAndInterestService;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
 import static site.mymeetup.meetupserver.response.ApiResponse.success;
