@@ -3,7 +3,6 @@ package site.mymeetup.meetupserver.crew.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.crew.dto.CrewDto;
@@ -21,8 +20,7 @@ public class CrewController {
     @PostMapping
     public ApiResponse<?> createCrew(@RequestPart MultipartFile image,
                                      @RequestPart @Valid CrewDto.CrewSaveReqDto crewSaveReqDto) {
-        CrewDto.CrewSaveRespDto crewSaveRespDto = crewService.createCrew(crewSaveReqDto, image);
-        return ApiResponse.success(crewSaveRespDto);
+        return ApiResponse.success(crewService.createCrew(crewSaveReqDto, image));
     }
 
     // 모임 수정
@@ -31,8 +29,7 @@ public class CrewController {
     public ApiResponse<?> updateCrew(@PathVariable("crewId") Long crewId,
                                      @RequestPart MultipartFile image,
                                      @RequestPart @Valid CrewDto.CrewSaveReqDto crewSaveReqDto) {
-        CrewDto.CrewSaveRespDto crewSaveRespDto = crewService.updateCrew(crewId, crewSaveReqDto, image);
-        return ApiResponse.success(crewSaveRespDto);
+        return ApiResponse.success(crewService.updateCrew(crewId, crewSaveReqDto, image));
     }
 
     // 모임 삭제
@@ -67,5 +64,12 @@ public class CrewController {
                                      @RequestParam(defaultValue = "0") int page) {
 
         return ApiResponse.success(crewService.getAllCrewByInterest(city, interestBigId, interestSmallId, page));
+    }
+
+    // 특정 모임의 모임원 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{crewId}/members")
+    public ApiResponse<?> getCrewMemberByCrewId(@PathVariable("crewId") Long crewId) {
+        return ApiResponse.success(crewService.getCrewMemberByCrewId(crewId));
     }
 }

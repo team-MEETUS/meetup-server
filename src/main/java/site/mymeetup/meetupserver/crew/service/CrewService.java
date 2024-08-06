@@ -2,6 +2,7 @@ package site.mymeetup.meetupserver.crew.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.crew.dto.CrewDto;
+import site.mymeetup.meetupserver.crew.dto.CrewMemberDto;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface CrewService {
     void signUpCrew(Long crewId);
 
     List<CrewDto.CrewSelectRespDto> getAllCrewByInterest(String city, Long interestBigId, Long interestSmallId, int page);
+
+    List<CrewMemberDto.CrewMemberSelectRespDto> getCrewMemberByCrewId(Long crewId);
 }
