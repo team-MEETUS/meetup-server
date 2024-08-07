@@ -6,8 +6,14 @@ import org.springframework.web.multipart.MultipartFile;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveReqDto;
+import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveRespDto;
+import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveReqDto;
+
+import site.mymeetup.meetupserver.board.dto.CommentDto;
 import site.mymeetup.meetupserver.board.entity.Board;
+import site.mymeetup.meetupserver.board.entity.Comment;
 import site.mymeetup.meetupserver.board.repository.BoardRepository;
+import site.mymeetup.meetupserver.board.repository.CommentRepository;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
 import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
@@ -28,6 +34,7 @@ public class BoardServiceImpl implements BoardService {
     private final CrewRepository crewRepository;
     private final CrewMemberRepository crewMemberRepository;
     private final S3ImageService s3ImageService;
+    private final CommentRepository commentRepository;
 
     // 게시글 등록
     @Override
@@ -161,5 +168,28 @@ public class BoardServiceImpl implements BoardService {
         board.deleteBoard(0);
         // DB 수정
         boardRepository.save(board);
+    }
+
+    @Override
+    public CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto) {
+        // boardId로 Board 객체 조회
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        // crewAndMemberId로 CrewAndMember 객체 조회
+        CrewMember crewMember = crewMemberRepository.findById(commentSaveReqDto.getCrewMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        // 모임에 가입된 모임원 확인 및 role 확인
+        if (!board.getCrew().getCrewId().equals(crewId)) {
+            throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+        }
+        if (crewMember.getRole() == CrewMemberRole.EXPELLED || crewMember.getRole() == CrewMemberRole.PENDING || crewMember.getRole() == CrewMemberRole.REJECTED) {
+            throw new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND);
+        }
+
+        // dto -> Entity
+        Comment comment = commentRepository.save(commentSaveReqDto.toEntity(board, crewMember));
+        return CommentSaveRespDto.builder().comment(comment).build();
     }
 }
