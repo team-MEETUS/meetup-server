@@ -8,7 +8,6 @@ import site.mymeetup.meetupserver.interest.entity.InterestBig;
 import site.mymeetup.meetupserver.interest.entity.InterestSmall;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Builder
 @AllArgsConstructor
@@ -59,15 +58,31 @@ public class Crew extends BaseEntity {
 
     // updateCrew
     public void updateCrew(Crew updateCrew) {
-        Optional.ofNullable(updateCrew.getName()).ifPresent(name -> this.name = name);
-        Optional.ofNullable(updateCrew.getIntro()).ifPresent(intro -> this.intro = intro);
-        Optional.ofNullable(updateCrew.getContent()).ifPresent(content -> this.content = content);
-        Optional.of(updateCrew.getMax()).ifPresent(max -> this.max = max);
-        Optional.ofNullable(updateCrew.getGeo()).ifPresent(geo -> this.geo = geo);
-        Optional.ofNullable(updateCrew.getInterestBig()).ifPresent(interestBig -> this.interestBig = interestBig);
+        if (updateCrew.getName() != null) {
+            this.name = updateCrew.getName();
+        }
+        if (updateCrew.getIntro() != null) {
+            this.intro = updateCrew.getIntro();
+        }
+        if (updateCrew.getContent() != null) {
+            this.content = updateCrew.getContent();
+        }
+        if (updateCrew.getMax() != 0) {
+            this.max = updateCrew.getMax();
+        }
+        if (updateCrew.getGeo() != null) {
+            this.geo = updateCrew.getGeo();
+        }
+        if (updateCrew.getInterestBig() != null) {
+            this.interestBig = updateCrew.getInterestBig();
+        }
         this.interestSmall = updateCrew.getInterestSmall();
-        Optional.ofNullable(updateCrew.getOriginalImg()).ifPresent(originalImg -> this.originalImg = originalImg);
-        Optional.ofNullable(updateCrew.getSaveImg()).ifPresent(saveImg -> this.saveImg = saveImg);
+        if (updateCrew.getOriginalImg() != null) {
+            this.originalImg = updateCrew.getOriginalImg();
+        }
+        if (updateCrew.getSaveImg() != null) {
+            this.saveImg = updateCrew.getSaveImg();
+        }
     }
 
     // deleteCrew

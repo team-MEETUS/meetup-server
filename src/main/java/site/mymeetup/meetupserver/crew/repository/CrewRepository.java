@@ -23,4 +23,7 @@ public interface CrewRepository extends JpaRepository<Crew, Long> {
 
     // city & interestSmallId 값으로 특정 모임 조회
     Page<Crew> findAllByGeo_CityAndInterestSmall_InterestSmallIdAndStatus(String city, Long interestBigId, int status, Pageable pageable);
+
+    // 존재하는 모임인지 검증
+    boolean existsByCrewIdAndStatus(Long crewId, int status);
 }

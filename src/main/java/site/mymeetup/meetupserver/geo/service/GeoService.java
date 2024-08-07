@@ -1,9 +1,9 @@
 package site.mymeetup.meetupserver.geo.service;
 
-import site.mymeetup.meetupserver.geo.dto.GeoDto;
+import static site.mymeetup.meetupserver.geo.dto.GeoDto.GeoSelectRespDto;
 
 import java.util.List;
 
 public interface GeoService {
-    List<GeoDto.GeoRespDto> getAllGeo();
+    List<GeoSelectRespDto> getAllGeo();
 }
