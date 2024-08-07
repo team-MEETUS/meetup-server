@@ -36,7 +36,7 @@ public class MemberDto {
         @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
 
-        //회원가입 DTO -> Entity
+        // 회원가입 DTO -> Entity
         public Member goEntity(Geo geo) {
             return Member.builder()
                     .geo(geo)
@@ -51,7 +51,7 @@ public class MemberDto {
                     .build();
         }
 
-        //DTO -> Entity(회원수정)
+        // 회원수정 DTO -> Entity
         public Member toEntity(Geo geo, String originalImg, String saveImg) {
             return Member.builder()
                     .geo(geo)
@@ -94,6 +94,8 @@ public class MemberDto {
         private String birth;
         private Integer gender;
         private Role role;
+        private Integer status;
+        private LocalDateTime deadDate;
         private String originalImg;
         private String saveImg;
         private LocalDateTime createDate;
@@ -112,6 +114,8 @@ public class MemberDto {
             this.birth = member.getBirth();
             this.gender = member.getGender();
             this.role = member.getRole();
+            this.status = member.getStatus();
+            this.deadDate = member.getDeadDate();
             this.originalImg = member.getOriginalImg();
             this.saveImg = member.getSaveImg();
             this.createDate = member.getCreateDate();
