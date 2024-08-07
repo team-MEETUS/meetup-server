@@ -1,9 +1,12 @@
 package site.mymeetup.meetupserver.board.service;
 
 import org.springframework.web.multipart.MultipartFile;
+import site.mymeetup.meetupserver.board.dto.CommentDto;
+
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveReqDto;
+import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveRespDto;
 
 import java.util.List;
 
@@ -22,4 +25,6 @@ public interface BoardService {
     BoardRespDto getBoardByBoardId(Long crewId, Long boardId);
 
     void deleteBoard(Long crewId, Long boardId, Long crewMemberId);
+
+    CommentSaveRespDto createComment(Long crewId, Long boardId, CommentDto.CommentSaveReqDto commentSaveReqDto);
 }

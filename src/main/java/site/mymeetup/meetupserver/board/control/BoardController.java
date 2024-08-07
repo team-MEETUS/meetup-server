@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveReqDto;
+import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveReqDto;
+import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveRespDto;
 import site.mymeetup.meetupserver.board.service.BoardService;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
@@ -74,5 +76,14 @@ public class BoardController {
                                       @PathVariable Long crewMemberId) {
         boardService.deleteBoard(crewId, boardId, crewMemberId);
         return ApiResponse.success(null);
+    }
+
+    // 댓글 등록
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/details/{boardId}/comments")
+    public ApiResponse<CommentSaveRespDto> createComment(@PathVariable Long crewId,
+                                                         @PathVariable Long boardId,
+                                                         @RequestBody CommentSaveReqDto commentSaveReqDto) {
+        return ApiResponse.success(boardService.createComment(crewId, boardId, commentSaveReqDto));
     }
 }
