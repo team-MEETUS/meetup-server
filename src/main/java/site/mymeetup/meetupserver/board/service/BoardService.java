@@ -20,4 +20,6 @@ public interface BoardService {
     List<BoardRespDto> getBoardBYCrewIdAndCategory(Long crewId, String category);
 
     BoardRespDto getBoardByBoardId(Long crewId, Long boardId);
+
+    void deleteBoard(Long crewId, Long boardId, Long crewMemberId);
 }

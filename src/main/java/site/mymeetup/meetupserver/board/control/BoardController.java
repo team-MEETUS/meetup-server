@@ -65,4 +65,14 @@ public class BoardController {
                                                           @PathVariable Long boardId) {
         return ApiResponse.success(boardService.getBoardByBoardId(crewId, boardId));
     }
+
+    // 게시글 삭제
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/details/{boardId}/{crewMemberId}")
+    public ApiResponse<?> deleteBoard(@PathVariable Long crewId,
+                                      @PathVariable Long boardId,
+                                      @PathVariable Long crewMemberId) {
+        boardService.deleteBoard(crewId, boardId, crewMemberId);
+        return ApiResponse.success(null);
+    }
 }
