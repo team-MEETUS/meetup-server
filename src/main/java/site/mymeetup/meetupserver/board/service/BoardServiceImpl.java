@@ -153,7 +153,7 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
         }
 
-        if (!board.getCrewMember().getCrewMemberId().equals(crewMemberId) && board.getCrewMember().getRole() != 2 && board.getCrewMember().getRole() != 3) {
+        if (!board.getCrewMember().getCrewMemberId().equals(crewMemberId) && board.getCrewMember().getRole() != CrewMemberRole.ADMIN && board.getCrewMember().getRole() != CrewMemberRole.LEADER) {
             throw new CustomException(ErrorCode.BOARD_DELETE_ACCESS_DENIED);
         }
 
