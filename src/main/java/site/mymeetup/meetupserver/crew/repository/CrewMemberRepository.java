@@ -9,6 +9,7 @@ public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
 
     CrewMember findByCrew_CrewIdAndMember_MemberId(Long crewId, Long memberId);
 
-    List<CrewMember> findByCrew_CrewIdAndStatusInOrderByStatusDesc(Long crewId, List<Integer> statuses);
+    List<CrewMember> findByCrew_CrewIdAndRoleInOrderByRoleDesc(Long crewId, List<Integer> roles);
 
+    List<CrewMember> findByCrew_CrewIdAndRole(Long crewId, int role);
 }

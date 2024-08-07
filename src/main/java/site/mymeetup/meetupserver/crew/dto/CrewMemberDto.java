@@ -20,7 +20,7 @@ public class CrewMemberDto {
         @Builder
         public CrewMemberSelectRespDto(CrewMember crewMember) {
             this.crewMemberId = crewMember.getCrewMemberId();
-            this.status = crewMember.getStatus();
+            this.status = crewMember.getRole();
             this.member = crewMember.getMember();
         }
     }

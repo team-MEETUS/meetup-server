@@ -4,4 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import site.mymeetup.meetupserver.interest.entity.InterestBig;
 
 public interface InterestBigRepository extends JpaRepository<InterestBig, Long> {
+    boolean existsById(Long interestBigId);
 }

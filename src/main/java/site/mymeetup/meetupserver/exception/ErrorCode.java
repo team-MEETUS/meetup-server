@@ -16,6 +16,7 @@ public enum ErrorCode {
 
     // 회원
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M40401", "존재하지 않는 회원입니다."),
+    MEMBER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "M40301", "비활성화된 회원은 접근할 수 없습니다."),
 
     // 모임
     CREW_BAD_REQUEST(HttpStatus.BAD_REQUEST, "C40001", "올바르지 않은 파라미터 값 입니다."),
@@ -31,6 +32,8 @@ public enum ErrorCode {
     BOARD_WRITER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40302", "작성자와 로그인 회원이 일치하지 않습니다."),
     BOARD_CREW_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40303", "접근할 수 없는 게시글입니다."),
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "B40401", "존재하지 않는 게시글입니다."),
+    BOARD_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "B40402", "존재하지 않는 카테고리입니다."),
+    BOARD_DELETE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40304", "삭제는 작성자 또는 운영진 모임장만 가능합니다."),
 
     // 관심사
     INTEREST_BAD_REQUEST(HttpStatus.BAD_REQUEST, "I40001", "관심사 대분류에 속한 소분류가 아닙니다."),

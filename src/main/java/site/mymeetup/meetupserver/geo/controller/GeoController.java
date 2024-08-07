@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.RestController;
 import site.mymeetup.meetupserver.geo.service.GeoService;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
+import java.util.List;
+
+import static site.mymeetup.meetupserver.geo.dto.GeoDto.GeoSelectRespDto;
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -15,7 +19,7 @@ public class GeoController {
 
     // 전체 지역 조회
     @GetMapping("/geos")
-    public ApiResponse<?> getAllGeo() {
+    public ApiResponse<List<GeoSelectRespDto>> getAllGeo() {
         return ApiResponse.success(geoService.getAllGeo());
     }
 }

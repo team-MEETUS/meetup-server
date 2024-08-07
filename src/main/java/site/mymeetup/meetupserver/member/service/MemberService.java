@@ -2,13 +2,20 @@ package site.mymeetup.meetupserver.member.service;
 
 
 import org.springframework.web.multipart.MultipartFile;
-import site.mymeetup.meetupserver.member.dto.MemberDto;
+
+import java.util.List;
+
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveRespDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSelectRespDto;
 
 public interface MemberService {
-    MemberDto.MemberSaveRespDto createMember(MemberDto.MemberSaveReqDto memberSaveReqDto);
+    MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto);
 
-    MemberDto.MemberSaveRespDto updateMember(Long memberId, MemberDto.MemberSaveReqDto memberSaveReqDto,
-                                             MultipartFile image);
+    MemberSaveRespDto updateMember(Long memberId, MemberSaveReqDto memberSaveReqDto,
+                                   MultipartFile image);
 
-    MemberDto.MemberSelectRespDto getMemberByMemberId(Long memberId);
+    MemberSelectRespDto getMemberByMemberId(Long memberId);
+
+    MemberSaveRespDto deleteMember(Long memberId);
 }

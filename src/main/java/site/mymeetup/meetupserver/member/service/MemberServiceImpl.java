@@ -8,9 +8,15 @@ import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.geo.repository.GeoRepository;
-import site.mymeetup.meetupserver.member.dto.MemberDto;
+
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSelectRespDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveRespDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
+
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
+
+import java.util.List;
 
 
 @Service
@@ -21,28 +27,34 @@ public class MemberServiceImpl implements MemberService {
     private final S3ImageService s3ImageService;
 
     // 회원 가입
-    public MemberDto.MemberSaveRespDto createMember(MemberDto.MemberSaveReqDto memberSaveReqDto) {
+    @Override
+    public MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto) {
         // geoId로 Geo 객체 조회
         Geo geo = geoRepository.findById(memberSaveReqDto.getGeoId())
                 .orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
 
         Member member = memberRepository.save(memberSaveReqDto.goEntity(geo));
-        return MemberDto.MemberSaveRespDto.builder().member(member).build();
+        return MemberSaveRespDto.builder().member(member).build();
     }
 
     // 특정 회원 조회
-    public MemberDto.MemberSelectRespDto getMemberByMemberId(Long memberId) {
+    @Override
+    public MemberSelectRespDto getMemberByMemberId(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        System.out.println(">>geo : " + member.getGeo());
-
-        return MemberDto.MemberSelectRespDto.builder().member(member).build();
+        // Status가 2인 경우 비활성화된 멤버
+        if (member.getStatus() == 2) {
+            throw new CustomException(ErrorCode.MEMBER_ACCESS_DENIED);
+        // Status가 0인 경우 삭제된 멤버
+        } else if (member.getStatus() == 0) {
+            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
+        }
+        return MemberSelectRespDto.builder().member(member).build();
     }
 
     // 회원 수정
     @Override
-    public MemberDto.MemberSaveRespDto updateMember(Long memberId, MemberDto.MemberSaveReqDto memberSaveReqDto, MultipartFile image) {
+    public MemberSaveRespDto updateMember(Long memberId, MemberSaveReqDto memberSaveReqDto, MultipartFile image) {
         // 핸드폰 번호로 해당 회원이 존재하는지 검증
         Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -79,6 +91,21 @@ public class MemberServiceImpl implements MemberService {
         // DB 수정
         Member updatedMember = memberRepository.save(member);
 
-        return MemberDto.MemberSaveRespDto.builder().member(updatedMember).build();
+        return MemberSaveRespDto.builder().member(updatedMember).build();
     }
+
+    //회원 삭제
+    @Override
+    public MemberSaveRespDto deleteMember(Long memberId) {
+
+        // 핸드폰 번호로 해당 회원이 존재하는지 검증
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        // 회원 상태값 변경
+        member.changeMemberStatus(0);
+        // DB 수정
+        memberRepository.save(member);
+        return null;
+    }
+
 }

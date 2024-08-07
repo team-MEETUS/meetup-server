@@ -10,13 +10,13 @@ public class InterestBigDto {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class InterestBigRespDto {
-        private long interestBigId;
+    public static class InterestBigSelectRespDto {
+        private Long interestBigId;
         private String name;
         private String icon;
 
         @Builder
-        public InterestBigRespDto(InterestBig interestBig) {
+        public InterestBigSelectRespDto(InterestBig interestBig) {
             this.interestBigId = interestBig.getInterestBigId();
             this.name = interestBig.getName();
             this.icon = interestBig.getIcon();

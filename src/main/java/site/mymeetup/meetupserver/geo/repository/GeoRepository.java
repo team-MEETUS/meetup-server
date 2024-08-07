@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface GeoRepository extends JpaRepository<Geo, Long> {
     Optional<Geo> findFirstByCity(String city);
+
+    boolean existsByCity(String city);
 }
