@@ -141,4 +141,24 @@ public class BoardServiceImpl implements BoardService {
 
         return BoardRespDto.builder().board(board).build();
     }
+
+    // 게시글 삭제
+    @Override
+    public void deleteBoard(Long crewId, Long boardId, Long crewMemberId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        if (!board.getCrew().getCrewId().equals(crewId)) {
+            throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+        }
+
+        if (!board.getCrewMember().getCrewMemberId().equals(crewMemberId) && board.getCrewMember().getRole() != 2 && board.getCrewMember().getRole() != 3) {
+            throw new CustomException(ErrorCode.BOARD_DELETE_ACCESS_DENIED);
+        }
+
+        // 삭제할 게시글 상태값 변경
+        board.deleteBoard(0);
+        // DB 수정
+        boardRepository.save(board);
+    }
 }
