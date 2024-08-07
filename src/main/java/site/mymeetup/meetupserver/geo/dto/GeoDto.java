@@ -10,7 +10,7 @@ public class GeoDto {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class GeoRespDto {
+    public static class GeoSelectRespDto {
         private Long geoId;
         private String city;
         private String district;
@@ -19,7 +19,7 @@ public class GeoDto {
         private Double longitude;
 
         @Builder
-        public GeoRespDto(Geo geo) {
+        public GeoSelectRespDto(Geo geo) {
             this.geoId = geo.getGeoId();
             this.city = geo.getCity();
             this.district = geo.getDistrict();
