@@ -18,7 +18,7 @@ public class CrewMember extends BaseEntity {
     private Long crewMemberId;
 
     @Column(nullable = false)
-    private int status;
+    private int role;
 
     @ManyToOne
     @JoinColumn(name = "crew_id")

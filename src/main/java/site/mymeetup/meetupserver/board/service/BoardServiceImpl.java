@@ -40,7 +40,7 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         // crewMember 일반인 경우 공지 예외 처리
-        if (boardSaveReqDto.getCategory().equals("공지") && crewMember.getStatus() == 1) {
+        if (boardSaveReqDto.getCategory().equals("공지") && crewMember.getRole() == 1) {
             throw new CustomException(ErrorCode.BOARD_ACCESS_DENIED);
         }
 
@@ -87,7 +87,7 @@ public class BoardServiceImpl implements BoardService {
         board.updateBoard(boardSaveReqDto.toEntity(crew, crewMember));
 
         // crewMember 권한 검증
-        if (board.getCrewMember().getStatus() == 1 && board.getCategory().equals("공지")) {
+        if (board.getCrewMember().getRole() == 1 && board.getCategory().equals("공지")) {
             throw new CustomException(ErrorCode.BOARD_ACCESS_DENIED);
         }
 
