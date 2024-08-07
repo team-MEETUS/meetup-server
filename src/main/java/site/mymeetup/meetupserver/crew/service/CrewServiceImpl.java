@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
 import site.mymeetup.meetupserver.crew.entity.Crew;
+import site.mymeetup.meetupserver.crew.entity.CrewLike;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
+import site.mymeetup.meetupserver.crew.repository.CrewLikeRepository;
 import site.mymeetup.meetupserver.crew.repository.CrewMemberRepository;
 import site.mymeetup.meetupserver.crew.repository.CrewRepository;
 import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
@@ -26,6 +28,7 @@ import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewLikeDto.CrewLikeSaveRespDto;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,13 +36,14 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CrewServiceImpl implements CrewService {
+    private final S3ImageService s3ImageService;
     private final CrewRepository crewRepository;
     private final GeoRepository geoRepository;
     private final InterestBigRepository interestBigRepository;
     private final InterestSmallRepository interestSmallRepository;
-    private final S3ImageService s3ImageService;
     private final MemberRepository memberRepository;
     private final CrewMemberRepository crewMemberRepository;
+    private final CrewLikeRepository crewLikeRepository;
 
     // 모임 등록
     public CrewSaveRespDto createCrew(CrewSaveReqDto crewSaveReqDto, MultipartFile image) {
@@ -272,4 +276,67 @@ public class CrewServiceImpl implements CrewService {
                 .toList();
     }
 
+    // 모임 좋아요
+    public CrewLikeSaveRespDto likeCrew(Long crewId) {
+        // 유효한 모임인지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 좋아요를 했는지 확인
+        CrewLike crewLike = crewLikeRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId);
+
+        CrewLike saveCrewLike = null;
+
+        if (crewLike != null) {
+            throw new CustomException(ErrorCode.ALREADY_CREW_LIKE);
+        } else {
+            crewLike = CrewLike.builder()
+                    .crew(crew)
+                    .member(member)
+                    .build();
+            saveCrewLike = crewLikeRepository.save(crewLike);
+        }
+
+        return CrewLikeSaveRespDto.builder().crewLike(saveCrewLike).build();
+    }
+
+    // 모임 좋아요 취소
+    public void deleteLikeCrew(Long crewId) {
+        // 유효한 모임인지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 좋아요를 했는지 확인
+        CrewLike crewLike = crewLikeRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId);
+
+        if (crewLike == null) {
+            throw new CustomException(ErrorCode.NOT_CREW_LIKE);
+        } else {
+            crewLikeRepository.delete(crewLike);
+        }
+    }
+
+    // 모임 찜 여부 조회
+    public boolean isLikeCrew(Long crewId) {
+        // 유효한 모임인지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return crewLikeRepository.existsByCrewAndMember(crew, member);
+    }
 }

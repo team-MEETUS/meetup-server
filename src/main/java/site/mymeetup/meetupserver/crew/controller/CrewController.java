@@ -14,6 +14,7 @@ import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewLikeDto.CrewLikeSaveRespDto;
 
 @RestController
 @RequestMapping("/api/v1/crews")
@@ -77,10 +78,33 @@ public class CrewController {
     public ApiResponse<List<CrewMemberSelectRespDto>> getCrewMemberByCrewId(@PathVariable("crewId") Long crewId) {
         return ApiResponse.success(crewService.getCrewMemberByCrewId(crewId));
     }
+
     // 특정 모임의 가입 신청 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{crewId}/signup-members")
     public ApiResponse<List<CrewMemberSelectRespDto>> getSignUpMemberByCrewId(@PathVariable("crewId") Long crewId) {
         return ApiResponse.success(crewService.getSignUpMemberByCrewId(crewId));
+    }
+
+    // 모임 찜
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{crewId}/likes")
+    public ApiResponse<CrewLikeSaveRespDto> likeCrew(@PathVariable("crewId") Long crewId) {
+        return ApiResponse.success(crewService.likeCrew(crewId));
+    }
+
+    // 모임 찜 취소
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{crewId}/likes")
+    public ApiResponse<Void> deleteLikeCrew(@PathVariable("crewId") Long crewId) {
+        crewService.deleteLikeCrew(crewId);
+        return ApiResponse.success(null);
+    }
+
+    // 모임 찜 여부 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{crewId}/likes")
+    public ApiResponse<Boolean> isLikeCrew(@PathVariable("crewId") Long crewId) {
+        return ApiResponse.success(crewService.isLikeCrew(crewId));
     }
 }
