@@ -1,12 +1,12 @@
 package site.mymeetup.meetupserver.interest.service;
 
-import site.mymeetup.meetupserver.interest.dto.InterestBigDto;
-import site.mymeetup.meetupserver.interest.dto.InterestSmallDto;
+import static site.mymeetup.meetupserver.interest.dto.InterestBigDto.InterestBigSelectRespDto;
+import static site.mymeetup.meetupserver.interest.dto.InterestSmallDto.InterestSmallSelectRespDto;
 
 import java.util.List;
 
 public interface InterestService {
-    List<InterestBigDto.InterestBigRespDto> getAllInterestBig();
+    List<InterestBigSelectRespDto> getAllInterestBig();
 
-    List<InterestSmallDto.InterestSmallRespDto> getAllInterestSmallByInterestBigId(Long interestBigId);
+    List<InterestSmallSelectRespDto> getAllInterestSmallByInterestBigId(Long interestBigId);
 }
