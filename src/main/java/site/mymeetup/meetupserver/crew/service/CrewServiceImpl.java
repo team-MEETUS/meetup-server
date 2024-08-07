@@ -248,4 +248,16 @@ public class CrewServiceImpl implements CrewService {
                 .collect(Collectors.toList());
     }
 
+    // 특정 모임의 가입신청 조회
+    public List<CrewMemberDto.CrewMemberSelectRespDto> getSignUpMemberByCrewId(Long crewId) {
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndStatus(crewId, 4);
+
+        return crewMembers.stream()
+                .map(CrewMemberDto.CrewMemberSelectRespDto::new)
+                .collect(Collectors.toList());
+    }
+
 }

@@ -72,4 +72,10 @@ public class CrewController {
     public ApiResponse<?> getCrewMemberByCrewId(@PathVariable("crewId") Long crewId) {
         return ApiResponse.success(crewService.getCrewMemberByCrewId(crewId));
     }
+    // 특정 모임의 가입 신청 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{crewId}/signup-members")
+    public ApiResponse<?> getSignUpMemberByCrewId(@PathVariable("crewId") Long crewId) {
+        return ApiResponse.success(crewService.getSignUpMemberByCrewId(crewId));
+    }
 }
