@@ -13,6 +13,7 @@ import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 import site.mymeetup.meetupserver.crew.repository.CrewMemberRepository;
 import site.mymeetup.meetupserver.crew.repository.CrewRepository;
+import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 
@@ -40,7 +41,7 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         // crewMember 일반인 경우 공지 예외 처리
-        if (boardSaveReqDto.getCategory().equals("공지") && crewMember.getRole() == 1) {
+        if (boardSaveReqDto.getCategory().equals("공지") && crewMember.getRole() == CrewMemberRole.MEMBER) {
             throw new CustomException(ErrorCode.BOARD_ACCESS_DENIED);
         }
 
@@ -87,7 +88,7 @@ public class BoardServiceImpl implements BoardService {
         board.updateBoard(boardSaveReqDto.toEntity(crew, crewMember));
 
         // crewMember 권한 검증
-        if (board.getCrewMember().getRole() == 1 && board.getCategory().equals("공지")) {
+        if (board.getCrewMember().getRole() == CrewMemberRole.MEMBER && board.getCategory().equals("공지")) {
             throw new CustomException(ErrorCode.BOARD_ACCESS_DENIED);
         }
 
@@ -116,7 +117,7 @@ public class BoardServiceImpl implements BoardService {
         }
 
         List<Board> boardList = boardRepository.findBoardByCrew_CrewIdAndCategory(crewId, category);
-        
+
         return boardList.stream()
                 .filter(board -> board.getStatus() != 0)
                 .map(BoardRespDto::new)
@@ -152,7 +153,7 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
         }
 
-        if (!board.getCrewMember().getCrewMemberId().equals(crewMemberId) && board.getCrewMember().getRole() != 2 && board.getCrewMember().getRole() != 3) {
+        if (!board.getCrewMember().getCrewMemberId().equals(crewMemberId) && board.getCrewMember().getRole() != CrewMemberRole.ADMIN && board.getCrewMember().getRole() != CrewMemberRole.LEADER) {
             throw new CustomException(ErrorCode.BOARD_DELETE_ACCESS_DENIED);
         }
 

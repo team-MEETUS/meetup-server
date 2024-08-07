@@ -3,6 +3,8 @@ package site.mymeetup.meetupserver.crew.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import site.mymeetup.meetupserver.common.entity.BaseEntity;
+import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
+import site.mymeetup.meetupserver.crew.role.CrewMemberRoleConverter;
 import site.mymeetup.meetupserver.member.entity.Member;
 
 @Builder
@@ -17,8 +19,9 @@ public class CrewMember extends BaseEntity {
     @Column(name = "crew_and_member_id")
     private Long crewMemberId;
 
+    @Convert(converter = CrewMemberRoleConverter.class)
     @Column(nullable = false)
-    private int role;
+    private CrewMemberRole role;
 
     @ManyToOne
     @JoinColumn(name = "crew_id")

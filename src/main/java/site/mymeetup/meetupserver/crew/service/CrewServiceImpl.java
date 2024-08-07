@@ -11,6 +11,7 @@ import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 import site.mymeetup.meetupserver.crew.repository.CrewMemberRepository;
 import site.mymeetup.meetupserver.crew.repository.CrewRepository;
+import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.geo.entity.Geo;
@@ -80,7 +81,7 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         CrewMember crewMember = CrewMember.builder()
-                .role(3)
+                .role(CrewMemberRole.LEADER)
                 .crew(crew)
                 .member(member)
                 .build();
@@ -185,7 +186,7 @@ public class CrewServiceImpl implements CrewService {
 
         // 모임멤버 추가
         CrewMember crewMember = CrewMember.builder()
-                .role(4)
+                .role(CrewMemberRole.PENDING)
                 .crew(crew)
                 .member(member)
                 .build();
@@ -244,7 +245,12 @@ public class CrewServiceImpl implements CrewService {
             throw new CustomException(ErrorCode.CREW_NOT_FOUND);
         }
 
-        List<Integer> roles = Arrays.asList(1, 2, 3);
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+
         List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndRoleInOrderByRoleDesc(crewId, roles);
 
         return crewMembers.stream()
@@ -259,7 +265,7 @@ public class CrewServiceImpl implements CrewService {
             throw new CustomException(ErrorCode.CREW_NOT_FOUND);
         }
 
-        List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndRole(crewId, 4);
+        List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndRole(crewId, CrewMemberRole.PENDING);
 
         return crewMembers.stream()
                 .map(CrewMemberSelectRespDto::new)
