@@ -11,8 +11,6 @@ import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
 import site.mymeetup.meetupserver.member.service.MemberService;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")

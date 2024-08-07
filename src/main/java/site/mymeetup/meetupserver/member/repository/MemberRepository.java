@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import site.mymeetup.meetupserver.member.entity.Member;
 
-import java.util.List;
 import java.util.Optional;
 
 
