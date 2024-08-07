@@ -27,6 +27,10 @@ public enum ErrorCode {
     ALREADY_CREW_MEMBER(HttpStatus.BAD_REQUEST, "CM40001", "이미 모임원 입니다."),
     CREW_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "CM40401", "존재하지 않는 모임원입니다."),
 
+    // 모임 찜
+    ALREADY_CREW_LIKE(HttpStatus.BAD_REQUEST, "CL40001", "이미 찜을 한 모임입니다."),
+    NOT_CREW_LIKE(HttpStatus.BAD_REQUEST, "CL40002", "찜을 하지않은 모임입니다."),
+
     // 게시판
     BOARD_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40301", "일반 모임원은 공지 등록이 불가능합니다."),
     BOARD_WRITER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40302", "작성자와 로그인 회원이 일치하지 않습니다."),

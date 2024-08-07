@@ -5,6 +5,7 @@ import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewLikeDto.CrewLikeSaveRespDto;
 
 import java.util.List;
 
@@ -25,4 +26,10 @@ public interface CrewService {
     List<CrewMemberSelectRespDto> getCrewMemberByCrewId(Long crewId);
 
     List<CrewMemberSelectRespDto> getSignUpMemberByCrewId(Long crewId);
+
+    CrewLikeSaveRespDto likeCrew(Long crewId);
+
+    void deleteLikeCrew(Long crewId);
+
+    boolean isLikeCrew(Long crewId);
 }
