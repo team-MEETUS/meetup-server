@@ -54,4 +54,9 @@ public class Board extends BaseEntity {
     public void updateBoardHit(int hit) {
         this.hit = hit;
     }
+
+    // deleteBoard
+    public void deleteBoard(int status) {
+        this.status = status;
+    }
 }
