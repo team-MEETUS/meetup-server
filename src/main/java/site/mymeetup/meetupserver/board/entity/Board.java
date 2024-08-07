@@ -17,7 +17,7 @@ import java.util.Optional;
 public class Board extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long boardId;
+    private Long boardId;
 
     @Column(nullable = false)
     private String title;
@@ -48,5 +48,10 @@ public class Board extends BaseEntity {
         Optional.ofNullable(updateBoard.getContent()).ifPresent(content -> this.content = content);
         Optional.ofNullable(updateBoard.getCategory()).ifPresent(category -> this.category = category);
         Optional.of(updateBoard.getStatus()).ifPresent(status -> this.status = status);
+    }
+
+    // updateBoardHit
+    public void updateBoardHit(int hit) {
+        this.hit = hit;
     }
 }
