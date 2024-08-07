@@ -80,7 +80,7 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         CrewMember crewMember = CrewMember.builder()
-                .status(3)
+                .role(3)
                 .crew(crew)
                 .member(member)
                 .build();
@@ -185,7 +185,7 @@ public class CrewServiceImpl implements CrewService {
 
         // 모임멤버 추가
         CrewMember crewMember = CrewMember.builder()
-                .status(4)
+                .role(4)
                 .crew(crew)
                 .member(member)
                 .build();
@@ -244,8 +244,8 @@ public class CrewServiceImpl implements CrewService {
             throw new CustomException(ErrorCode.CREW_NOT_FOUND);
         }
 
-        List<Integer> statusList = Arrays.asList(1, 2, 3);
-        List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndStatusInOrderByStatusDesc(crewId, statusList);
+        List<Integer> roles = Arrays.asList(1, 2, 3);
+        List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndRoleInOrderByRoleDesc(crewId, roles);
 
         return crewMembers.stream()
                 .map(CrewMemberSelectRespDto::new)
@@ -259,7 +259,7 @@ public class CrewServiceImpl implements CrewService {
             throw new CustomException(ErrorCode.CREW_NOT_FOUND);
         }
 
-        List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndStatus(crewId, 4);
+        List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndRole(crewId, 4);
 
         return crewMembers.stream()
                 .map(CrewMemberSelectRespDto::new)
