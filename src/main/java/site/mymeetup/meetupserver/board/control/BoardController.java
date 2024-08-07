@@ -58,4 +58,11 @@ public class BoardController {
         return ApiResponse.success(boardService.getBoardBYCrewIdAndCategory(crewId, category));
     }
 
+    // 특정 게시글 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/details/{boardId}")
+    public ApiResponse<BoardRespDto> getBoardOndByBoardId(@PathVariable Long crewId,
+                                                          @PathVariable Long boardId) {
+        return ApiResponse.success(boardService.getBoardByBoardId(crewId, boardId));
+    }
 }
