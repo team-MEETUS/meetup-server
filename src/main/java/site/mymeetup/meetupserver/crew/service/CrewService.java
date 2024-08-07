@@ -21,4 +21,6 @@ public interface CrewService {
     List<CrewDto.CrewSelectRespDto> getAllCrewByInterest(String city, Long interestBigId, Long interestSmallId, int page);
 
     List<CrewMemberDto.CrewMemberSelectRespDto> getCrewMemberByCrewId(Long crewId);
+
+    List<CrewMemberDto.CrewMemberSelectRespDto> getSignUpMemberByCrewId(Long crewId);
 }
