@@ -18,4 +18,6 @@ public interface BoardService {
     List<BoardRespDto> getBoardByCrewId(Long crewId);
 
     List<BoardRespDto> getBoardBYCrewIdAndCategory(Long crewId, String category);
+
+    BoardRespDto getBoardByBoardId(Long crewId, Long boardId);
 }

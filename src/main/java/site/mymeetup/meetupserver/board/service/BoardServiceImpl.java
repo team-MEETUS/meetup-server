@@ -122,4 +122,23 @@ public class BoardServiceImpl implements BoardService {
                 .map(BoardRespDto::new)
                 .toList();
     }
+
+    // 특정 게시글 조회
+    @Override
+    public BoardRespDto getBoardByBoardId(Long crewId, Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        if (!board.getCrew().getCrewId().equals(crewId)) {
+            throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+        } else if (board.getStatus() == 0) {
+            throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+        }
+        // 조회수 증가
+        board.updateBoardHit(board.getHit()+1);
+        // DB 수정
+        boardRepository.save(board);
+
+        return BoardRespDto.builder().board(board).build();
+    }
 }
