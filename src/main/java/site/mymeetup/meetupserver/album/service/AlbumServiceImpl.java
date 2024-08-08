@@ -3,7 +3,7 @@ package site.mymeetup.meetupserver.album.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import site.mymeetup.meetupserver.album.dto.AlbumDto;
+import site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumRespDto;
 import site.mymeetup.meetupserver.album.entity.Album;
 import site.mymeetup.meetupserver.album.repository.AlbumRepository;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
@@ -11,16 +11,12 @@ import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 import site.mymeetup.meetupserver.crew.repository.CrewMemberRepository;
 import site.mymeetup.meetupserver.crew.repository.CrewRepository;
-import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
-
 import static site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumSaveReqDto;
 import static site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumSaveRespDto;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,5 +59,16 @@ public class AlbumServiceImpl implements AlbumService {
         }
 
         return albumList;
+    }
+
+    // 사진첩 조회
+    @Override
+    public List<AlbumRespDto> getAlbumByCrewId(Long crewId) {
+        List<Album> albumList = albumRepository.findAlbumByCrewCrewId(crewId);
+
+        return albumList.stream()
+                .filter(album -> album.getStatus() != 0)
+                .map(AlbumRespDto::new)
+                .toList();
     }
 }
