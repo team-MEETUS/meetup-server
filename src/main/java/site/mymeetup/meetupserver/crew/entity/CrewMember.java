@@ -30,4 +30,9 @@ public class CrewMember extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
+
+    // updateRole
+    public void updateRole(CrewMemberRole role) {
+        this.role = role;
+    }
 }

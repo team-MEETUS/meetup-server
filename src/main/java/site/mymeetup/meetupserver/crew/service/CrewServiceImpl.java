@@ -27,6 +27,8 @@ import site.mymeetup.meetupserver.member.repository.MemberRepository;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewLikeDto.CrewLikeSaveRespDto;
 
@@ -96,9 +98,19 @@ public class CrewServiceImpl implements CrewService {
 
     // 모임 수정
     public CrewSaveRespDto updateCrew(Long crewId, CrewSaveReqDto crewSaveReqDto, MultipartFile image) {
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         // 해당 모임이 존재하는지 검증
         Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 해당 모임의 멤버인지 확인
+        if (!crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.LEADER)) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+        }
 
         // geoId로 Geo 객체 조회
         Geo geo = geoRepository.findById(crewSaveReqDto.getGeoId())
@@ -154,9 +166,20 @@ public class CrewServiceImpl implements CrewService {
 
     // 모임 삭제
     public void deleteCrew(Long crewId) {
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         // 해당 모임이 존재하는지 검증
         Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 해당 모임의 멤버인지 확인
+        if (!crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.LEADER)) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+        }
+
         // 삭제할 모임 상태값 변경
         crew.changeStatus(0);
         // DB 수정
@@ -183,10 +206,8 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
 
         // 모임원으로 존재하는지 검증
-        CrewMember isCrewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId);
-        if (isCrewMember != null) {
-            throw new CustomException(ErrorCode.ALREADY_CREW_MEMBER);
-        }
+        CrewMember isCrewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ALREADY_CREW_MEMBER));
 
         // 모임멤버 추가
         CrewMember crewMember = CrewMember.builder()
@@ -264,10 +285,25 @@ public class CrewServiceImpl implements CrewService {
 
     // 특정 모임의 가입신청 조회
     public List<CrewMemberSelectRespDto> getSignUpMemberByCrewId(Long crewId) {
-        // 유효한 모임인지 검증
-        if (!crewRepository.existsByCrewIdAndStatus(crewId, 1)) {
-            throw new CustomException(ErrorCode.CREW_NOT_FOUND);
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 해당 모임의 멤버인지 확인
+        if (!crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.LEADER)
+            && !crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.ADMIN)) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
         }
+
+//        // 유효한 모임인지 검증
+//        if (!crewRepository.existsByCrewIdAndStatus(crewId, 1)) {
+//            throw new CustomException(ErrorCode.CREW_NOT_FOUND);
+//        }
 
         List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndRole(crewId, CrewMemberRole.PENDING);
 
@@ -339,4 +375,65 @@ public class CrewServiceImpl implements CrewService {
 
         return crewLikeRepository.existsByCrewAndMember(crew, member);
     }
+
+    // 권한 검증
+    private void validateRole() {
+        // 추후 업데이트
+        throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+    }
+
+    public CrewMemberSaveRespDto updateRole(Long crewId, CrewMemberSaveReqDto crewMemberSaveReqDto) {
+        // 유효한 모임인지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 현재 로그인 한 사용자 정보 가져오기
+        Long memberId = 101L;   // 테스트용
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1) // 나중에 상태값까지 비교
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 변경자의 정보 가져오기
+        CrewMember initiator = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        // 변경 대상의 정보 가져오기
+        CrewMember target = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, crewMemberSaveReqDto.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        // 변경할 역할
+        CrewMemberRole newRole = CrewMemberRole.enumOf(crewMemberSaveReqDto.getNewRoleStatus());
+
+        // role 변경 가능한지 확인
+        canChangeRole(initiator.getRole(), target.getRole(), newRole);
+
+        target.updateRole(newRole);
+
+        if (newRole == CrewMemberRole.LEADER) {
+            initiator.updateRole(CrewMemberRole.ADMIN);
+            crewMemberRepository.save(initiator);
+        }
+
+        CrewMember crewMember = crewMemberRepository.save(target);
+        return CrewMemberSaveRespDto.builder().crewMember(crewMember).build();
+    }
+
+    // role 변경 권한 검사
+    private void canChangeRole(CrewMemberRole initiatorRole, CrewMemberRole targetRole, CrewMemberRole newRole) {
+        // 모임장 , 운영진 제외 접근 불가 | 운영진은 모임장 위임 불가
+        if (initiatorRole == CrewMemberRole.EXPELLED || initiatorRole == CrewMemberRole.MEMBER ||
+            initiatorRole == CrewMemberRole.PENDING || initiatorRole == CrewMemberRole.REJECTED) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+        } else if (initiatorRole == CrewMemberRole.ADMIN && newRole == CrewMemberRole.LEADER) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+        } else if (targetRole == CrewMemberRole.EXPELLED || targetRole == CrewMemberRole.LEADER || targetRole == CrewMemberRole.REJECTED) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+        } else if (targetRole == CrewMemberRole.MEMBER && (newRole == CrewMemberRole.MEMBER || newRole == CrewMemberRole.PENDING || newRole == CrewMemberRole.REJECTED)) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+        } else if (targetRole == CrewMemberRole.ADMIN && (newRole != CrewMemberRole.LEADER && newRole != CrewMemberRole.MEMBER)) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+        } else if (targetRole == CrewMemberRole.PENDING && (newRole != CrewMemberRole.EXPELLED && newRole != CrewMemberRole.MEMBER)) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+        }
+    }
+
 }
