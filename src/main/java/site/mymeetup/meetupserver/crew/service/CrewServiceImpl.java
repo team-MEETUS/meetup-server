@@ -410,14 +410,26 @@ public class CrewServiceImpl implements CrewService {
         // role 변경 가능한지 확인
         canChangeRole(initiator.getRole(), target.getRole(), newRole);
 
-        target.updateRole(newRole);
-
+        // 모임장을 임명하는 경우 , 로그인 유저는 운영진으로 변경
         if (newRole == CrewMemberRole.LEADER) {
             initiator.updateRole(CrewMemberRole.ADMIN);
             crewMemberRepository.save(initiator);
         }
+        // 가입 신청 승인시 총 모임원 수 +1
+        if (target.getRole() == CrewMemberRole.PENDING && newRole == CrewMemberRole.MEMBER) {
+            crew.changeTotalMember(1);
+            crewRepository.save(crew);
+        }
+        // 회원 강퇴시 총 모임원 수 -1
+        if (target.getRole() == CrewMemberRole.MEMBER && newRole == CrewMemberRole.EXPELLED) {
+            crew.changeTotalMember(-1);
+            crewRepository.save(crew);
+        }
 
+        // 권한 변경
+        target.updateRole(newRole);
         CrewMember crewMember = crewMemberRepository.save(target);
+
         return CrewMemberSaveRespDto.builder().crewMember(crewMember).build();
     }
 

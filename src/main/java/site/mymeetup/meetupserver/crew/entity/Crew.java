@@ -89,4 +89,9 @@ public class Crew extends BaseEntity {
     public void changeStatus(int status) {
         this.status = status;
     }
+
+    // updateTotalMember
+    public void changeTotalMember(int value) {
+        this.totalMember += value;
+    }
 }
