@@ -230,4 +230,36 @@ public class BoardServiceImpl implements BoardService {
 
         return CommentSaveRespDto.builder().comment(comment).build();
     }
+
+    @Override
+    public void deleteComment(Long crewId, Long boardId, Long commentId, Long crewMemberId) {
+        // boardId로 Board 객체 조회
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        // crewMemberId로 CrewMember 객체 조회
+        CrewMember crewMember = crewMemberRepository.findById(crewMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        // commentId로 Comment 객체 조회
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_COMMENT_NOT_FOUND));
+
+        // 유효성 검사
+        if (!board.getCrew().getCrewId().equals(crewId)) {
+            throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+        }
+        if (!comment.getBoard().getBoardId().equals(boardId)) {
+            throw new CustomException(ErrorCode.BOARD_COMMENT_ID_ACCESS_DENIED);
+        }
+        if (!crewMember.getCrew().getCrewId().equals(crewId)) {
+            throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+        }
+        if (crewMember.getRole() != CrewMemberRole.ADMIN && crewMember.getRole() != CrewMemberRole.LEADER && !comment.getCrewMember().getCrewMemberId().equals(crewMemberId)) {
+            throw new CustomException(ErrorCode.BOARD_DELETE_ACCESS_DENIED);
+        }
+
+        // status 변경
+        comment.deleteComment(0);
+        // DB 수정
+        commentRepository.save(comment);
+    }
 }

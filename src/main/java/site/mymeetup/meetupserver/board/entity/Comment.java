@@ -40,4 +40,9 @@ public class Comment extends BaseEntity {
             this.content = updateComment.getContent();
         }
     }
+
+    // deleteComment
+    public void deleteComment(int status) {
+        this.status = status;
+    }
 }
