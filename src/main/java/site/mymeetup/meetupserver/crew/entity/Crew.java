@@ -33,10 +33,10 @@ public class Crew extends BaseEntity {
     private int max;
 
     @Column(nullable = false)
-    private int status;
+    private int totalMember;
 
     @Column(nullable = false)
-    private int totalMember;
+    private int status;
 
     private String originalImg;
 
@@ -88,5 +88,10 @@ public class Crew extends BaseEntity {
     // deleteCrew
     public void changeStatus(int status) {
         this.status = status;
+    }
+
+    // updateTotalMember
+    public void changeTotalMember(int value) {
+        this.totalMember += value;
     }
 }
