@@ -69,9 +69,8 @@ public class CrewController {
     // 모임 가입 신청
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{crewId}/signup-members")
-    public ApiResponse<Void> createCrewMember(@PathVariable("crewId") Long crewId) {
-        crewService.signUpCrew(crewId);
-        return ApiResponse.success(null);
+    public ApiResponse<CrewMemberSaveRespDto> createCrewMember(@PathVariable("crewId") Long crewId) {
+        return ApiResponse.success(crewService.signUpCrew(crewId));
     }
 
     // 특정 모임의 모임원 조회
