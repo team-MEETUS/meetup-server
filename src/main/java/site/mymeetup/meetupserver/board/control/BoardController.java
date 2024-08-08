@@ -86,4 +86,14 @@ public class BoardController {
                                                          @RequestBody CommentSaveReqDto commentSaveReqDto) {
         return ApiResponse.success(boardService.createComment(crewId, boardId, commentSaveReqDto));
     }
+
+    // 댓글 수정
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/details/{boardId}/comments/{commentId}")
+    public ApiResponse<CommentSaveRespDto> updateComment(@PathVariable Long crewId,
+                                                         @PathVariable Long boardId,
+                                                         @PathVariable Long commentId,
+                                                         @RequestBody CommentSaveReqDto commentSaveReqDto) {
+        return ApiResponse.success(boardService.updateComment(crewId, boardId, commentId, commentSaveReqDto));
+    }
 }

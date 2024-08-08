@@ -170,6 +170,7 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
     }
 
+    // 댓글 등록
     @Override
     public CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto) {
         // boardId로 Board 객체 조회
@@ -190,6 +191,43 @@ public class BoardServiceImpl implements BoardService {
 
         // dto -> Entity
         Comment comment = commentRepository.save(commentSaveReqDto.toEntity(board, crewMember));
+        return CommentSaveRespDto.builder().comment(comment).build();
+    }
+
+    // 댓글 수정
+    @Override
+    public CommentSaveRespDto updateComment(Long crewId, Long boardId, Long commentId, CommentSaveReqDto commentSaveReqDto) {
+        // boardId로 Board 객체 조회
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        // crewAndMemberId로 CrewAndMember 객체 조회
+        CrewMember crewMember = crewMemberRepository.findById(commentSaveReqDto.getCrewMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        // commentId로 Comment 객체 조회
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_COMMENT_NOT_FOUND));
+
+        // 유효성 검사
+        if (!board.getCrew().getCrewId().equals(crewId)) {
+            throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+        }
+        if (crewMember.getRole() == CrewMemberRole.EXPELLED || crewMember.getRole() == CrewMemberRole.PENDING || crewMember.getRole() == CrewMemberRole.REJECTED) {
+            throw new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND);
+        }
+        if (!comment.getCrewMember().getCrewMemberId().equals(commentSaveReqDto.getCrewMemberId())) {
+            throw new CustomException(ErrorCode.BOARD_COMMENT_ACCESS_DENIED);
+        }
+        if (!comment.getBoard().getBoardId().equals(boardId)) {
+            throw new CustomException(ErrorCode.BOARD_COMMENT_ID_ACCESS_DENIED);
+        }
+
+        comment.updateComment(commentSaveReqDto.toEntity(board, crewMember));
+
+        // DB 수정
+        commentRepository.save(comment);
+
         return CommentSaveRespDto.builder().comment(comment).build();
     }
 }
