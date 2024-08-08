@@ -58,7 +58,6 @@ public enum ErrorCode {
 
     // 사진첩
     ALBUM_ACCESS_DENIED(HttpStatus.FORBIDDEN, "A40301", "일반 모임원은 사진첩 등록이 불가능합니다."),
-    ALBUM_WRITER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "A40302", "작성자와 로그인 회원이 일치하지 않습니다."),
     ALBUM_CREW_ACCESS_DENIED(HttpStatus.FORBIDDEN, "A40303", "접근할 수 없는 사진첩입니다."),
     ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "A40401", "존재하지 않는 사진첩입니다."),
     ALBUM_DELETE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "A40304", "사진첩 삭제는 작성자 또는 운영진 모임장만 가능합니다."),

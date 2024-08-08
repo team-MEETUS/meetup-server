@@ -10,4 +10,6 @@ public interface AlbumService {
     List<AlbumSaveRespDto> createAlbum(Long crewId, List<MultipartFile> images);
 
     List<AlbumRespDto> getAlbumByCrewId(Long crewId);
+
+    AlbumRespDto getAlbumByCrewIdAndAlbumId(Long crewId, Long albumId);
 }
