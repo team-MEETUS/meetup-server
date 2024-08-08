@@ -50,7 +50,10 @@ public class AlbumDto {
         private Long albumId;
         private int totalLike;
         private int status;
+        private String originalImg;
+        private String saveImg;
         private CrewMember crewMember;
+        private Crew crew;
         private LocalDateTime createDate;
         private LocalDateTime updateDate;
 
@@ -59,7 +62,10 @@ public class AlbumDto {
             this.albumId = album.getAlbumId();
             this.totalLike = album.getTotalLike();
             this.status = album.getStatus();
+            this.originalImg = album.getOriginalImg();
+            this.saveImg = album.getSaveImg();
             this.crewMember = album.getCrewMember();
+            this.crew = album.getCrew();
             this.createDate = album.getCreateDate();
             this.updateDate = album.getUpdateDate();
         }
