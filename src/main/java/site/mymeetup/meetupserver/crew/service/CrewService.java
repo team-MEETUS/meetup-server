@@ -23,7 +23,7 @@ public interface CrewService {
 
     CrewSelectRespDto getCrewByCrewId(Long crewId);
 
-    void signUpCrew(Long crewId);
+    CrewMemberSaveRespDto signUpCrew(Long crewId);
 
     List<CrewSelectRespDto> getAllCrewByInterest(String city, Long interestBigId, Long interestSmallId, int page);
 
