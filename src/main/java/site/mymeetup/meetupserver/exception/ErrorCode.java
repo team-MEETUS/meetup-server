@@ -39,6 +39,11 @@ public enum ErrorCode {
     BOARD_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "B40402", "존재하지 않는 카테고리입니다."),
     BOARD_DELETE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40304", "삭제는 작성자 또는 운영진 모임장만 가능합니다."),
 
+    // 댓글
+    BOARD_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "BM40401", "존재하지 않는 댓글입니다."),
+    BOARD_COMMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "BM40301", "작성자가 아니면 수정이 불가능합니다."),
+    BOARD_COMMENT_ID_ACCESS_DENIED(HttpStatus.FORBIDDEN, "BM40302", "접근할 수 없는 댓글입니다."),
+
     // 관심사
     INTEREST_BAD_REQUEST(HttpStatus.BAD_REQUEST, "I40001", "관심사 대분류에 속한 소분류가 아닙니다."),
     INTEREST_BIG_NOT_FOUND(HttpStatus.NOT_FOUND, "I40401", "존재하지 않는 관심사입니다."),
