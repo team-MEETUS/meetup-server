@@ -30,4 +30,6 @@ public interface BoardService {
     CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto);
 
     CommentSaveRespDto updateComment(Long crewId, Long boardId, Long commentId, CommentSaveReqDto commentSaveReqDto);
+
+    void deleteComment(Long crewId, Long boardId, Long commentId, Long crewMemberId);
 }
