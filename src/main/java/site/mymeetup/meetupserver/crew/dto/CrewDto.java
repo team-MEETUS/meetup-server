@@ -28,6 +28,7 @@ public class CrewDto {
         @Min(value = 1, message = "정원은 1명 이상이어야 합니다.")
         @Max(value = 300, message = "정원은 300명 이하여야 합니다.")
         private int max;
+        private int totalMember;
         private String originalImg;
         private String saveImg;
         @NotNull(message = "지역은 필수 입력사항입니다.")
@@ -42,6 +43,7 @@ public class CrewDto {
                     .intro(content.contains("\n") ? content.split("\n")[0] : content)
                     .content(content)
                     .max(max)
+                    .totalMember(1)
                     .status(1)
                     .originalImg(originalImg != null ? originalImg : "default.jpg")
                     .saveImg(saveImg != null ? saveImg : "default.jpg")

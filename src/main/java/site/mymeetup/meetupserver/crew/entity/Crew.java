@@ -33,10 +33,10 @@ public class Crew extends BaseEntity {
     private int max;
 
     @Column(nullable = false)
-    private int status;
+    private int totalMember;
 
     @Column(nullable = false)
-    private int totalMember;
+    private int status;
 
     private String originalImg;
 
