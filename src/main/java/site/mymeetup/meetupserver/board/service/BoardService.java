@@ -7,6 +7,7 @@ import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveReqDto;
 import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveRespDto;
+import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveReqDto;
 
 import java.util.List;
 
@@ -26,5 +27,7 @@ public interface BoardService {
 
     void deleteBoard(Long crewId, Long boardId, Long crewMemberId);
 
-    CommentSaveRespDto createComment(Long crewId, Long boardId, CommentDto.CommentSaveReqDto commentSaveReqDto);
+    CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto);
+
+    CommentSaveRespDto updateComment(Long crewId, Long boardId, Long commentId, CommentSaveReqDto commentSaveReqDto);
 }
