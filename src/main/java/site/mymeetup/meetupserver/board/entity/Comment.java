@@ -33,4 +33,16 @@ public class Comment extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "crew_and_member_id")
     private CrewMember crewMember;
+
+    // updateComment
+    public void updateComment(Comment updateComment) {
+        if (content != null) {
+            this.content = updateComment.getContent();
+        }
+    }
+
+    // deleteComment
+    public void deleteComment(int status) {
+        this.status = status;
+    }
 }

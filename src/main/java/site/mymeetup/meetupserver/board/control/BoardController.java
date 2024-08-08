@@ -86,4 +86,25 @@ public class BoardController {
                                                          @RequestBody CommentSaveReqDto commentSaveReqDto) {
         return ApiResponse.success(boardService.createComment(crewId, boardId, commentSaveReqDto));
     }
+
+    // 댓글 수정
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/details/{boardId}/comments/{commentId}")
+    public ApiResponse<CommentSaveRespDto> updateComment(@PathVariable Long crewId,
+                                                         @PathVariable Long boardId,
+                                                         @PathVariable Long commentId,
+                                                         @RequestBody CommentSaveReqDto commentSaveReqDto) {
+        return ApiResponse.success(boardService.updateComment(crewId, boardId, commentId, commentSaveReqDto));
+    }
+
+    // 댓글 삭제
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/details/{boardId}/comments/{commentId}/{crewMemberId}")
+    public ApiResponse<?> deleteComment(@PathVariable Long crewId,
+                                        @PathVariable Long boardId,
+                                        @PathVariable Long commentId,
+                                        @PathVariable Long crewMemberId) {
+        boardService.deleteComment(crewId, boardId, commentId, crewMemberId);
+        return ApiResponse.success(null);
+    }
 }

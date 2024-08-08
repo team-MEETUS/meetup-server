@@ -29,6 +29,7 @@ public class CommentDto {
             return Comment.builder()
                     .parentCommentId(parentCommentId)
                     .content(content)
+                    .status(1)
                     .board(board)
                     .crewMember(crewMember)
                     .build();
