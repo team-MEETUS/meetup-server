@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface AlbumRepository extends JpaRepository<Album, Long> {
     List<Album> findAlbumByCrewCrewId(Long crewId);
+
+    Album findAlbumByCrewCrewIdAndAlbumId(Long crewId, Long albumId);
 }

@@ -40,7 +40,7 @@ public class AlbumServiceImpl implements AlbumService {
         CrewMember crewMember = crewMemberRepository.findById(1L) // 로그인 구현 후 수정
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
-//        // crewMember 일반인 경우 접근 금지
+//        // crewMember 일반인 등록 금지
 //        if (crewMember.getRole() == CrewMemberRole.MEMBER) {
 //            throw new CustomException(ErrorCode.ALBUM_ACCESS_DENIED);
 //        }
@@ -70,5 +70,18 @@ public class AlbumServiceImpl implements AlbumService {
                 .filter(album -> album.getStatus() != 0)
                 .map(AlbumRespDto::new)
                 .toList();
+    }
+
+    // 사진첩 상세 조회
+    @Override
+    public AlbumRespDto getAlbumByCrewIdAndAlbumId(Long crewId, Long albumId) {
+        Album album = albumRepository.findAlbumByCrewCrewIdAndAlbumId(crewId, albumId);
+
+        // 조회한 결과가 없다면 에러
+        if(album == null) {
+            throw new CustomException(ErrorCode.ALBUM_NOT_FOUND);
+        }
+
+        return AlbumRespDto.builder().album(album).build();
     }
 }

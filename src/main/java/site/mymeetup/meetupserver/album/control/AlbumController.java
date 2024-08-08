@@ -28,4 +28,11 @@ public class AlbumController {
     public ApiResponse<List<AlbumRespDto>> getAlbumByCrewId (@PathVariable Long crewId) {
         return ApiResponse.success(albumService.getAlbumByCrewId(crewId));
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{crewId}/albums/{albumId}")
+    public ApiResponse<AlbumRespDto> getAlbumByCrewIdAndAlbumId (@PathVariable Long crewId,
+                                                             @PathVariable Long albumId) {
+        return ApiResponse.success(albumService.getAlbumByCrewIdAndAlbumId(crewId, albumId));
+    }
 }
