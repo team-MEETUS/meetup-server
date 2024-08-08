@@ -26,6 +26,7 @@ public enum ErrorCode {
     // 모임원
     ALREADY_CREW_MEMBER(HttpStatus.BAD_REQUEST, "CM40001", "이미 모임원 입니다."),
     CREW_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "CM40401", "존재하지 않는 모임원입니다."),
+    CREW_ACCESS_DENIED(HttpStatus.FORBIDDEN, "C40301", "권한이 없습니다."),
 
     // 모임 찜
     ALREADY_CREW_LIKE(HttpStatus.BAD_REQUEST, "CL40001", "이미 찜을 한 모임입니다."),

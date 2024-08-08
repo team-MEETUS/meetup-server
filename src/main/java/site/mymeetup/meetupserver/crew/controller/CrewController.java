@@ -13,6 +13,8 @@ import java.util.List;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewLikeDto.CrewLikeSaveRespDto;
 
@@ -54,14 +56,6 @@ public class CrewController {
         return ApiResponse.success(crewService.getCrewByCrewId(crewId));
     }
 
-    // 모임 가입 신청
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{crewId}")
-    public ApiResponse<Void> createCrewMember(@PathVariable("crewId") Long crewId) {
-        crewService.signUpCrew(crewId);
-        return ApiResponse.success(null);
-    }
-
     // 관심사 별 모임 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
@@ -70,6 +64,14 @@ public class CrewController {
                                                            @RequestParam(required = false) Long interestSmallId,
                                                            @RequestParam(defaultValue = "0") int page) {
         return ApiResponse.success(crewService.getAllCrewByInterest(city, interestBigId, interestSmallId, page));
+    }
+
+    // 모임 가입 신청
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{crewId}/signup-members")
+    public ApiResponse<Void> createCrewMember(@PathVariable("crewId") Long crewId) {
+        crewService.signUpCrew(crewId);
+        return ApiResponse.success(null);
     }
 
     // 특정 모임의 모임원 조회
@@ -84,6 +86,14 @@ public class CrewController {
     @GetMapping("/{crewId}/signup-members")
     public ApiResponse<List<CrewMemberSelectRespDto>> getSignUpMemberByCrewId(@PathVariable("crewId") Long crewId) {
         return ApiResponse.success(crewService.getSignUpMemberByCrewId(crewId));
+    }
+
+    // 모임원 권한 수정
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{crewId}/members")
+    public ApiResponse<CrewMemberSaveRespDto> updateCrewMember(@PathVariable("crewId") Long crewId,
+                                                         @RequestBody CrewMemberSaveReqDto crewMemberSaveReqDto) {
+        return ApiResponse.success(crewService.updateRole(crewId, crewMemberSaveReqDto));
     }
 
     // 모임 찜
