@@ -11,7 +11,7 @@ public enum CrewMemberRole {
     ADMIN(2, "운영진"),
     LEADER(3, "모임장"),
     PENDING(4, "승인대기"),
-    REJECTED(5, "승인거절");
+    DEPARTED(5, "퇴장");
 
     private final int status;
     private final String name;

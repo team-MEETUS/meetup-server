@@ -185,7 +185,7 @@ public class BoardServiceImpl implements BoardService {
         if (!board.getCrew().getCrewId().equals(crewId)) {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
         }
-        if (crewMember.getRole() == CrewMemberRole.EXPELLED || crewMember.getRole() == CrewMemberRole.PENDING || crewMember.getRole() == CrewMemberRole.REJECTED) {
+        if (crewMember.getRole() == CrewMemberRole.EXPELLED || crewMember.getRole() == CrewMemberRole.PENDING || crewMember.getRole() == CrewMemberRole.DEPARTED) {
             throw new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND);
         }
 
@@ -213,7 +213,7 @@ public class BoardServiceImpl implements BoardService {
         if (!board.getCrew().getCrewId().equals(crewId)) {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
         }
-        if (crewMember.getRole() == CrewMemberRole.EXPELLED || crewMember.getRole() == CrewMemberRole.PENDING || crewMember.getRole() == CrewMemberRole.REJECTED) {
+        if (crewMember.getRole() == CrewMemberRole.EXPELLED || crewMember.getRole() == CrewMemberRole.PENDING || crewMember.getRole() == CrewMemberRole.DEPARTED) {
             throw new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND);
         }
         if (!comment.getCrewMember().getCrewMemberId().equals(commentSaveReqDto.getCrewMemberId())) {

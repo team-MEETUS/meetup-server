@@ -11,13 +11,17 @@ import java.util.Optional;
 
 public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
 
+    CrewMember findByCrewAndMember(Crew crew, Member member);
+
     Optional<CrewMember> findByCrew_CrewIdAndMember_MemberId(Long crewId, Long memberId);
 
     List<CrewMember> findByCrew_CrewIdAndRoleInOrderByRoleDesc(Long crewId, List<CrewMemberRole> roles);
 
     List<CrewMember> findByCrew_CrewIdAndRole(Long crewId, CrewMemberRole role);
 
-    boolean existsByCrewAndMember(Crew crew, Member member);
+    boolean existsByCrewAndMemberAndRoleNot(Crew crew, Member member, CrewMemberRole role);
 
     boolean existsByCrewAndMemberAndRole(Crew crew, Member member, CrewMemberRole role);
+
+    Optional<CrewMember> findByCrewAndMemberAndRoleIn(Crew crew, Member member, List<CrewMemberRole> roles);
 }
