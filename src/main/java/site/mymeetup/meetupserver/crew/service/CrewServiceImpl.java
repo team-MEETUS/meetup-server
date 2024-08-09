@@ -107,7 +107,7 @@ public class CrewServiceImpl implements CrewService {
         Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
 
-        // 해당 모임의 멤버인지 확인
+        // 해당 모임의 모임장인지 확인
         if (!crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.LEADER)) {
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
         }
@@ -175,7 +175,7 @@ public class CrewServiceImpl implements CrewService {
         Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
 
-        // 해당 모임의 멤버인지 확인
+        // 해당 모임의 모임장인지 확인
         if (!crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.LEADER)) {
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
         }
@@ -205,21 +205,30 @@ public class CrewServiceImpl implements CrewService {
         Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
 
+
         // 모임원으로 존재하는지 검증
-        if (crewMemberRepository.existsByCrewAndMember(crew, member)) {
-            throw new CustomException(ErrorCode.ALREADY_CREW_MEMBER);
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, member);
+        if (crewMember != null) {
+            if (crewMember.getRole() == CrewMemberRole.MEMBER || crewMember.getRole() == CrewMemberRole.ADMIN || crewMember.getRole() == CrewMemberRole.LEADER) {
+                throw new CustomException(ErrorCode.ALREADY_CREW_MEMBER);
+            } else if (crewMember.getRole() == CrewMemberRole.EXPELLED) {
+                throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+            } else if (crewMember.getRole() == CrewMemberRole.PENDING) {
+                throw new CustomException(ErrorCode.ALREADY_PENDING);
+            } else if (crewMember.getRole() == CrewMemberRole.DEPARTED) {
+                crewMember.updateRole(CrewMemberRole.PENDING);
+                return CrewMemberSaveRespDto.builder().crewMember(crewMemberRepository.save(crewMember)).build();
+            }
         }
 
         // 모임멤버 추가
-        CrewMember crewMember = CrewMember.builder()
+        CrewMember saveCrewMember = CrewMember.builder()
                 .role(CrewMemberRole.PENDING)
                 .crew(crew)
                 .member(member)
                 .build();
 
-        CrewMember saveCrewMember = crewMemberRepository.save(crewMember);
-
-        return CrewMemberSaveRespDto.builder().crewMember(saveCrewMember).build();
+        return CrewMemberSaveRespDto.builder().crewMember(crewMemberRepository.save(saveCrewMember)).build();
     }
 
     // 관심사 별 모임 조회
@@ -303,11 +312,6 @@ public class CrewServiceImpl implements CrewService {
             && !crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.ADMIN)) {
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
         }
-
-//        // 유효한 모임인지 검증
-//        if (!crewRepository.existsByCrewIdAndStatus(crewId, 1)) {
-//            throw new CustomException(ErrorCode.CREW_NOT_FOUND);
-//        }
 
         List<CrewMember> crewMembers = crewMemberRepository.findByCrew_CrewIdAndRole(crewId, CrewMemberRole.PENDING);
 
@@ -420,8 +424,10 @@ public class CrewServiceImpl implements CrewService {
             crew.changeTotalMember(1);
             crewRepository.save(crew);
         }
-        // 회원 강퇴시 총 모임원 수 -1
-        if (target.getRole() == CrewMemberRole.MEMBER && newRole == CrewMemberRole.EXPELLED) {
+        // 회원 강퇴 또는 퇴장 시 총 모임원 수 -1
+        if ((target.getRole() == CrewMemberRole.MEMBER && newRole == CrewMemberRole.EXPELLED) ||
+            (target.getRole() == CrewMemberRole.MEMBER && newRole == CrewMemberRole.DEPARTED) ||
+            (target.getRole() == CrewMemberRole.ADMIN && newRole == CrewMemberRole.DEPARTED)) {
             crew.changeTotalMember(-1);
             crewRepository.save(crew);
         }
@@ -435,19 +441,24 @@ public class CrewServiceImpl implements CrewService {
 
     // role 변경 권한 검사
     private void canChangeRole(CrewMemberRole initiatorRole, CrewMemberRole targetRole, CrewMemberRole newRole) {
-        // 모임장 , 운영진 제외 접근 불가 | 운영진은 모임장 위임 불가
         if (initiatorRole == CrewMemberRole.EXPELLED || initiatorRole == CrewMemberRole.MEMBER ||
-            initiatorRole == CrewMemberRole.PENDING || initiatorRole == CrewMemberRole.REJECTED) {
+            // 모임장 , 운영진 제외 접근 불가
+            initiatorRole == CrewMemberRole.PENDING || initiatorRole == CrewMemberRole.DEPARTED) {
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
         } else if (initiatorRole == CrewMemberRole.ADMIN && newRole == CrewMemberRole.LEADER) {
+            // 운영진은 모임장 위임 불가
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
-        } else if (targetRole == CrewMemberRole.EXPELLED || targetRole == CrewMemberRole.LEADER || targetRole == CrewMemberRole.REJECTED) {
+        } else if (targetRole == CrewMemberRole.EXPELLED || targetRole == CrewMemberRole.LEADER || targetRole == CrewMemberRole.DEPARTED) {
+            // 강퇴 멤버 , 모임장 , 퇴장 멤버의 role 변경 불가
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
-        } else if (targetRole == CrewMemberRole.MEMBER && (newRole == CrewMemberRole.MEMBER || newRole == CrewMemberRole.PENDING || newRole == CrewMemberRole.REJECTED)) {
+        } else if (targetRole == CrewMemberRole.MEMBER && (newRole == CrewMemberRole.MEMBER || newRole == CrewMemberRole.PENDING || newRole == CrewMemberRole.DEPARTED)) {
+            // 일반 멤버는 운영진 || 모임장 || 퇴장만 변경 가능
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
-        } else if (targetRole == CrewMemberRole.ADMIN && (newRole != CrewMemberRole.LEADER && newRole != CrewMemberRole.MEMBER)) {
+        } else if (targetRole == CrewMemberRole.ADMIN && (newRole != CrewMemberRole.LEADER && newRole != CrewMemberRole.MEMBER && newRole != CrewMemberRole.DEPARTED)) {
+            // 운영진은 일반 멤버 || 모임장 || 퇴장만 변경 가능
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
-        } else if (targetRole == CrewMemberRole.PENDING && (newRole != CrewMemberRole.EXPELLED && newRole != CrewMemberRole.MEMBER)) {
+        } else if (targetRole == CrewMemberRole.PENDING && (newRole != CrewMemberRole.EXPELLED && newRole != CrewMemberRole.MEMBER && newRole != CrewMemberRole.DEPARTED)) {
+            // 승인 대기 멤버는 강퇴 || 일반 멤버로만 변경 가능
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
         }
     }
