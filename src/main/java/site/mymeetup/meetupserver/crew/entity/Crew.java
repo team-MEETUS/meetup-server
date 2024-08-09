@@ -33,14 +33,17 @@ public class Crew extends BaseEntity {
     private int max;
 
     @Column(nullable = false)
-    private int totalMember;
-
-    @Column(nullable = false)
     private int status;
 
     private String originalImg;
 
     private String saveImg;
+
+    @Column(nullable = false)
+    private int totalMember;
+
+    @Column(nullable = false)
+    private int totalLike;
 
     private LocalDateTime deadDate;
 
@@ -93,5 +96,10 @@ public class Crew extends BaseEntity {
     // updateTotalMember
     public void changeTotalMember(int value) {
         this.totalMember += value;
+    }
+
+    // updateTotalMember
+    public void changeTotalLike(int value) {
+        this.totalLike += value;
     }
 }
