@@ -35,4 +35,11 @@ public class AlbumController {
                                                              @PathVariable Long albumId) {
         return ApiResponse.success(albumService.getAlbumByCrewIdAndAlbumId(crewId, albumId));
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{crewId}/albums/{albumId}")
+    public ApiResponse<?> deleteAlbum(@PathVariable Long crewId, @PathVariable Long albumId) {
+        albumService.deleteAlbum(crewId, albumId);
+        return ApiResponse.success(null);
+    }
 }

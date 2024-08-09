@@ -12,4 +12,6 @@ public interface AlbumService {
     List<AlbumRespDto> getAlbumByCrewId(Long crewId);
 
     AlbumRespDto getAlbumByCrewIdAndAlbumId(Long crewId, Long albumId);
+
+    void deleteAlbum(Long crewId, Long albumId);
 }
