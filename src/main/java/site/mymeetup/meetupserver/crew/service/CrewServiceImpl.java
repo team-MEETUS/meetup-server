@@ -338,15 +338,18 @@ public class CrewServiceImpl implements CrewService {
 
         if (crewLike != null) {
             throw new CustomException(ErrorCode.ALREADY_CREW_LIKE);
-        } else {
-            crewLike = CrewLike.builder()
-                    .crew(crew)
-                    .member(member)
-                    .build();
-            saveCrewLike = crewLikeRepository.save(crewLike);
         }
 
-        return CrewLikeSaveRespDto.builder().crewLike(saveCrewLike).build();
+        // 총 좋아요 수 +1
+        crew.changeTotalLike(1);
+        crewRepository.save(crew);
+
+        crewLike = CrewLike.builder()
+                .crew(crew)
+                .member(member)
+                .build();
+
+        return CrewLikeSaveRespDto.builder().crewLike(crewLikeRepository.save(crewLike)).build();
     }
 
     // 모임 좋아요 취소
@@ -365,9 +368,13 @@ public class CrewServiceImpl implements CrewService {
 
         if (crewLike == null) {
             throw new CustomException(ErrorCode.NOT_CREW_LIKE);
-        } else {
-            crewLikeRepository.delete(crewLike);
         }
+
+        // 총 좋아요 수 -1
+        crew.changeTotalLike(-1);
+        crewRepository.save(crew);
+
+        crewLikeRepository.delete(crewLike);
     }
 
     // 모임 찜 여부 조회
