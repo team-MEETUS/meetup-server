@@ -11,13 +11,13 @@ import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 import site.mymeetup.meetupserver.crew.repository.CrewMemberRepository;
 import site.mymeetup.meetupserver.crew.repository.CrewRepository;
+import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import static site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumSaveReqDto;
 import static site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumSaveRespDto;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -91,19 +91,26 @@ public class AlbumServiceImpl implements AlbumService {
     // 사진첩 삭제
     @Override
     public void deleteAlbum(Long crewId, Long albumId) {
+        // 해당 사진첩이 존재하는지 검증
         Album album = albumRepository.findById(albumId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
 
-        Long memberId = 101L; // JWT를 통해서 받아온 로그인한 memberId
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
 
-        CrewMember crewMember =  crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId)
+        // 현재 로그인한 사용자 정보 가져오기
+        Long memberId = 101L; // JWT를 통해서 받아온 로그인한 memberId
+        CrewMember crewNember =  crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
-        // 로그인한 유저와 사진첩을 생성한 유저가 같은 유저인지 확인
-        if(album.getCrewMember().getCrewMemberId() != crewMember.getCrewMemberId()) {
-            throw new CustomException(ErrorCode.ALBUM_ACCESS_DENIED);
+        // 로그인한 유저가 삭제할 권한(모임장 or 관리자 or 작성자)이 있는지 확인
+        if(album.getCrewMember().getCrewMemberId() != crewNember.getCrewMemberId()
+        || crewMemberRepository.existsByCrewAndMemberAndRole(crew, crewNember.getMember(), CrewMemberRole.LEADER)
+        || crewMemberRepository.existsByCrewAndMemberAndRole(crew, crewNember.getMember(), CrewMemberRole.ADMIN)) {
+            throw new CustomException(ErrorCode.ALBUM_DELETE_ACCESS_DENIED);
         }
-
+        
         // 사진첩의 상태값이 삭제된 상태인지 확인
         if(album.getStatus() == 0) { // status가 0인 경우 삭제된 사진첩
             throw new CustomException(ErrorCode.ALBUM_NOT_FOUND);
