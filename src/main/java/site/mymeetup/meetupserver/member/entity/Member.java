@@ -2,6 +2,7 @@ package site.mymeetup.meetupserver.member.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import site.mymeetup.meetupserver.common.entity.BaseEntity;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.member.role.Role;
@@ -16,9 +17,7 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "member")
 
-//UserDetails 관련 우선 주석 처리함
-//public class Member implements UserDetails {
-public class Member extends BaseEntity {
+public class Member extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

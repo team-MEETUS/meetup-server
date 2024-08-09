@@ -4,18 +4,19 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import site.mymeetup.meetupserver.member.role.Role;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.member.entity.Member;
 
 import java.time.LocalDateTime;
 
-
 public class MemberDto {
 
     @Getter
     @NoArgsConstructor
     public static class MemberSaveReqDto {
+
         @NotEmpty(message = "핸드폰 번호는 필수 입력사항입니다")
         @Size(max = 300)
         private String phone;
@@ -36,6 +37,13 @@ public class MemberDto {
         @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
 
+        // 비밀번호 인코딩 메서드
+        public void encodePassword(BCryptPasswordEncoder encoder) {
+            if (this.password != null) {
+                this.password = encoder.encode(this.password);
+            }
+        }
+
         // 회원가입 DTO -> Entity
         public Member goEntity(Geo geo) {
             return Member.builder()
@@ -46,7 +54,7 @@ public class MemberDto {
                     .intro(intro)
                     .birth(birth)
                     .gender(gender)
-                    .role(Role.ROLE_USER)
+                    .role(Role.USER)
                     .status(1)
                     .build();
         }
@@ -61,12 +69,19 @@ public class MemberDto {
                     .intro(intro)
                     .birth(birth)
                     .gender(gender)
-                    .role(Role.ROLE_USER)
+                    .role(Role.USER)
                     .status(1)
                     .originalImg(originalImg != null ? originalImg : "test.jpg")
                     .saveImg(saveImg != null ? saveImg : "test.jpg")
                     .build();
         }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MemberLoginReqDto {
+        private String phone;
+        private String password;
     }
 
     @Getter
