@@ -33,6 +33,9 @@ public enum ErrorCode {
     ALREADY_CREW_LIKE(HttpStatus.BAD_REQUEST, "CL40001", "이미 찜을 한 모임입니다."),
     NOT_CREW_LIKE(HttpStatus.BAD_REQUEST, "CL40002", "찜을 하지않은 모임입니다."),
 
+    // 정모
+    MAX_MEETINGS_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "M42901", "등록 가능한 정모의 수를 초과했습니다."),
+
     // 게시판
     BOARD_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40301", "일반 모임원은 공지 등록이 불가능합니다."),
     BOARD_WRITER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40302", "작성자와 로그인 회원이 일치하지 않습니다."),
