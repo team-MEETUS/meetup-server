@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumRespDto;
+import static site.mymeetup.meetupserver.album.dto.AlbumLikeRespDto.AlbumLikeSaveRespDto;
 import site.mymeetup.meetupserver.album.entity.Album;
+import site.mymeetup.meetupserver.album.entity.AlbumLike;
+import site.mymeetup.meetupserver.album.repository.AlbumLikeRepository;
 import site.mymeetup.meetupserver.album.repository.AlbumRepository;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
 import site.mymeetup.meetupserver.crew.entity.Crew;
@@ -14,6 +17,7 @@ import site.mymeetup.meetupserver.crew.repository.CrewRepository;
 import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
+
 import static site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumSaveReqDto;
 import static site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumSaveRespDto;
 import java.util.ArrayList;
@@ -26,6 +30,7 @@ public class AlbumServiceImpl implements AlbumService {
     private final CrewRepository crewRepository;
     private final CrewMemberRepository crewMemberRepository;
     private final S3ImageService s3ImageService;
+    private final AlbumLikeRepository albumLikeRepository;
 
     // 사진첩 등록
     @Override
@@ -43,10 +48,10 @@ public class AlbumServiceImpl implements AlbumService {
         CrewMember crewMember =  crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
-//        // crewMember 일반인 등록 금지
-//        if (crewMember.getRole() == CrewMemberRole.MEMBER) {
-//            throw new CustomException(ErrorCode.ALBUM_ACCESS_DENIED);
-//        }
+        // crewMember 일반인 등록 금지
+        if (crewMember.getRole() == CrewMemberRole.MEMBER) {
+            throw new CustomException(ErrorCode.ALBUM_ACCESS_DENIED);
+        }
 
         for(int i = 0; i < images.size(); i++) {
             // S3 이미지 업로드
@@ -78,12 +83,9 @@ public class AlbumServiceImpl implements AlbumService {
     // 사진첩 상세 조회
     @Override
     public AlbumRespDto getAlbumByCrewIdAndAlbumId(Long crewId, Long albumId) {
-        Album album = albumRepository.findAlbumByCrewCrewIdAndAlbumId(crewId, albumId);
-
-        // 조회한 결과가 없다면 에러
-        if(album == null) {
-            throw new CustomException(ErrorCode.ALBUM_NOT_FOUND);
-        }
+        // 해당 사진첩이 존재하는지 검증
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
 
         return AlbumRespDto.builder().album(album).build();
     }
@@ -101,7 +103,7 @@ public class AlbumServiceImpl implements AlbumService {
 
         // 현재 로그인한 사용자 정보 가져오기
         Long memberId = 101L; // JWT를 통해서 받아온 로그인한 memberId
-        CrewMember crewNember =  crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId)
+        CrewMember crewNember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         // 로그인한 유저가 삭제할 권한(모임장 or 관리자 or 작성자)이 있는지 확인
@@ -110,19 +112,82 @@ public class AlbumServiceImpl implements AlbumService {
         || crewMemberRepository.existsByCrewAndMemberAndRole(crew, crewNember.getMember(), CrewMemberRole.ADMIN)) {
             throw new CustomException(ErrorCode.ALBUM_DELETE_ACCESS_DENIED);
         }
-        
-        // 사진첩의 상태값이 삭제된 상태인지 확인
-        if(album.getStatus() == 0) { // status가 0인 경우 삭제된 사진첩
-            throw new CustomException(ErrorCode.ALBUM_NOT_FOUND);
-        }
-        
-        // 사진첩의 crewId와 현재 위치하고 있는 crewId가 같은지 확인
-        if(!album.getCrew().getCrewId().equals(crewId)) {
-            throw new CustomException(ErrorCode.ALBUM_CREW_ACCESS_DENIED);
-        }
+
+        this.validateExist(album, crewId);
 
         // 실제로 삭제하지않고 상태값 변경
         album.deleteAlbum(0);
         albumRepository.save(album);
+    }
+
+    // 사진첩 좋아요 여부 확인 후 삭제 or 생성
+    @Override
+    public AlbumLikeSaveRespDto likeAlbum(Long crewId, Long albumId) {
+        // 해당 사진첩이 존재하는지 검증
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
+
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 현재 로그인한 사용자 정보 가져오기
+        Long memberId = 101L; // JWT를 통해서 받아온 로그인한 memberId
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        this.validateExist(album, crewId);
+        AlbumLike albumLike = albumLikeRepository.findByAlbumAndCrewMember(album, crewMember);
+        AlbumLike albumLikeRtn = null;
+
+        // 사진첩 좋아요 여부 조회
+        if(!this.isLikeAlbum(crewId, albumId)) { // 좋아요가 눌리지 않은 경우
+            albumLike = AlbumLike.builder()
+                    .crewMember(crewMember)
+                    .album(album)
+                    .build();
+            album.updateAlbumTotalLike(album.getTotalLike() + 1); // 좋아요 수 증가
+            albumLikeRtn = albumLikeRepository.save(albumLike);
+        } else {
+            albumLikeRepository.delete(albumLike);
+            album.updateAlbumTotalLike(album.getTotalLike() - 1); // 좋아요 수 감소
+            albumRepository.save(album);
+        }
+
+        return albumLikeRtn == null ? null : AlbumLikeSaveRespDto.builder().albumLike(albumLikeRtn).build();
+    }
+
+    // 사진첩 좋아요 여부 조회
+    @Override
+    public boolean isLikeAlbum(Long crewId, Long albumId) {
+        // 해당 사진첩이 존재하는지 검증
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
+
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 현재 로그인한 사용자 정보 가져오기
+        Long memberId = 101L; // JWT를 통해서 받아온 로그인한 memberId
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        this.validateExist(album, crewId);
+
+        return albumLikeRepository.existsByAlbumAndCrewMember(album, crewMember);
+    }
+
+    // 검증 로직
+    public void validateExist(Album album, Long crewId) {
+        // 사진첩의 상태값이 삭제된 상태인지 확인
+        if(album.getStatus() == 0) { // status가 0인 경우 삭제된 사진첩
+            throw new CustomException(ErrorCode.ALBUM_NOT_FOUND);
+        }
+
+        // 사진첩의 crewId와 현재 위치하고 있는 crewId가 같은지 확인
+        if(!album.getCrew().getCrewId().equals(crewId)) {
+            throw new CustomException(ErrorCode.ALBUM_CREW_ACCESS_DENIED);
+        }
     }
 }
