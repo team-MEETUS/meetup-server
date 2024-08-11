@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     int countByCrew_CrewIdAndStatusAndDateAfter(Long crewId, int status, LocalDateTime now);
 
-    Optional<Meeting> findByMeetingIdAndStatus(Long meetingId, int status);
+    Optional<Meeting> findByCrew_CrewIdAndMeetingIdAndStatus(Long crewId, Long meetingId, int status);
 }
