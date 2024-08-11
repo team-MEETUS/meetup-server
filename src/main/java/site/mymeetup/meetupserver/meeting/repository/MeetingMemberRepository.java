@@ -5,6 +5,7 @@ import site.mymeetup.meetupserver.crew.entity.CrewMember;
 import site.mymeetup.meetupserver.meeting.entity.Meeting;
 import site.mymeetup.meetupserver.meeting.entity.MeetingMember;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MeetingMemberRepository extends JpaRepository<MeetingMember, Long> {
@@ -13,4 +14,5 @@ public interface MeetingMemberRepository extends JpaRepository<MeetingMember, Lo
 
     Optional<MeetingMember> findByMeetingAndCrewMember(Meeting meeting, CrewMember crewMember);
 
+    List<MeetingMember> findByMeeting(Meeting meeting);
 }

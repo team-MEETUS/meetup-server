@@ -2,11 +2,9 @@ package site.mymeetup.meetupserver.meeting.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.QueryParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.meeting.service.MeetingService;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
@@ -15,6 +13,7 @@ import java.util.List;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveReqDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveRespDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSelectRespDto;
+import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberRespDto;
 
 @RestController
 @RequestMapping("/api/v1/crews")
@@ -69,5 +68,13 @@ public class MeetingController {
             meetingService.cancelMeeting(crewId, meetingId);
         }
         return ApiResponse.success(null);
+    }
+
+    // 정모 참석 멤버 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{crewId}/meetings/{meetingId}")
+    public ApiResponse<List<MeetingMemberRespDto>> getMeetingMemberByMeetingId(@PathVariable("crewId") Long crewId,
+                                                                               @PathVariable("meetingId") Long meetingId) {
+        return ApiResponse.success(meetingService.getMeetingMemberByMeetingId(crewId, meetingId));
     }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveReqDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveRespDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSelectRespDto;
+import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberRespDto;
 
 public interface MeetingService {
     MeetingSaveRespDto createMeeting(Long crewId, MeetingSaveReqDto meetingSaveReqDto, MultipartFile image);
@@ -21,4 +22,6 @@ public interface MeetingService {
     void attendMeeting(Long crewId, Long meetingId);
 
     void cancelMeeting(Long crewId, Long meetingId);
+
+    List<MeetingMemberRespDto> getMeetingMemberByMeetingId(Long crewId, Long meetingId);
 }
