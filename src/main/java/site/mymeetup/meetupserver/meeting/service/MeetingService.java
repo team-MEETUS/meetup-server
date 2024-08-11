@@ -16,4 +16,9 @@ public interface MeetingService {
     void deleteMeeting(Long crewId, Long meetingId);
 
     List<MeetingSelectRespDto> getMeetingByCrewId(Long crewId, String status);
+
+    // 정모 참여 멤버
+    void attendMeeting(Long crewId, Long meetingId);
+
+    void cancelMeeting(Long crewId, Long meetingId);
 }
