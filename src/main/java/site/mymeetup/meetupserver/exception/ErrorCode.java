@@ -34,6 +34,7 @@ public enum ErrorCode {
     NOT_CREW_LIKE(HttpStatus.BAD_REQUEST, "CL40002", "찜을 하지않은 모임입니다."),
 
     // 정모
+    MEETING_NOT_FOUND(HttpStatus.NOT_FOUND, "M40401", "존재하지 않는 정모입니다."),
     MAX_MEETINGS_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "M42901", "등록 가능한 정모의 수를 초과했습니다."),
 
     // 게시판
