@@ -153,9 +153,9 @@ public class MeetingServiceImpl implements MeetingService {
         // status 구분에 따라 정모 리스트 가져오기
         List<Meeting> meetings;
         if (status.equals("upcoming")) {
-            meetings = meetingRepository.findByCrew_CrewIdAndStatusAndDateAfter(crewId, 1, startOfToday);
+            meetings = meetingRepository.findByCrew_CrewIdAndStatusAndDateAfterOrderByDateAsc(crewId, 1, startOfToday);
         } else if (status.equals("past")) {
-            meetings = meetingRepository.findByCrew_CrewIdAndStatusAndDateBefore(crewId, 1, startOfToday);
+            meetings = meetingRepository.findByCrew_CrewIdAndStatusAndDateBeforeOrderByDateDesc(crewId, 1, startOfToday);
         } else {
             throw new CustomException(ErrorCode.MEETING_INVALID_STATUS);
         }

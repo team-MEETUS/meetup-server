@@ -77,12 +77,11 @@ public class MeetingDto {
         private String price;
         private int max;
         private int attend;
-        private int status;
         private String originalImg;
         private String saveImg;
         private LocalDateTime createDate;
         private LocalDateTime updateDate;
-        private Crew crew;
+        private Long crewId;
         private CrewMember crewMember;
 
         @Builder
@@ -95,12 +94,11 @@ public class MeetingDto {
             this.price = meeting.getPrice();
             this.max = meeting.getMax();
             this.attend = meeting.getAttend();
-            this.status = meeting.getStatus();
             this.originalImg = meeting.getOriginalImg();
             this.saveImg = meeting.getSaveImg();
             this.createDate = meeting.getCreateDate();
             this.updateDate = meeting.getUpdateDate();
-            this.crew = meeting.getCrew();
+            this.crewId = meeting.getCrew().getCrewId();
             this.crewMember = meeting.getCrewMember();
         }
     }

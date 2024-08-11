@@ -12,7 +12,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 
     Optional<Meeting> findByCrew_CrewIdAndMeetingIdAndStatus(Long crewId, Long meetingId, int status);
 
-    List<Meeting> findByCrew_CrewIdAndStatusAndDateAfter(Long crewId, int status, LocalDateTime now);
+    List<Meeting> findByCrew_CrewIdAndStatusAndDateAfterOrderByDateAsc(Long crewId, int status, LocalDateTime now);
 
-    List<Meeting> findByCrew_CrewIdAndStatusAndDateBefore(Long crewId, int status, LocalDateTime now);
+    List<Meeting> findByCrew_CrewIdAndStatusAndDateBeforeOrderByDateDesc(Long crewId, int status, LocalDateTime now);
 }
