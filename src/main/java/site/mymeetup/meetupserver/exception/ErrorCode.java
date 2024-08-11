@@ -36,6 +36,7 @@ public enum ErrorCode {
     // 정모
     MEETING_NOT_FOUND(HttpStatus.NOT_FOUND, "M40401", "존재하지 않는 정모입니다."),
     MAX_MEETINGS_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "M42901", "등록 가능한 정모의 수를 초과했습니다."),
+    MEETING_INVALID_STATUS(HttpStatus.BAD_REQUEST, "M40001", "유효하지 않은 상태 값입니다."),
 
     // 게시판
     BOARD_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40301", "일반 모임원은 공지 등록이 불가능합니다."),
