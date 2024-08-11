@@ -44,7 +44,7 @@ public class CrewController {
     // 모임 삭제
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{crewId}")
-    public ApiResponse<?> deleteCrew(@PathVariable("crewId") Long crewId) {
+    public ApiResponse<Void> deleteCrew(@PathVariable("crewId") Long crewId) {
         crewService.deleteCrew(crewId);
         return ApiResponse.success(null);
     }
