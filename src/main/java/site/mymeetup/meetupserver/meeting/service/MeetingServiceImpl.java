@@ -11,6 +11,7 @@ import site.mymeetup.meetupserver.crew.repository.CrewRepository;
 import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
+import site.mymeetup.meetupserver.meeting.dto.MeetingDto;
 import site.mymeetup.meetupserver.meeting.entity.Meeting;
 import site.mymeetup.meetupserver.meeting.entity.MeetingMember;
 import site.mymeetup.meetupserver.meeting.repository.MeetingMemberRepository;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveReqDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveRespDto;
+import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSelectRespDto;
 
 @Service
 @RequiredArgsConstructor
@@ -136,6 +138,31 @@ public class MeetingServiceImpl implements MeetingService {
 
         // DB 수정
         meetingRepository.save(meeting);
+    }
+
+    @Override
+    public List<MeetingSelectRespDto> getMeetingByCrewId(Long crewId, String status) {
+        // crew 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 오늘 정시 날짜
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfToday = today.atStartOfDay();
+
+        // status 구분에 따라 정모 리스트 가져오기
+        List<Meeting> meetings;
+        if (status.equals("upcoming")) {
+            meetings = meetingRepository.findByCrew_CrewIdAndStatusAndDateAfterOrderByDateAsc(crewId, 1, startOfToday);
+        } else if (status.equals("past")) {
+            meetings = meetingRepository.findByCrew_CrewIdAndStatusAndDateBeforeOrderByDateDesc(crewId, 1, startOfToday);
+        } else {
+            throw new CustomException(ErrorCode.MEETING_INVALID_STATUS);
+        }
+
+        return meetings.stream()
+                .map(MeetingSelectRespDto::new)
+                .toList();
     }
 
 }
