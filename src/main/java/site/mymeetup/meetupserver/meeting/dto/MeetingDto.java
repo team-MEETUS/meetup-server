@@ -66,4 +66,43 @@ public class MeetingDto {
         }
     }
 
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MeetingSelectRespDto {
+        private Long meetingId;
+        private String name;
+        private LocalDateTime date;
+        private String loc;
+        private String url;
+        private String price;
+        private int max;
+        private int attend;
+        private int status;
+        private String originalImg;
+        private String saveImg;
+        private LocalDateTime createDate;
+        private LocalDateTime updateDate;
+        private Crew crew;
+        private CrewMember crewMember;
+
+        @Builder
+        public MeetingSelectRespDto(Meeting meeting) {
+            this.meetingId = meeting.getMeetingId();
+            this.name = meeting.getName();
+            this.date = meeting.getDate();
+            this.loc = meeting.getLoc();
+            this.url = meeting.getUrl();
+            this.price = meeting.getPrice();
+            this.max = meeting.getMax();
+            this.attend = meeting.getAttend();
+            this.status = meeting.getStatus();
+            this.originalImg = meeting.getOriginalImg();
+            this.saveImg = meeting.getSaveImg();
+            this.createDate = meeting.getCreateDate();
+            this.updateDate = meeting.getUpdateDate();
+            this.crew = meeting.getCrew();
+            this.crewMember = meeting.getCrewMember();
+        }
+    }
+
 }
