@@ -8,4 +8,6 @@ public interface MeetingService {
     MeetingSaveRespDto createMeeting(Long crewId, MeetingSaveReqDto meetingSaveReqDto, MultipartFile image);
 
     MeetingSaveRespDto updateMeeting(Long crewId, Long meetingId, MeetingSaveReqDto meetingSaveReqDto);
+
+    void deleteMeeting(Long crewId, Long meetingId);
 }

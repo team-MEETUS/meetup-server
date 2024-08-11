@@ -34,4 +34,12 @@ public class MeetingController {
         return ApiResponse.success(meetingService.updateMeeting(crewId, meetingId, meetingSaveReqDto));
     }
 
+    // 모임 삭제
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{crewId}/meetings/{meetingId}")
+    public ApiResponse<?> deleteCrew(@PathVariable("crewId") Long crewId,
+                                     @PathVariable("meetingId") Long meetingId) {
+        meetingService.deleteMeeting(crewId, meetingId);
+        return ApiResponse.success(null);
+    }
 }

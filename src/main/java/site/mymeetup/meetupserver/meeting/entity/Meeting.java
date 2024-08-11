@@ -75,4 +75,8 @@ public class Meeting extends BaseEntity {
         }
     }
 
+    // deleteMeeting
+    public void deleteMeeting(int status) {
+        this.status = status;
+    }
 }

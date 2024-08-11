@@ -87,7 +87,7 @@ public class MeetingServiceImpl implements MeetingService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
 
         // meeting 검증
-        Meeting meeting = meetingRepository.findByMeetingIdAndStatus(meetingId, 1)
+        Meeting meeting = meetingRepository.findByCrew_CrewIdAndMeetingIdAndStatus(crewId, meetingId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
 
         // 현재 로그인한 유저정보 가져오기
@@ -109,4 +109,33 @@ public class MeetingServiceImpl implements MeetingService {
 
         return MeetingSaveRespDto.builder().meeting(updateMeeting).build();
     }
+
+    @Override
+    public void deleteMeeting(Long crewId, Long meetingId) {
+        // crew 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // meeting 검증
+        Meeting meeting = meetingRepository.findByCrew_CrewIdAndMeetingIdAndStatus(crewId, meetingId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+
+        // 현재 로그인한 유저정보 가져오기
+        Long memberId = 101L;   // 테스트용
+
+        // 정모수정이 가능한 유저인지 확인
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberIdAndRoleIn(crew.getCrewId(), memberId, roles)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_ACCESS_DENIED));
+
+        // 정모 업데이트
+        meeting.deleteMeeting(0);
+
+        // DB 수정
+        meetingRepository.save(meeting);
+    }
+
 }
