@@ -55,4 +55,24 @@ public class Meeting extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "crew_and_member_id")
     private CrewMember crewMember;
+
+    // updateMeeting
+    public void updateMeeting(Meeting meeting) {
+        if (meeting.getName() != null) {
+            this.name = meeting.getName();
+        }
+        if (meeting.getLoc() != null) {
+            this.loc = meeting.getLoc();
+        }
+        if (meeting.getUrl() != null) {
+            this.url = meeting.getUrl();
+        }
+        if (meeting.getPrice() != null) {
+            this.price = meeting.getPrice();
+        }
+        if (meeting.getMax() != 0) {
+            this.max = meeting.getMax();
+        }
+    }
+
 }

@@ -33,6 +33,7 @@ public class MeetingServiceImpl implements MeetingService {
     private final MeetingMemberRepository meetingMemberRepository;
     private final S3ImageService s3ImageService;
 
+    // 정모 생성
     public MeetingSaveRespDto createMeeting(Long crewId, MeetingSaveReqDto meetingSaveReqDto, MultipartFile image) {
         // crew 검증
         Crew crew = crewRepository.findById(crewId)
@@ -52,7 +53,7 @@ public class MeetingServiceImpl implements MeetingService {
         // 진행중인 정모의 개수가 4개 이상인지 확인
         LocalDate today = LocalDate.now();
         LocalDateTime startOfToday = today.atStartOfDay();
-        int meetingCount = meetingRepository.countByCrew_CrewIdAndDateAfter(crewId, startOfToday);
+        int meetingCount = meetingRepository.countByCrew_CrewIdAndStatusAndDateAfter(crewId, 1, startOfToday);
         if (meetingCount >= 4) {
             throw new CustomException(ErrorCode.MAX_MEETINGS_EXCEEDED);
         }
@@ -76,5 +77,36 @@ public class MeetingServiceImpl implements MeetingService {
         meetingMemberRepository.save(meetingMember);
 
         return MeetingSaveRespDto.builder().meeting(meeting).build();
+    }
+
+    // 정모 수정
+    @Override
+    public MeetingSaveRespDto updateMeeting(Long crewId, Long meetingId, MeetingSaveReqDto meetingSaveReqDto) {
+        // crew 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // meeting 검증
+        Meeting meeting = meetingRepository.findByMeetingIdAndStatus(meetingId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+
+        // 현재 로그인한 유저정보 가져오기
+        Long memberId = 101L;   // 테스트용
+
+        // 정모수정이 가능한 유저인지 확인
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberIdAndRoleIn(crew.getCrewId(), memberId, roles)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_ACCESS_DENIED));
+
+        // 정모 업데이트
+        meeting.updateMeeting(meetingSaveReqDto.toEntity(meeting.getOriginalImg(), meeting.getSaveImg(), meeting.getCrew(), meeting.getCrewMember()));
+
+        // DB 수정
+        Meeting updateMeeting = meetingRepository.save(meeting);
+
+        return MeetingSaveRespDto.builder().meeting(updateMeeting).build();
     }
 }
