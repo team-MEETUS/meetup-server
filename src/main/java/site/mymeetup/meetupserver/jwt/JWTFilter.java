@@ -29,7 +29,6 @@ public class JWTFilter extends OncePerRequestFilter {
         String authorization = request.getHeader("Authorization");
         response.setContentType("application/json; charset=UTF-8");
 
-        // 로그인 요청 URL 확인 (예: "/login" 또는 "/api/login")
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
         if (method.equals("GET") && (requestURI.matches("/api/v1/crews/\\d+") ||
@@ -39,7 +38,9 @@ public class JWTFilter extends OncePerRequestFilter {
                                      requestURI.equals("/api/v1/interestBigs") ||
                                      requestURI.matches("/api/v1/interestBigs/\\d+/interestSmalls") ||
                                      requestURI.matches("/api/v1/members/\\d+") ||
-                                     requestURI.matches("/api/v1/crews/\\d+/albums"))) {
+                                     requestURI.matches("/api/v1/crews/\\d+/albums") ||
+                                     requestURI.matches("/api/v1/crews/\\d+/boards") ||
+                                     requestURI.matches("/api/v1/crews/\\d+/boards/.+"))) {
             // 로그인 요청인 경우, 필터를 계속 진행
             filterChain.doFilter(request, response);
             return;
