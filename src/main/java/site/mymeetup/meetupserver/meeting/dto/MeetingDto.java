@@ -82,7 +82,7 @@ public class MeetingDto {
         private LocalDateTime createDate;
         private LocalDateTime updateDate;
         private Long crewId;
-        private CrewMember crewMember;
+        private Long crewMemberId;
 
         @Builder
         public MeetingSelectRespDto(Meeting meeting) {
@@ -99,7 +99,7 @@ public class MeetingDto {
             this.createDate = meeting.getCreateDate();
             this.updateDate = meeting.getUpdateDate();
             this.crewId = meeting.getCrew().getCrewId();
-            this.crewMember = meeting.getCrewMember();
+            this.crewMemberId = meeting.getCrewMember().getCrewMemberId();
         }
     }
 
