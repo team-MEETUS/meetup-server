@@ -36,12 +36,6 @@ public class MeetingDto {
         @Min(value = 1, message = "정원은 1명 이상이어야 합니다.")
         @Max(value = 300, message = "정원은 300명 이하여야 합니다.")
         private int max;
-        private int attend;
-        private int status;
-        private String originalImg;
-        private String saveImg;
-        private Long crewId;
-        private Long crewMemberId;
 
         public Meeting toEntity(String originalImg, String saveImg, Crew crew, CrewMember crewMember) {
             return Meeting.builder()

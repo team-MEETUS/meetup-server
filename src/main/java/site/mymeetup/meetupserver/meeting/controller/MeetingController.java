@@ -24,4 +24,14 @@ public class MeetingController {
                                                          @RequestPart @Valid MeetingSaveReqDto meetingSaveReqDto) {
         return ApiResponse.success(meetingService.createMeeting(crewId, meetingSaveReqDto, image));
     }
+
+    // 정모 수정
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{crewId}/meetings/{meetingId}")
+    public ApiResponse<MeetingSaveRespDto> updateMeeting(@PathVariable("crewId") Long crewId,
+                                                         @PathVariable("meetingId") Long meetingId,
+                                                         @RequestPart @Valid MeetingSaveReqDto meetingSaveReqDto) {
+        return ApiResponse.success(meetingService.updateMeeting(crewId, meetingId, meetingSaveReqDto));
+    }
+
 }
