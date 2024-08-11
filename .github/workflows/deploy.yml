@@ -48,6 +48,8 @@ jobs:
                   value: ${{ secrets.S3_BUCKET_NAME }}
                 - name: S3_REGION_STATIC
                   value: ${{ secrets.S3_REGION_STATIC }}
+                - name: JWT_SECRET
+                  value: ${{ secrets.JWT_SECRET }}
               buildenv: []
             context:
               git:
