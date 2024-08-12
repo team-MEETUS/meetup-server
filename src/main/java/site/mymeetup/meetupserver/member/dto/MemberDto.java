@@ -3,11 +3,14 @@ package site.mymeetup.meetupserver.member.dto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import site.mymeetup.meetupserver.member.role.Role;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.member.entity.Member;
+import site.mymeetup.meetupserver.member.role.Role;
 
 import java.time.LocalDateTime;
 
@@ -135,6 +138,23 @@ public class MemberDto {
             this.saveImg = member.getSaveImg();
             this.createDate = member.getCreateDate();
             this.updateDate = member.getUpdateDate();
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class UserInfoDto {
+        private Long memberId;
+        private Geo geo;
+        private String nickname;
+        private String saveImg;
+
+        @Builder
+        public UserInfoDto(Member member) {
+            this.memberId = member.getMemberId();
+            this.geo = member.getGeo();
+            this.nickname = member.getNickname();
+            this.saveImg = member.getSaveImg();
         }
     }
 }
