@@ -82,8 +82,9 @@ public class BoardController {
     @PostMapping("/details/{boardId}/comments")
     public ApiResponse<CommentSaveRespDto> createComment(@PathVariable Long crewId,
                                                          @PathVariable Long boardId,
-                                                         @RequestBody CommentSaveReqDto commentSaveReqDto) {
-        return ApiResponse.success(boardService.createComment(crewId, boardId, commentSaveReqDto));
+                                                         @RequestBody CommentSaveReqDto commentSaveReqDto,
+                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(boardService.createComment(crewId, boardId, commentSaveReqDto, userDetails));
     }
 
     // 댓글 수정
@@ -92,18 +93,19 @@ public class BoardController {
     public ApiResponse<CommentSaveRespDto> updateComment(@PathVariable Long crewId,
                                                          @PathVariable Long boardId,
                                                          @PathVariable Long commentId,
-                                                         @RequestBody CommentSaveReqDto commentSaveReqDto) {
-        return ApiResponse.success(boardService.updateComment(crewId, boardId, commentId, commentSaveReqDto));
+                                                         @RequestBody CommentSaveReqDto commentSaveReqDto,
+                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(boardService.updateComment(crewId, boardId, commentId, commentSaveReqDto, userDetails));
     }
 
     // 댓글 삭제
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/details/{boardId}/comments/{commentId}/{crewMemberId}")
+    @DeleteMapping("/details/{boardId}/comments/{commentId}")
     public ApiResponse<?> deleteComment(@PathVariable Long crewId,
                                         @PathVariable Long boardId,
                                         @PathVariable Long commentId,
-                                        @PathVariable Long crewMemberId) {
-        boardService.deleteComment(crewId, boardId, commentId, crewMemberId);
+                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        boardService.deleteComment(crewId, boardId, commentId, userDetails);
         return ApiResponse.success(null);
     }
 }

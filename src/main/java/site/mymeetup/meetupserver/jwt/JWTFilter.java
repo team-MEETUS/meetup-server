@@ -14,14 +14,20 @@ import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.role.Role;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
+    private final ObjectMapper objectMapper; // ObjectMapper 추가
 
     public JWTFilter(JWTUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
+        this.objectMapper = new ObjectMapper(); // ObjectMapper 초기화
     }
 
     @Override
@@ -31,6 +37,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
+
+        // 로그인 및 특정 GET 요청은 필터를 계속 진행
         if (method.equals("GET") && (requestURI.equals("/api/v1/geos") ||
                                      requestURI.equals("/api/v1/interestBigs") ||
                                      requestURI.matches("/api/v1/interestBigs/\\d+/interestSmalls") ||
@@ -43,20 +51,18 @@ public class JWTFilter extends OncePerRequestFilter {
                                      requestURI.matches("/api/v1/crews/\\d+/albums") ||
                                      requestURI.matches("/api/v1/crews/\\d+/boards") ||
                                      requestURI.matches("/api/v1/crews/\\d+/boards/.+"))) {
-            // 로그인 요청인 경우, 필터를 계속 진행
             filterChain.doFilter(request, response);
             return;
         }
+
         if (method.equals("POST") && (requestURI.equals("/api/v1/login") ||
-                                      requestURI.equals("/api/v1/members/join"))) {
-            // 로그인 요청인 경우, 필터를 계속 진행
+                requestURI.equals("/api/v1/members/join"))) {
             filterChain.doFilter(request, response);
             return;
         }
 
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"success\": false, \"data\": null, \"error\": {\"code\": \"INVALID_TOKEN\", \"message\": \"토큰이 없습니다.\"}}");
+            sendErrorResponse(response, "INVALID_TOKEN", "토큰이 없습니다.");
             return;
         }
 
@@ -64,8 +70,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         try {
             if (jwtUtil.isExpired(token)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("{\"success\": false, \"data\": null, \"error\": {\"code\": \"INVALID_TOKEN\", \"message\": \"로그인 유효기간이 끝났습니다.\"}}");
+                sendErrorResponse(response, "INVALID_TOKEN", "로그인 유효기간이 끝났습니다.");
                 return;
             }
 
@@ -83,15 +88,22 @@ public class JWTFilter extends OncePerRequestFilter {
             Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authToken);
         } catch (ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"success\": false, \"data\": null, \"error\": {\"code\": \"INVALID_TOKEN\", \"message\": \"토큰이 만료되었습니다.\"}}");
+            sendErrorResponse(response, "INVALID_TOKEN", "토큰이 만료되었습니다.");
             return;
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"success\": false, \"data\": null, \"error\": {\"code\": \"INVALID_TOKEN\", \"message\": \"Invalid JWT token\"}}");
+            sendErrorResponse(response, "INVALID_TOKEN", "Invalid JWT token");
             return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, String code, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("success", false);
+        errorResponse.put("data", null);
+        errorResponse.put("error", Map.of("code", code, "message", message));
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
