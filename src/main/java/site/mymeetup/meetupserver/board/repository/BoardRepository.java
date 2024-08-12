@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
     // crewId로 게시글 조회
-    List<Board> findBoardByCrewCrewId(Long crewId);
+    List<Board> findBoardByCrew_CrewIdAndStatusNot(Long crewId, int status);
 
     // crewId & category 로 게시글 조회
-    List<Board> findBoardByCrew_CrewIdAndCategory(Long crewId, String category);
+    List<Board> findBoardByCrew_CrewIdAndCategoryAndStatusNot(Long crewId, String category, int status);
 }

@@ -31,7 +31,6 @@ public class BoardDto {
         private int status;
 
         private Long crewId;
-        private Long crewMemberId;
 
         public Board toEntity(Crew crew, CrewMember crewMember) {
             return Board.builder()
