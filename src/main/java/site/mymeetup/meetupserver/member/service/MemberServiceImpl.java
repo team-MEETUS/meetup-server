@@ -13,7 +13,7 @@ import site.mymeetup.meetupserver.geo.repository.GeoRepository;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSelectRespDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveRespDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
-import static site.mymeetup.meetupserver.member.dto.MemberDto.UserInfoDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberInfoDto;
 
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
@@ -38,17 +38,25 @@ public class MemberServiceImpl implements MemberService {
         return MemberSaveRespDto.builder().member(member).build();
     }
 
-    // 특정 회원 조회
+    // 로그인 사용자 정보 조회
     @Override
-    public MemberSelectRespDto getMemberByMemberId(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public MemberInfoDto getUserInfoByMemberId(Long memberId, CustomUserDetails userDetails) {
+        // 핸드폰 번호로 해당 회원이 존재하는지 검증
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        return MemberSelectRespDto.builder().member(member).build();
+
+        // 로그인한 사용자와 요청된 사용자가 일치하지 않으면 예외 처리
+        Long loginMemberId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getMemberId();
+        if (!loginMemberId.equals(memberId)) {
+            throw new CustomException(ErrorCode.MEMBER_UNAUTHORIZED);
+        }
+
+        return MemberInfoDto.builder().member(member).build();
     }
 
     // 회원 수정
     @Override
-    public MemberSaveRespDto updateMember(Long memberId, MemberSaveReqDto memberSaveReqDto, MultipartFile image) {
+    public MemberSaveRespDto updateMember(Long memberId, MemberSaveReqDto memberSaveReqDto, MultipartFile image, CustomUserDetails userDetails) {
         // 핸드폰 번호로 해당 회원이 존재하는지 검증
         Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -90,7 +98,7 @@ public class MemberServiceImpl implements MemberService {
 
     //회원 삭제
     @Override
-    public MemberSaveRespDto deleteMember(Long memberId) {
+    public MemberSaveRespDto deleteMember(Long memberId, CustomUserDetails userDetails) {
         // 핸드폰 번호로 해당 회원이 존재하는지 검증
         Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -101,20 +109,12 @@ public class MemberServiceImpl implements MemberService {
         return null;
     }
 
-    // 로그인 사용자 정보 조회
+    // 특정 회원 조회
     @Override
-    public UserInfoDto getUserInfoByMemberId(Long memberId) {
-        // 핸드폰 번호로 해당 회원이 존재하는지 검증
-        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
+    public MemberSelectRespDto getMemberByMemberId(Long memberId, CustomUserDetails userDetails) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        // 로그인한 사용자와 요청된 사용자가 일치하지 않으면 예외 처리
-        Long loginMemberId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getMemberId();
-        if (!loginMemberId.equals(memberId)) {
-            throw new CustomException(ErrorCode.MEMBER_UNAUTHORIZED);
-        }
-
-        return UserInfoDto.builder().member(member).build();
+        return MemberSelectRespDto.builder().member(member).build();
     }
 
 }

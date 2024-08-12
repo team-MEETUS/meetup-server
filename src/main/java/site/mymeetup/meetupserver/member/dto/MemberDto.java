@@ -100,6 +100,23 @@ public class MemberDto {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MemberInfoDto {
+        private Long memberId;
+        private Geo geo;
+        private String nickname;
+        private String saveImg;
+
+        @Builder
+        public MemberInfoDto(Member member) {
+            this.memberId = member.getMemberId();
+            this.geo = member.getGeo();
+            this.nickname = member.getNickname();
+            this.saveImg = member.getSaveImg();
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberSelectRespDto {
         private Long memberId;
         private Geo geo;
@@ -138,23 +155,6 @@ public class MemberDto {
             this.saveImg = member.getSaveImg();
             this.createDate = member.getCreateDate();
             this.updateDate = member.getUpdateDate();
-        }
-    }
-
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class UserInfoDto {
-        private Long memberId;
-        private Geo geo;
-        private String nickname;
-        private String saveImg;
-
-        @Builder
-        public UserInfoDto(Member member) {
-            this.memberId = member.getMemberId();
-            this.geo = member.getGeo();
-            this.nickname = member.getNickname();
-            this.saveImg = member.getSaveImg();
         }
     }
 }
