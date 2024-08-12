@@ -165,4 +165,91 @@ public class MeetingServiceImpl implements MeetingService {
                 .toList();
     }
 
+    // MeetingMember
+
+    // 정모 참석
+    @Override
+    public void attendMeeting(Long crewId, Long meetingId) {
+        // crew 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // meeting 검증
+        Meeting meeting = meetingRepository.findByCrew_CrewIdAndMeetingIdAndStatus(crewId, meetingId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+
+        // 현재 로그인한 유저정보 가져오기
+        Long memberId = 103L;   // 테스트용
+
+        // 해당 모임에 존재하는 멤버인지 검증
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER,
+                CrewMemberRole.MEMBER
+        );
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberIdAndRoleIn(crew.getCrewId(), memberId, roles)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_ACCESS_DENIED));
+
+        // 해당 정모에 참여하지 않은 멤버인지 확인
+        if (meetingMemberRepository.existsByMeetingAndCrewMember(meeting, crewMember)) {
+            throw new CustomException(ErrorCode.ALREADY_ATTEND_MEETING);
+        }
+
+        // 정원을 초과하지 않았는지 확인
+        if (meeting.getAttend() == meeting.getMax()) {
+            throw new CustomException(ErrorCode.MEETING_FULL);
+        }
+
+        // 정모 멤버 등록
+        MeetingMember meetingMember = MeetingMember.builder()
+        .meeting(meeting)
+        .crewMember(crewMember)
+        .build();
+        meetingMemberRepository.save(meetingMember);
+
+        // 정모 참석인원 +1
+        meeting.changeAttend(1);
+        meetingRepository.save(meeting);
+    }
+
+    // 정모 참석 취소
+    @Override
+    public void cancelMeeting(Long crewId, Long meetingId) {
+        // crew 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // meeting 검증
+        Meeting meeting = meetingRepository.findByCrew_CrewIdAndMeetingIdAndStatus(crewId, meetingId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+
+        // 현재 로그인한 유저정보 가져오기
+        Long memberId = 102L;   // 테스트용
+
+        // 해당 모임에 존재하는 멤버인지 검증
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER,
+                CrewMemberRole.MEMBER
+        );
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberIdAndRoleIn(crewId, memberId, roles)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_ACCESS_DENIED));
+
+        // 해당 정모에 참여한 멤버인지 확인
+        MeetingMember meetingMember = meetingMemberRepository.findByMeetingAndCrewMember(meeting, crewMember)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_ATTEND_MEETING));
+
+        // 정모 개설자는 취소 불가
+        if (meetingMember.getCrewMember() == meeting.getCrewMember()) {
+            throw new CustomException(ErrorCode.CANNOT_CANCEL_CREATOR);
+        }
+
+        // 정모 멤버 삭제
+        meetingMemberRepository.delete(meetingMember);
+
+        // 정모 참석인원 -1
+        meeting.changeAttend(-1);
+        meetingRepository.save(meeting);
+    }
+
 }

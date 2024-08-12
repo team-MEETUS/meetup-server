@@ -79,4 +79,9 @@ public class Meeting extends BaseEntity {
     public void deleteMeeting(int status) {
         this.status = status;
     }
+
+    // updateAttend
+    public void changeAttend(int value) {
+        this.attend += value;
+    }
 }

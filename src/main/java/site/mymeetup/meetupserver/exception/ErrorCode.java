@@ -40,6 +40,10 @@ public enum ErrorCode {
     MEETING_NOT_FOUND(HttpStatus.NOT_FOUND, "M40401", "존재하지 않는 정모입니다."),
     MAX_MEETINGS_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "M42901", "등록 가능한 정모의 수를 초과했습니다."),
     MEETING_INVALID_STATUS(HttpStatus.BAD_REQUEST, "M40001", "유효하지 않은 상태 값입니다."),
+    ALREADY_ATTEND_MEETING(HttpStatus.BAD_REQUEST, "M40002", "이미 참석한 정모입니다."),
+    NOT_ATTEND_MEETING(HttpStatus.BAD_REQUEST, "M40003", "참석하지 않은 정모입니다."),
+    CANNOT_CANCEL_CREATOR(HttpStatus.FORBIDDEN, "M40301", "정모의 개설자는 참가 취소를 할 수 없습니다."),
+    MEETING_FULL(HttpStatus.BAD_REQUEST, "M40004", "정모의 정원이 꽉 찼습니다."),
 
     // 게시판
     BOARD_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40301", "일반 모임원은 공지 등록이 불가능합니다."),
