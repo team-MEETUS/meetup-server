@@ -11,7 +11,6 @@ import site.mymeetup.meetupserver.crew.repository.CrewRepository;
 import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
-import site.mymeetup.meetupserver.meeting.dto.MeetingDto;
 import site.mymeetup.meetupserver.meeting.entity.Meeting;
 import site.mymeetup.meetupserver.meeting.entity.MeetingMember;
 import site.mymeetup.meetupserver.meeting.repository.MeetingMemberRepository;
@@ -25,6 +24,7 @@ import java.util.List;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveReqDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveRespDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSelectRespDto;
+import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberRespDto;
 
 @Service
 @RequiredArgsConstructor
@@ -140,6 +140,7 @@ public class MeetingServiceImpl implements MeetingService {
         meetingRepository.save(meeting);
     }
 
+    // 모임별 정모 조회
     @Override
     public List<MeetingSelectRespDto> getMeetingByCrewId(Long crewId, String status) {
         // crew 검증
@@ -250,6 +251,25 @@ public class MeetingServiceImpl implements MeetingService {
         // 정모 참석인원 -1
         meeting.changeAttend(-1);
         meetingRepository.save(meeting);
+    }
+
+    // 특정 정모의 참여 멤버 조회
+    @Override
+    public List<MeetingMemberRespDto> getMeetingMemberByMeetingId(Long crewId, Long meetingId) {
+        // crew 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // meeting 검증
+        Meeting meeting = meetingRepository.findByCrew_CrewIdAndMeetingIdAndStatus(crewId, meetingId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+
+        // 참여 멤버 조회
+        List<MeetingMember> meetingMembers = meetingMemberRepository.findByMeeting(meeting);
+
+        return meetingMembers.stream()
+                .map(MeetingMemberRespDto::new)
+                .toList();
     }
 
 }
