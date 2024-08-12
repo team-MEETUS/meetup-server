@@ -204,6 +204,7 @@ public class BoardServiceImpl implements BoardService {
         // dto -> Entity
         Comment comment = commentRepository.save(commentSaveReqDto.toEntity(board, crewMember));
         board.updateBoardTotalComment(board.getTotalComment() + 1);
+        boardRepository.save(board);
         return CommentSaveRespDto.builder().comment(comment).build();
     }
 
