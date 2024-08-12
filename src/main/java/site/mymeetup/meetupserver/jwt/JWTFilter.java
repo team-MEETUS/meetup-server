@@ -39,16 +39,18 @@ public class JWTFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         // 로그인 및 특정 GET 요청은 필터를 계속 진행
-        if (method.equals("GET") && (requestURI.matches("/api/v1/crews/\\d+") ||
-                requestURI.equals("/api/v1/crews") ||
-                requestURI.matches("/api/v1/crews/\\d+/members") ||
-                requestURI.equals("/api/v1/geos") ||
-                requestURI.equals("/api/v1/interestBigs") ||
-                requestURI.matches("/api/v1/interestBigs/\\d+/interestSmalls") ||
-                requestURI.matches("/api/v1/members/\\d+") ||
-                requestURI.matches("/api/v1/crews/\\d+/albums") ||
-                requestURI.matches("/api/v1/crews/\\d+/boards") ||
-                requestURI.matches("/api/v1/crews/\\d+/boards/.+"))) {
+        if (method.equals("GET") && (requestURI.equals("/api/v1/geos") ||
+                                     requestURI.equals("/api/v1/interestBigs") ||
+                                     requestURI.matches("/api/v1/interestBigs/\\d+/interestSmalls") ||
+                                     requestURI.matches("/api/v1/members/\\d+") ||
+                                     requestURI.equals("/api/v1/crews") ||
+                                     requestURI.matches("/api/v1/crews/\\d+") ||
+                                     requestURI.matches("/api/v1/crews/\\d+/members") ||
+                                     requestURI.matches("/api/v1/crews/\\d+/meetings") ||
+                                     requestURI.matches("/api/v1/crews/\\d+/meetings/\\d+") ||
+                                     requestURI.matches("/api/v1/crews/\\d+/albums") ||
+                                     requestURI.matches("/api/v1/crews/\\d+/boards") ||
+                                     requestURI.matches("/api/v1/crews/\\d+/boards/.+"))) {
             filterChain.doFilter(request, response);
             return;
         }
