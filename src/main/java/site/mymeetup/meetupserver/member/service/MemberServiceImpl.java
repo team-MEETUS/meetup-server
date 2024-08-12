@@ -1,6 +1,7 @@
 package site.mymeetup.meetupserver.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
@@ -12,11 +13,11 @@ import site.mymeetup.meetupserver.geo.repository.GeoRepository;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSelectRespDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveRespDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.UserInfoDto;
 
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
-
-import java.util.List;
+import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 
 
 @Service
@@ -42,13 +43,6 @@ public class MemberServiceImpl implements MemberService {
     public MemberSelectRespDto getMemberByMemberId(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        // Status가 2인 경우 비활성화된 멤버
-        if (member.getStatus() == 2) {
-            throw new CustomException(ErrorCode.MEMBER_ACCESS_DENIED);
-        // Status가 0인 경우 삭제된 멤버
-        } else if (member.getStatus() == 0) {
-            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
-        }
         return MemberSelectRespDto.builder().member(member).build();
     }
 
@@ -97,7 +91,6 @@ public class MemberServiceImpl implements MemberService {
     //회원 삭제
     @Override
     public MemberSaveRespDto deleteMember(Long memberId) {
-
         // 핸드폰 번호로 해당 회원이 존재하는지 검증
         Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -106,6 +99,22 @@ public class MemberServiceImpl implements MemberService {
         // DB 수정
         memberRepository.save(member);
         return null;
+    }
+
+    // 로그인 사용자 정보 조회
+    @Override
+    public UserInfoDto getUserInfoByMemberId(Long memberId) {
+        // 핸드폰 번호로 해당 회원이 존재하는지 검증
+        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 로그인한 사용자와 요청된 사용자가 일치하지 않으면 예외 처리
+        Long loginMemberId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getMemberId();
+        if (!loginMemberId.equals(memberId)) {
+            throw new CustomException(ErrorCode.MEMBER_UNAUTHORIZED);
+        }
+
+        return UserInfoDto.builder().member(member).build();
     }
 
 }
