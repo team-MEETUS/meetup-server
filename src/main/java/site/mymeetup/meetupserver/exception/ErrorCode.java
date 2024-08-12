@@ -44,6 +44,7 @@ public enum ErrorCode {
     NOT_ATTEND_MEETING(HttpStatus.BAD_REQUEST, "M40003", "참석하지 않은 정모입니다."),
     CANNOT_CANCEL_CREATOR(HttpStatus.FORBIDDEN, "M40301", "정모의 개설자는 참가 취소를 할 수 없습니다."),
     MEETING_FULL(HttpStatus.BAD_REQUEST, "M40004", "정모의 정원이 꽉 찼습니다."),
+    MEETING_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M40402", "존재하지 않는 정모 회원입니다."),
 
     // 게시판
     BOARD_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40301", "일반 모임원은 공지 등록이 불가능합니다."),

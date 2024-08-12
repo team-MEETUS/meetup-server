@@ -2,6 +2,7 @@ package site.mymeetup.meetupserver.meeting.dto;
 
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +26,13 @@ public class MeetingMemberDto {
             this.meetingId = meetingMember.getMeeting().getMeetingId();
             this.crewMember = meetingMember.getCrewMember();
         }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class MeetingMemberReqDto {
+        @NotEmpty(message = "정모멤버는 필수 입력사항입니다.")
+        private Long meetingMemberId;
     }
 
 }

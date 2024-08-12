@@ -1,6 +1,7 @@
 package site.mymeetup.meetupserver.meeting.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
@@ -15,6 +16,7 @@ import site.mymeetup.meetupserver.meeting.entity.Meeting;
 import site.mymeetup.meetupserver.meeting.entity.MeetingMember;
 import site.mymeetup.meetupserver.meeting.repository.MeetingMemberRepository;
 import site.mymeetup.meetupserver.meeting.repository.MeetingRepository;
+import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +26,7 @@ import java.util.List;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveReqDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveRespDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSelectRespDto;
+import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberReqDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberRespDto;
 
 @Service
@@ -243,6 +246,47 @@ public class MeetingServiceImpl implements MeetingService {
         // 정모 개설자는 취소 불가
         if (meetingMember.getCrewMember() == meeting.getCrewMember()) {
             throw new CustomException(ErrorCode.CANNOT_CANCEL_CREATOR);
+        }
+
+        // 정모 멤버 삭제
+        meetingMemberRepository.delete(meetingMember);
+
+        // 정모 참석인원 -1
+        meeting.changeAttend(-1);
+        meetingRepository.save(meeting);
+    }
+
+    // 정모 참석 거부
+    @Override
+    public void rejectMeeting(Long crewId, Long meetingId, MeetingMemberReqDto meetingMemberReqDto, CustomUserDetails userDetails) {
+        System.out.println(">>>>>>>>>>>>>>>>>>참석거부!!!!");
+        // crew 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // meeting 검증
+        Meeting meeting = meetingRepository.findByCrew_CrewIdAndMeetingIdAndStatus(crewId, meetingId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+
+        // 로그인 한 유저가 해당 모임의 관리자 또는 모임장인지 검증
+        List<CrewMemberRole> myRoles = Arrays.asList(
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+        CrewMember myCrewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberIdAndRoleIn(crewId, userDetails.getMemberId(), myRoles)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_ACCESS_DENIED));
+
+        // 정모 참여 멤버 가져오기
+        MeetingMember meetingMember = meetingMemberRepository.findByMeetingMemberIdAndMeeting_MeetingId(meetingMemberReqDto.getMeetingMemberId(), meetingId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_MEMBER_NOT_FOUND));
+
+        // 상대 유저가 해당 모임의 관리자 또는 일반 멤버인지 검증
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.LEADER,
+                CrewMemberRole.MEMBER
+        );
+        if (!crewMemberRepository.existsByCrewMemberIdAndRoleIn(meetingMember.getCrewMember().getCrewMemberId(), roles)) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
         }
 
         // 정모 멤버 삭제
