@@ -184,13 +184,13 @@ public class BoardServiceImpl implements BoardService {
 
     // 댓글 등록
     @Override
-    public CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto) {
+    public CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto, CustomUserDetails userDetails) {
         // boardId로 Board 객체 조회
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findById(commentSaveReqDto.getCrewMemberId())
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         // 모임에 가입된 모임원 확인 및 role 확인
@@ -203,18 +203,19 @@ public class BoardServiceImpl implements BoardService {
 
         // dto -> Entity
         Comment comment = commentRepository.save(commentSaveReqDto.toEntity(board, crewMember));
+        board.updateBoardTotalComment(board.getTotalComment() + 1);
         return CommentSaveRespDto.builder().comment(comment).build();
     }
 
     // 댓글 수정
     @Override
-    public CommentSaveRespDto updateComment(Long crewId, Long boardId, Long commentId, CommentSaveReqDto commentSaveReqDto) {
+    public CommentSaveRespDto updateComment(Long crewId, Long boardId, Long commentId, CommentSaveReqDto commentSaveReqDto, CustomUserDetails userDetails) {
         // boardId로 Board 객체 조회
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findById(commentSaveReqDto.getCrewMemberId())
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         // commentId로 Comment 객체 조회
@@ -228,7 +229,7 @@ public class BoardServiceImpl implements BoardService {
         if (crewMember.getRole() == CrewMemberRole.EXPELLED || crewMember.getRole() == CrewMemberRole.PENDING || crewMember.getRole() == CrewMemberRole.DEPARTED) {
             throw new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND);
         }
-        if (!comment.getCrewMember().getCrewMemberId().equals(commentSaveReqDto.getCrewMemberId())) {
+        if (!comment.getCrewMember().getCrewMemberId().equals(crewMember.getCrewMemberId())) {
             throw new CustomException(ErrorCode.BOARD_COMMENT_ACCESS_DENIED);
         }
         if (!comment.getBoard().getBoardId().equals(boardId)) {
@@ -244,12 +245,12 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public void deleteComment(Long crewId, Long boardId, Long commentId, Long crewMemberId) {
+    public void deleteComment(Long crewId, Long boardId, Long commentId, CustomUserDetails userDetails) {
         // boardId로 Board 객체 조회
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
         // crewMemberId로 CrewMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findById(crewMemberId)
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
         // commentId로 Comment 객체 조회
         Comment comment = commentRepository.findById(commentId)
@@ -265,12 +266,15 @@ public class BoardServiceImpl implements BoardService {
         if (!crewMember.getCrew().getCrewId().equals(crewId)) {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
         }
-        if (crewMember.getRole() != CrewMemberRole.ADMIN && crewMember.getRole() != CrewMemberRole.LEADER && !comment.getCrewMember().getCrewMemberId().equals(crewMemberId)) {
+        if (crewMember.getRole() != CrewMemberRole.ADMIN && crewMember.getRole() != CrewMemberRole.LEADER && !comment.getCrewMember().getCrewMemberId().equals(crewMember.getCrewMemberId())) {
             throw new CustomException(ErrorCode.BOARD_DELETE_ACCESS_DENIED);
         }
 
         // status 변경
         comment.deleteComment(0);
+        // BoardTotalComment 변경
+        board.updateBoardTotalComment(board.getTotalComment() - 1);
+        boardRepository.save(board);
         // DB 수정
         commentRepository.save(comment);
     }

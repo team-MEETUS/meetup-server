@@ -27,9 +27,9 @@ public interface BoardService {
 
     void deleteBoard(Long crewId, Long boardId, CustomUserDetails userDetails);
 
-    CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto);
+    CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto, CustomUserDetails userDetails);
 
-    CommentSaveRespDto updateComment(Long crewId, Long boardId, Long commentId, CommentSaveReqDto commentSaveReqDto);
+    CommentSaveRespDto updateComment(Long crewId, Long boardId, Long commentId, CommentSaveReqDto commentSaveReqDto, CustomUserDetails userDetails);
 
-    void deleteComment(Long crewId, Long boardId, Long commentId, Long crewMemberId);
+    void deleteComment(Long crewId, Long boardId, Long commentId, CustomUserDetails userDetails);
 }

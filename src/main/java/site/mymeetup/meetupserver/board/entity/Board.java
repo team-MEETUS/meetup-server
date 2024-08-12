@@ -34,6 +34,9 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private int status;
 
+    @Column(nullable = false)
+    private int totalComment;
+
     @ManyToOne
     @JoinColumn(name = "crew_id")
     private Crew crew;
@@ -53,6 +56,11 @@ public class Board extends BaseEntity {
     // updateBoardHit
     public void updateBoardHit(int hit) {
         this.hit = hit;
+    }
+
+    // updateBoardTotalComment
+    public void updateBoardTotalComment(int totalComment) {
+        this.totalComment = totalComment;
     }
 
     // deleteBoard
