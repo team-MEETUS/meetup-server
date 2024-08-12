@@ -91,10 +91,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         // token 유효시간 5시간
-        String token = jwtUtil.createJwt(username, role, memberId, 5*60*60*1000L);
+        String token = jwtUtil.createJwt(role, memberId, 5*60*60*1000L);
 
         response.addHeader("Authorization", "Bearer " + token);
-        response.getWriter().write("{\"success\": true, \"data\": {\"memberId\": " + memberId + "}, \"error\": null}");
+        response.getWriter().write("{\"success\": true, \"data\": {\"memberId\": " + memberId + ", \"accessToken\": " + token + "}, \"error\": null}");
     }
 
     // 로그인 실패 시 실행하는 메소드
