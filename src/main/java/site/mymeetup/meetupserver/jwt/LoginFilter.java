@@ -1,5 +1,6 @@
 package site.mymeetup.meetupserver.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,18 +21,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
-
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final ObjectMapper objectMapper; // ObjectMapper 추가
 
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         setFilterProcessesUrl("/api/v1/login");
         this.jwtUtil = jwtUtil;
+        this.objectMapper = new ObjectMapper(); // ObjectMapper 초기화
     }
 
     @Override
@@ -72,15 +76,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 로그인 성공 시 실행하는 메소드
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
-        System.out.println("success");
+        log.info("Authentication successful");
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        String username = customUserDetails.getUsername();
         Long memberId = customUserDetails.getMemberId();
         int status = customUserDetails.getStatus();
 
         if (status != 1) {
-            response.getWriter().write("{\"success\": false, \"data\": null, \"error\": {\"code\": \"LOGIN_DENIED\", \"message\": \"로그인이 불가능한 상태입니다.\"}}");
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("data", null);
+            errorResponse.put("error", Map.of("code", "LOGIN_DENIED", "message", "로그인이 불가능한 상태입니다."));
+            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
             return;
         }
 
@@ -90,17 +99,29 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        // token 유효시간 5시간
-        String token = jwtUtil.createJwt(role, memberId, 5*60*60*1000L);
+        // token 유효시간 7일
+        String token = jwtUtil.createJwt(role, memberId, 7 * 24 * 60 * 60 * 1000L);
 
         response.addHeader("Authorization", "Bearer " + token);
-        response.getWriter().write("{\"success\": true, \"data\": {\"memberId\": " + memberId + ", \"accessToken\": " + token + "}, \"error\": null}");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        Map<String, Object> successResponse = new HashMap<>();
+        successResponse.put("success", true);
+        successResponse.put("data", Map.of("memberId", memberId, "accessToken", token));
+        successResponse.put("error", null);
+        response.getWriter().write(objectMapper.writeValueAsString(successResponse));
     }
 
     // 로그인 실패 시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
-        System.out.println("fail");
-        response.getWriter().write("{\"success\": false, \"data\": null, \"error\": {\"code\": \"LOGIN_FAIL\", \"message\": \"로그인 실패\"}}");
+        log.info("Authentication failed");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("success", false);
+        errorResponse.put("data", null);
+        errorResponse.put("error", Map.of("code", "LOGIN_FAIL", "message", "로그인 실패"));
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
