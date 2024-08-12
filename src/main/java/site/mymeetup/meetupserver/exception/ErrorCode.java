@@ -52,6 +52,7 @@ public enum ErrorCode {
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "B40401", "존재하지 않는 게시글입니다."),
     BOARD_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "B40402", "존재하지 않는 카테고리입니다."),
     BOARD_DELETE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "B40304", "삭제는 작성자 또는 운영진 모임장만 가능합니다."),
+    BOARD_IMAGE_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "B50001", "이미지 업로드 실패"),
 
     // 댓글
     BOARD_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "BM40401", "존재하지 않는 댓글입니다."),
