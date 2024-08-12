@@ -22,10 +22,9 @@ import site.mymeetup.meetupserver.crew.repository.CrewRepository;
 import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
+import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,14 +37,19 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 등록
     @Override
-    public BoardSaveRespDto createBoard(Long crewId, BoardSaveReqDto boardSaveReqDto) {
+    public BoardSaveRespDto createBoard(Long crewId, BoardSaveReqDto boardSaveReqDto, CustomUserDetails userDetails) {
         // crewId로 Crew 객체 조회
         Crew crew = crewRepository.findById(crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findById(boardSaveReqDto.getCrewMemberId())
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        // Board 카테고리 검증
+        if (!(boardSaveReqDto.getCategory().equals("공지") || boardSaveReqDto.getCategory().equals("모임후기") || boardSaveReqDto.getCategory().equals("가입인사") || boardSaveReqDto.getCategory().equals("자유"))) {
+            throw new CustomException(ErrorCode.BOARD_CATEGORY_NOT_FOUND);
+        }
 
         // crewMember 일반인 경우 공지 예외 처리
         if (boardSaveReqDto.getCategory().equals("공지") && crewMember.getRole() == CrewMemberRole.MEMBER) {
@@ -59,22 +63,30 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 이미지 저장
     @Override
-    public List<String> uploadImage(MultipartFile[] images) {
-        return Arrays.stream(images)
-                .filter(image -> !image.isEmpty())
-                .map(s3ImageService::upload)
-                .toList();
+    public Map<String, List<String>> uploadImage(MultipartFile[] images) {
+        try {
+            List<String> uploadedImageUrls = Arrays.stream(images)
+                    .filter(image -> !image.isEmpty())
+                    .map(s3ImageService::upload)
+                    .toList();
+
+            Map<String, List<String>> data = new HashMap<>();
+            data.put("images", uploadedImageUrls);
+            return data;
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.BOARD_IMAGE_EXCEPTION);
+        }
     }
 
     // 게시글 수정
     @Override
-    public BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardSaveReqDto boardSaveReqDto) {
+    public BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardSaveReqDto boardSaveReqDto, CustomUserDetails userDetails) {
         // 해당 모임이 존재하는지 검증
         Crew crew = crewRepository.findById(crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findById(boardSaveReqDto.getCrewMemberId())
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         // 해당 게시글이 존재하는지 검증
@@ -107,35 +119,31 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 목록 전체 조회
     @Override
-    public List<BoardRespDto> getBoardByCrewId(Long crewId) {
-        List<Board> boardList = boardRepository.findBoardByCrewCrewId(crewId);
-
-        return boardList.stream()
-                .filter(board -> board.getStatus() != 0)
-                .map(BoardRespDto::new)
-                .toList();
-    }
-
-    // 카테고리별 게시글 목록 조회
-    @Override
-    public List<BoardRespDto> getBoardBYCrewIdAndCategory(Long crewId, String category) {
-        if (!category.equals("공지") && !category.equals("모임후기") && !category.equals("가입인사") && !category.equals("자유")) {
-            throw new CustomException(ErrorCode.BOARD_CATEGORY_NOT_FOUND);
+    public List<BoardRespDto> getBoardByCrewId(Long crewId, String category) {
+        List<Board> boardList = null;
+        if (category == null || category.isEmpty()) {
+            boardList = boardRepository.findBoardByCrew_CrewIdAndStatusNot(crewId, 0);
+        } else {
+            if (!category.equals("공지") && !category.equals("모임후기") && !category.equals("가입인사") && !category.equals("자유")) {
+                throw new CustomException(ErrorCode.BOARD_CATEGORY_NOT_FOUND);
+            }
+            boardList = boardRepository.findBoardByCrew_CrewIdAndCategoryAndStatusNot(crewId, category, 0);
         }
 
-        List<Board> boardList = boardRepository.findBoardByCrew_CrewIdAndCategory(crewId, category);
-
         return boardList.stream()
-                .filter(board -> board.getStatus() != 0)
                 .map(BoardRespDto::new)
                 .toList();
     }
 
     // 특정 게시글 조회
     @Override
-    public BoardRespDto getBoardByBoardId(Long crewId, Long boardId) {
+    public BoardRespDto getBoardByBoardId(Long crewId, Long boardId, CustomUserDetails userDetails) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        // crewAndMemberId로 CrewAndMember 객체 조회
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         if (!board.getCrew().getCrewId().equals(crewId)) {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
@@ -152,15 +160,19 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 삭제
     @Override
-    public void deleteBoard(Long crewId, Long boardId, Long crewMemberId) {
+    public void deleteBoard(Long crewId, Long boardId, CustomUserDetails userDetails) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        // crewAndMemberId로 CrewAndMember 객체 조회
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         if (!board.getCrew().getCrewId().equals(crewId)) {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
         }
 
-        if (!board.getCrewMember().getCrewMemberId().equals(crewMemberId) && board.getCrewMember().getRole() != CrewMemberRole.ADMIN && board.getCrewMember().getRole() != CrewMemberRole.LEADER) {
+        if (!board.getCrewMember().getCrewMemberId().equals(crewMember.getCrewMemberId()) && crewMember.getRole() != CrewMemberRole.ADMIN && crewMember.getRole() != CrewMemberRole.LEADER) {
             throw new CustomException(ErrorCode.BOARD_DELETE_ACCESS_DENIED);
         }
 
