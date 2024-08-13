@@ -56,8 +56,9 @@ public class BoardController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public ApiResponse<List<BoardRespDto>> getBoardByCrewId(@PathVariable Long crewId,
-                                                            @RequestParam(required = false) String category) {
-        return ApiResponse.success(boardService.getBoardByCrewId(crewId, category));
+                                                            @RequestParam(required = false) String category,
+                                                            @RequestParam(defaultValue = "0") int page) {
+        return ApiResponse.success(boardService.getBoardByCrewId(crewId, category, page));
     }
 
     // 특정 게시글 조회

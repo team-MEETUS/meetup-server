@@ -22,7 +22,7 @@ public interface BoardService {
 
     BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardSaveReqDto boardSaveReqDto, CustomUserDetails userDetails);
 
-    List<BoardRespDto> getBoardByCrewId(Long crewId, String category);
+    List<BoardRespDto> getBoardByCrewId(Long crewId, String category, int page);
 
     BoardRespDto getBoardByBoardId(Long crewId, Long boardId, CustomUserDetails userDetails);
 
