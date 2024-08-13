@@ -1,6 +1,9 @@
 package site.mymeetup.meetupserver.board.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardRespDto;
@@ -8,8 +11,8 @@ import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveReqDto;
 import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveRespDto;
 import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveReqDto;
+import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentRespDto;
 
-import site.mymeetup.meetupserver.board.dto.CommentDto;
 import site.mymeetup.meetupserver.board.entity.Board;
 import site.mymeetup.meetupserver.board.entity.Comment;
 import site.mymeetup.meetupserver.board.repository.BoardRepository;
@@ -278,5 +281,26 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
         // DB 수정
         commentRepository.save(comment);
+    }
+
+    @Override
+    public List<CommentRespDto> getCommentByBoardId(Long crewId, Long boardId, CustomUserDetails userDetails, int page) {
+        if (page < 0) {
+            throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
+        }
+
+        Page<Comment> commentList = null;
+
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        commentList = commentRepository.findCommentByBoard_BoardIdAndStatus(boardId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.ASC, "createDate")));
+
+        return commentList.stream()
+                .map(CommentRespDto::new)
+                .toList();
     }
 }
