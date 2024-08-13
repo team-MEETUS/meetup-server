@@ -11,6 +11,8 @@ import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardRespDto;
 import static site.mymeetup.meetupserver.board.dto.BoardDto.BoardSaveReqDto;
 import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveReqDto;
 import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentSaveRespDto;
+
+import static site.mymeetup.meetupserver.board.dto.CommentDto.CommentRespDto;
 import site.mymeetup.meetupserver.board.service.BoardService;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.response.ApiResponse;
@@ -54,8 +56,9 @@ public class BoardController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public ApiResponse<List<BoardRespDto>> getBoardByCrewId(@PathVariable Long crewId,
-                                                            @RequestParam(required = false) String category) {
-        return ApiResponse.success(boardService.getBoardByCrewId(crewId, category));
+                                                            @RequestParam(required = false) String category,
+                                                            @RequestParam(defaultValue = "0") int page) {
+        return ApiResponse.success(boardService.getBoardByCrewId(crewId, category, page));
     }
 
     // 특정 게시글 조회
@@ -107,5 +110,15 @@ public class BoardController {
                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
         boardService.deleteComment(crewId, boardId, commentId, userDetails);
         return ApiResponse.success(null);
+    }
+
+    // 댓글 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/details/{boardId}/comments")
+    public ApiResponse<List<CommentRespDto>> getCommentByBoardId(@PathVariable Long crewId,
+                                                                 @PathVariable Long boardId,
+                                                                 @AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                 @RequestParam(defaultValue = "0") int page) {
+        return ApiResponse.success(boardService.getCommentByBoardId(crewId, boardId, userDetails, page));
     }
 }
