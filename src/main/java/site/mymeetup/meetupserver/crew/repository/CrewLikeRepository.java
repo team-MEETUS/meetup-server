@@ -7,7 +7,7 @@ import site.mymeetup.meetupserver.member.entity.Member;
 
 public interface CrewLikeRepository extends JpaRepository<CrewLike, Long> {
 
-    CrewLike findByCrew_CrewIdAndMember_MemberId(Long crewId, Long memberId);
+    CrewLike findByCrewAndMember(Crew crew, Member member);
 
     boolean existsByCrewAndMember(Crew crew, Member member);
 
