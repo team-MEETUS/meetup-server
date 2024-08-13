@@ -123,6 +123,10 @@ public class BoardServiceImpl implements BoardService {
     // 게시글 목록 전체 조회
     @Override
     public List<BoardRespDto> getBoardByCrewId(Long crewId, String category, int page) {
+        if (page < 0) {
+            throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
+        }
+
         Page<Board> boardList = null;
         if (category == null || category.isEmpty()) {
             boardList = boardRepository.findBoardByCrew_CrewIdAndStatusNot(crewId, 0, PageRequest.of(page, 5, Sort.by(Sort.Direction.ASC, "createDate")));
