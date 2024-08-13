@@ -37,6 +37,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
+        String status = request.getParameter("status");
 
         // 로그인 및 특정 GET 요청은 필터를 계속 진행
         if (method.equals("GET") && (requestURI.equals("/api/v1/geos") ||
@@ -45,7 +46,7 @@ public class JWTFilter extends OncePerRequestFilter {
                                      requestURI.matches("/api/v1/members/\\d+") ||
                                      requestURI.equals("/api/v1/crews") ||
                                      requestURI.matches("/api/v1/crews/\\d+") ||
-                                     requestURI.matches("/api/v1/crews/\\d+/members") ||
+                                    (requestURI.matches("/api/v1/crews/\\d+/members") && "members".equals(status)) ||
                                      requestURI.matches("/api/v1/crews/\\d+/meetings") ||
                                      requestURI.matches("/api/v1/crews/\\d+/meetings/\\d+") ||
                                      requestURI.matches("/api/v1/crews/\\d+/albums") ||
