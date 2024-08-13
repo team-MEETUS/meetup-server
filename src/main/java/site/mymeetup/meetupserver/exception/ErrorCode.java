@@ -24,13 +24,15 @@ public enum ErrorCode {
     // 모임
     CREW_BAD_REQUEST(HttpStatus.BAD_REQUEST, "C40001", "올바르지 않은 파라미터 값 입니다."),
     CREW_NOT_FOUND(HttpStatus.NOT_FOUND, "C40401", "존재하지 않는 모임입니다."),
-    INVALID_PAGE_NUMBER(HttpStatus.BAD_REQUEST, "C40002", "유효하지 않은 페이지 넘버 입니다."),
+    INVALID_PAGE_NUMBER(HttpStatus.BAD_REQUEST, "C40002", "유효하지 않은 페이지 넘버입니다."),
 
     // 모임원
     ALREADY_CREW_MEMBER(HttpStatus.BAD_REQUEST, "CM40001", "이미 모임원 입니다."),
     CREW_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "CM40401", "존재하지 않는 모임원입니다."),
     CREW_ACCESS_DENIED(HttpStatus.FORBIDDEN, "C40301", "권한이 없습니다."),
     ALREADY_PENDING(HttpStatus.BAD_REQUEST, "CM40002", "이미 가입 신청을 한 모임입니다."),
+    MAX_CREW_MEMBER(HttpStatus.BAD_REQUEST, "CM40003", "모임의 정원이 이미 찼습니다."),
+    LEADER_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "CM40302", "모임장의 권한을 변경할 수 없습니다."),
 
     // 모임 찜
     ALREADY_CREW_LIKE(HttpStatus.BAD_REQUEST, "CL40001", "이미 찜을 한 모임입니다."),
