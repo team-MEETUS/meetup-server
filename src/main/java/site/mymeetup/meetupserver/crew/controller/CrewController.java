@@ -4,9 +4,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.crew.service.CrewService;
+import site.mymeetup.meetupserver.exception.CustomException;
+import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
@@ -73,25 +76,27 @@ public class CrewController {
 
     // 모임 가입 신청
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{crewId}/signup-members")
+    @PostMapping("/{crewId}/members")
     public ApiResponse<CrewMemberSaveRespDto> createCrewMember(@PathVariable("crewId") Long crewId,
                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ApiResponse.success(crewService.signUpCrew(crewId, userDetails));
     }
 
-    // 특정 모임의 모임원 조회
+    // 특정 모임의 모임원 || 가입 신청 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{crewId}/members")
-    public ApiResponse<List<CrewMemberSelectRespDto>> getCrewMemberByCrewId(@PathVariable("crewId") Long crewId) {
-        return ApiResponse.success(crewService.getCrewMemberByCrewId(crewId));
-    }
+    public ApiResponse<List<CrewMemberSelectRespDto>> getCrewMemberByCrewId(@PathVariable("crewId") Long crewId,
+                                                                            @RequestParam(value = "status", defaultValue = "members") String status,
+                                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<CrewMemberSelectRespDto> response = null;
 
-    // 특정 모임의 가입 신청 조회
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{crewId}/signup-members")
-    public ApiResponse<List<CrewMemberSelectRespDto>> getSignUpMemberByCrewId(@PathVariable("crewId") Long crewId,
-                                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(crewService.getSignUpMemberByCrewId(crewId, userDetails));
+        if ("members".equals(status)) {
+            response = crewService.getCrewMemberByCrewId(crewId);
+        } else if ("signup".equals(status)) {
+            response = crewService.getSignUpMemberByCrewId(crewId, userDetails);
+        }
+
+        return ApiResponse.success(response);
     }
 
     // 모임원 권한 수정
