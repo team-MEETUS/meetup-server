@@ -63,6 +63,7 @@ public class BoardDto {
         private String category;
         private int hit;
         private int status;
+        private int totalComment;
         private CrewMember crewMember;
         private LocalDateTime createDate;
         private LocalDateTime updateDate;
@@ -75,6 +76,7 @@ public class BoardDto {
             this.category = board.getCategory();
             this.hit = board.getHit();
             this.status = board.getStatus();
+            this.totalComment = board.getTotalComment();
             this.crewMember = board.getCrewMember();
             this.createDate = board.getCreateDate();
             this.updateDate = board.getUpdateDate();

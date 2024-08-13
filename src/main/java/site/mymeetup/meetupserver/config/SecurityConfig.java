@@ -75,7 +75,7 @@ public class SecurityConfig {
                                                       "/api/v1/crews", "/api/v1/crews/{crewId}", "/api/v1/crews/{crewId}/members",
                                                       "/api/v1/crews/{crewId}/meetings", "/api/v1/crews/{crewId}/meetings/{meetingId}",
                                                       "/api/v1/crews/{crewId}/albums",
-                                                      "/api/v1/crews/{crewId}/boards", "/api/v1/crews/{crewId}/boards/{category}").permitAll()
+                                                      "/api/v1/crews/{crewId}/boards").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/members/join", "/api/v1/login").permitAll()
                     .anyRequest().authenticated());
 
