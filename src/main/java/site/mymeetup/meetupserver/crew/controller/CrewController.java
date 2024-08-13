@@ -3,9 +3,11 @@ package site.mymeetup.meetupserver.crew.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.crew.service.CrewService;
+import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
 import java.util.List;
@@ -27,25 +29,28 @@ public class CrewController {
     // 모임 등록
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public ApiResponse<CrewSaveRespDto> createCrew(@RequestPart MultipartFile image,
-                                     @RequestPart @Valid CrewSaveReqDto crewSaveReqDto) {
-        return ApiResponse.success(crewService.createCrew(crewSaveReqDto, image));
+    public ApiResponse<CrewSaveRespDto> createCrew(@RequestPart @Valid CrewSaveReqDto crewSaveReqDto,
+                                                   @RequestPart MultipartFile image,
+                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.createCrew(crewSaveReqDto, image, userDetails));
     }
 
     // 모임 수정
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{crewId}")
     public ApiResponse<CrewSaveRespDto> updateCrew(@PathVariable("crewId") Long crewId,
-                                     @RequestPart MultipartFile image,
-                                     @RequestPart @Valid CrewSaveReqDto crewSaveReqDto) {
-        return ApiResponse.success(crewService.updateCrew(crewId, crewSaveReqDto, image));
+                                                   @RequestPart @Valid CrewSaveReqDto crewSaveReqDto,
+                                                   @RequestPart MultipartFile image,
+                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.updateCrew(crewId, crewSaveReqDto, image, userDetails));
     }
 
     // 모임 삭제
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{crewId}")
-    public ApiResponse<Void> deleteCrew(@PathVariable("crewId") Long crewId) {
-        crewService.deleteCrew(crewId);
+    public ApiResponse<Void> deleteCrew(@PathVariable("crewId") Long crewId,
+                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        crewService.deleteCrew(crewId, userDetails);
         return ApiResponse.success(null);
     }
 
@@ -69,8 +74,9 @@ public class CrewController {
     // 모임 가입 신청
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{crewId}/signup-members")
-    public ApiResponse<CrewMemberSaveRespDto> createCrewMember(@PathVariable("crewId") Long crewId) {
-        return ApiResponse.success(crewService.signUpCrew(crewId));
+    public ApiResponse<CrewMemberSaveRespDto> createCrewMember(@PathVariable("crewId") Long crewId,
+                                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.signUpCrew(crewId, userDetails));
     }
 
     // 특정 모임의 모임원 조회
@@ -83,37 +89,34 @@ public class CrewController {
     // 특정 모임의 가입 신청 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{crewId}/signup-members")
-    public ApiResponse<List<CrewMemberSelectRespDto>> getSignUpMemberByCrewId(@PathVariable("crewId") Long crewId) {
-        return ApiResponse.success(crewService.getSignUpMemberByCrewId(crewId));
+    public ApiResponse<List<CrewMemberSelectRespDto>> getSignUpMemberByCrewId(@PathVariable("crewId") Long crewId,
+                                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.getSignUpMemberByCrewId(crewId, userDetails));
     }
 
     // 모임원 권한 수정
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{crewId}/members")
     public ApiResponse<CrewMemberSaveRespDto> updateCrewMember(@PathVariable("crewId") Long crewId,
-                                                         @RequestBody CrewMemberSaveReqDto crewMemberSaveReqDto) {
-        return ApiResponse.success(crewService.updateRole(crewId, crewMemberSaveReqDto));
+                                                               @RequestBody CrewMemberSaveReqDto crewMemberSaveReqDto,
+                                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.updateRole(crewId, crewMemberSaveReqDto, userDetails));
     }
 
     // 모임 찜
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{crewId}/likes")
-    public ApiResponse<CrewLikeSaveRespDto> likeCrew(@PathVariable("crewId") Long crewId) {
-        return ApiResponse.success(crewService.likeCrew(crewId));
-    }
-
-    // 모임 찜 취소
-    @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/{crewId}/likes")
-    public ApiResponse<Void> deleteLikeCrew(@PathVariable("crewId") Long crewId) {
-        crewService.deleteLikeCrew(crewId);
+    public ApiResponse<Void> likeCrew(@PathVariable("crewId") Long crewId,
+                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
+        crewService.likeCrew(crewId, userDetails);
         return ApiResponse.success(null);
     }
 
     // 모임 찜 여부 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{crewId}/likes")
-    public ApiResponse<Boolean> isLikeCrew(@PathVariable("crewId") Long crewId) {
-        return ApiResponse.success(crewService.isLikeCrew(crewId));
+    public ApiResponse<Boolean> isLikeCrew(@PathVariable("crewId") Long crewId,
+                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.isLikeCrew(crewId, userDetails));
     }
 }

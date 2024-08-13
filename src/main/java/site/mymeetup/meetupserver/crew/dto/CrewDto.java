@@ -20,7 +20,6 @@ public class CrewDto {
         @NotEmpty(message = "모임명은 필수 입력사항입니다.")
         @Size(max = 20, message = "모임명은 20자 이하여야 합니다.")
         private String name;
-        private String intro;
         @NotEmpty(message = "모임설명은 필수 입력사항입니다.")
         @Size(max = 1000, message = "모임설명은 1000자 이하여야 합니다.")
         private String content;
@@ -30,8 +29,6 @@ public class CrewDto {
         private int max;
         private String originalImg;
         private String saveImg;
-        private int totalMember;
-        private int totalLike;
         @NotNull(message = "지역은 필수 입력사항입니다.")
         private Long geoId;
         @NotNull(message = "관심사는 필수 입력사항입니다.")
