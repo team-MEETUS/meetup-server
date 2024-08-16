@@ -59,6 +59,9 @@ dependencies {
     // json
     implementation 'org.json:json:20231013'
 
+    // security messaging
+    implementation 'org.springframework.security:spring-security-messaging'
+
     //redis
 //    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.3.1'
 }
