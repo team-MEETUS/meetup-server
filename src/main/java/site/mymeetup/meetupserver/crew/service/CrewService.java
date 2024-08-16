@@ -23,6 +23,8 @@ public interface CrewService {
 
     CrewSelectRespDto getCrewByCrewId(Long crewId);
 
+    Boolean isCrewMember(Long crewId, CustomUserDetails userDetails);
+
     CrewMemberSaveRespDto signUpCrew(Long crewId, CustomUserDetails userDetails);
 
     List<CrewSelectRespDto> getAllCrewByInterest(CrewInterestReqDto crewInterestReqDto, CustomUserDetails userDetails);

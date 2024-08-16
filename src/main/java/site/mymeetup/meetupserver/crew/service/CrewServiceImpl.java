@@ -223,6 +223,24 @@ public class CrewServiceImpl implements CrewService {
                 .toList();
     }
 
+    @Override
+    public Boolean isCrewMember(Long crewId, CustomUserDetails userDetails) {
+        // 현재 로그인 한 사용자 검증
+        Member member = validateMember(userDetails.getMemberId());
+
+        // 해당 모임이 존재하는지 검증
+        Crew crew = validateCrew(crewId);
+
+        // 해당 모임의 멤버인지 확인
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+
+        return crewMemberRepository.existsByCrewAndMemberAndRoleIn(crew, member, roles);
+    }
+
     // 모임 가입 신청
     @Override
     public CrewMemberSaveRespDto signUpCrew(Long crewId, CustomUserDetails userDetails) {

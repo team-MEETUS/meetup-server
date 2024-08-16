@@ -69,6 +69,14 @@ public class CrewController {
         return ApiResponse.success(crewService.getAllCrewByInterest(crewInterestReqDto, userDetails));
     }
 
+    // 모임 가입 유무
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{crewId}/members/me")
+    public ApiResponse<Boolean> isCrewMember(@PathVariable("crewId") Long crewId,
+                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.isCrewMember(crewId, userDetails));
+    }
+
     // 모임 가입 신청
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{crewId}/members")
