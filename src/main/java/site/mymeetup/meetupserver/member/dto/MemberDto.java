@@ -191,4 +191,21 @@ public class MemberDto {
             this.updateDate = member.getUpdateDate();
         }
     }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MemberSimpleDto {
+        private Long memberId;
+        private String nickname;
+        private String intro;
+        private String saveImg;
+
+        @Builder
+        public MemberSimpleDto(Member member) {
+            this.memberId = member.getMemberId();
+            this.nickname = member.getNickname();
+            this.intro = member.getIntro();
+            this.saveImg = member.getSaveImg();
+        }
+    }
 }

@@ -28,6 +28,7 @@ import site.mymeetup.meetupserver.member.repository.MemberRepository;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewInterestReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
@@ -181,26 +182,40 @@ public class CrewServiceImpl implements CrewService {
 
     // 관심사 별 모임 조회
     @Override
-    public List<CrewSelectRespDto> getAllCrewByInterest(String city, Long interestBigId, Long interestSmallId, int page) {
-        // 검증
-        validateInputs(city, interestBigId, interestSmallId);
+    public List<CrewSelectRespDto> getAllCrewByInterest(CrewInterestReqDto crewInterestReqDto, CustomUserDetails userDetails) {
+        // 로그인 한 사용자 검증
+        String city = null;
+        if (userDetails != null) {
+            Member member = validateMember(userDetails.getMemberId());
+            city = member.getGeo().getCity();
+        }
+
+        // 관심사 대분류 검증
+        InterestBig interestBig = null;
+        InterestSmall interestSmall = null;
+        if (crewInterestReqDto.getInterestBigId() != null) {
+            interestBig = validateInterestBig(crewInterestReqDto.getInterestBigId());
+        } else if (crewInterestReqDto.getInterestSmallId() != null) {
+            interestSmall = validateInterestSmall(crewInterestReqDto.getInterestSmallId());
+        }
 
         // 페이지 번호 유효성 검사
-        if (page < 0) {
+        if (crewInterestReqDto.getPage() < 1) {
             throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
         }
+        int page = crewInterestReqDto.getPage() - 1;
 
         // 모임 리스트 조회
         Page<Crew> crews;
 
         if (city == null) {     // 비회원
-            crews = interestBigId != null
-                    ? crewRepository.findAllByInterestBig_InterestBigIdAndStatus(interestBigId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")))
-                    : crewRepository.findAllByInterestSmall_InterestSmallIdAndStatus(interestSmallId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")));
+            crews = interestBig != null
+                    ? crewRepository.findAllByInterestBigAndStatus(interestBig, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")))
+                    : crewRepository.findAllByInterestSmallAndStatus(interestSmall, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")));
         } else {                // 회원
-            crews = interestBigId != null
-                    ? crewRepository.findAllByGeo_CityAndInterestBig_InterestBigIdAndStatus(city, interestBigId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")))
-                    : crewRepository.findAllByGeo_CityAndInterestSmall_InterestSmallIdAndStatus(city, interestSmallId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")));
+            crews = interestBig != null
+                    ? crewRepository.findAllByGeo_CityAndInterestBigAndStatus(city, interestBig, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")))
+                    : crewRepository.findAllByGeo_CityAndInterestSmallAndStatus(city, interestSmall, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")));
         }
 
         return crews.stream()
@@ -283,29 +298,33 @@ public class CrewServiceImpl implements CrewService {
 
     // 권한 변경
     public CrewMemberSaveRespDto updateRole(Long crewId, CrewMemberSaveReqDto crewMemberSaveReqDto, CustomUserDetails userDetails) {
-        // 현재 로그인 한 사용자 정보 가져오기
-        Member initiatorMember = validateMember(userDetails.getMemberId());
-
-        // 대상자의 사용자 정보 가져오기
-        Member targetMember = validateMember(crewMemberSaveReqDto.getMemberId());
-
         // 해당 모임이 존재하는지 검증
         Crew crew = validateCrew(crewId);
 
-        // 변경자의 정보 가져오기
-        CrewMember initiator = crewMemberRepository.findByCrewAndMember(crew, initiatorMember)
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        // 현재 로그인 한 사용자(변경자) 정보 가져오기
+        Member initiatorMember = validateMember(userDetails.getMemberId());
 
-        // 변경 대상의 정보 가져오기
-        CrewMember target = crewMemberRepository.findByCrewAndMember(crew, targetMember)
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+        CrewMember initiator = crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, initiatorMember, roles)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_ACCESS_DENIED));
+
+        // 변경 대상자 정보 가져오기
+        Member targetMember = validateMember(crewMemberSaveReqDto.getMemberId());
+
+        roles = Arrays.asList(
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER,
+                CrewMemberRole.PENDING
+        );
+        CrewMember target = crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, targetMember, roles)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         // 변경할 역할
         CrewMemberRole newRole = CrewMemberRole.enumOf(crewMemberSaveReqDto.getNewRoleStatus());
-
-        System.out.println(">>>>>>>>>>>>>로그인한사람: " + initiator.getRole());
-        System.out.println(">>>>>>>>>>>>>변경당할사람: " + target.getRole());
-        System.out.println(">>>>>>>>>>>>>바꿀권한: " + newRole);
 
         // role 변경 가능한지 확인
         canChangeRole(initiator.getRole(), target.getRole(), newRole);
@@ -330,9 +349,7 @@ public class CrewServiceImpl implements CrewService {
             crewRepository.save(crew);
         }
         // 회원 강퇴 또는 퇴장 시 총 모임원 수 -1
-        if ((target.getRole() == CrewMemberRole.MEMBER && newRole == CrewMemberRole.EXPELLED) ||
-            (target.getRole() == CrewMemberRole.MEMBER && newRole == CrewMemberRole.DEPARTED) ||
-            (target.getRole() == CrewMemberRole.ADMIN && newRole == CrewMemberRole.DEPARTED)) {
+        if ((target.getRole() == CrewMemberRole.MEMBER && newRole == CrewMemberRole.EXPELLED) || (newRole == CrewMemberRole.DEPARTED)) {
             crew.changeTotalMember(-1);
             crewRepository.save(crew);
         }
@@ -420,44 +437,17 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new CustomException(ErrorCode.INTEREST_SMALL_NOT_FOUND));
     }
 
-    // 관심사 별 조회 유효성 검사
-    private void validateInputs(String city, Long interestBigId, Long interestSmallId) {
-        if (city != null && !geoRepository.existsByCity(city)) {
-            throw new CustomException(ErrorCode.GEO_NOT_FOUND);
-        }
-        if (interestBigId != null && !interestBigRepository.existsById(interestBigId)) {
-            throw new CustomException(ErrorCode.INTEREST_BIG_NOT_FOUND);
-        }
-        if (interestSmallId != null && !interestSmallRepository.existsById(interestSmallId)) {
-            throw new CustomException(ErrorCode.INTEREST_SMALL_NOT_FOUND);
-        }
-        if ((interestBigId == null && interestSmallId == null) || (interestBigId != null && interestSmallId != null)) {
-            throw new CustomException(ErrorCode.CREW_BAD_REQUEST);
-        }
-    }
-
     // role 변경 권한 검사
     private void canChangeRole(CrewMemberRole initiatorRole, CrewMemberRole targetRole, CrewMemberRole newRole) {
-        if (initiatorRole == CrewMemberRole.EXPELLED || initiatorRole == CrewMemberRole.MEMBER || initiatorRole == CrewMemberRole.PENDING || initiatorRole == CrewMemberRole.DEPARTED) {
-            // 모임장 , 운영진 제외 접근 불가
-            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
-        } else if (initiatorRole == CrewMemberRole.ADMIN && newRole == CrewMemberRole.LEADER) {
-            // 운영진은 모임장 위임 불가
-            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
-        } else if (targetRole == CrewMemberRole.EXPELLED || targetRole == CrewMemberRole.DEPARTED) {
-            // 강퇴 멤버 , 모임장 , 퇴장 멤버의 role 변경 불가
-            throw new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND);
-        } else if (targetRole == CrewMemberRole.LEADER) {
-            // 모임장의 권한은 변경 불가
+        if (targetRole == CrewMemberRole.LEADER) {
             throw new CustomException(ErrorCode.LEADER_PERMISSION_DENIED);
-        } else if (targetRole == CrewMemberRole.MEMBER && (newRole == CrewMemberRole.MEMBER || newRole == CrewMemberRole.PENDING)) {
-            // 일반 멤버는 운영진 || 모임장 || 강퇴 || 퇴장만 변경 가능
+        } else if (initiatorRole == CrewMemberRole.ADMIN && newRole == CrewMemberRole.LEADER) {
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
-        } else if (targetRole == CrewMemberRole.ADMIN && (newRole != CrewMemberRole.LEADER && newRole != CrewMemberRole.MEMBER && newRole != CrewMemberRole.DEPARTED)) {
-            // 운영진은 일반 멤버 || 모임장 || 퇴장만 변경 가능
+        } else if (targetRole == CrewMemberRole.MEMBER && !targetRole.canMemberChangeTo(newRole)) {
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
-        } else if (targetRole == CrewMemberRole.PENDING && (newRole != CrewMemberRole.EXPELLED && newRole != CrewMemberRole.MEMBER)) {
-            // 승인 대기 멤버는 강퇴 || 일반 멤버로만 변경 가능
+        } else if (targetRole == CrewMemberRole.ADMIN && !targetRole.canAdminChangeTo(newRole)) {
+            throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+        } else if (targetRole == CrewMemberRole.PENDING && !targetRole.canPendingChangeTo(newRole)) {
             throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
         }
     }

@@ -13,6 +13,8 @@ public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
     // 모임과 회원으로 모임멤버 가져오기
     Optional<CrewMember> findByCrewAndMember(Crew crew, Member member);
 
+    Optional<CrewMember> findByCrewAndMemberAndRoleIn(Crew crew, Member member, List<CrewMemberRole> roles);
+
     // 특정 모임의 권한을 가졌는지 확인 (ex. 모임장인지)
     boolean existsByCrewAndMemberAndRole(Crew crew, Member member, CrewMemberRole role);
 

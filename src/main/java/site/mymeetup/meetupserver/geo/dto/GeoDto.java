@@ -29,4 +29,19 @@ public class GeoDto {
         }
     }
 
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class GeoSimpleDto {
+        private Long geoId;
+        private String city;
+        private String district;
+
+        @Builder
+        public GeoSimpleDto(Geo geo) {
+            this.geoId = geo.getGeoId();
+            this.city = geo.getCity();
+            this.district = geo.getDistrict();
+        }
+    }
+
 }

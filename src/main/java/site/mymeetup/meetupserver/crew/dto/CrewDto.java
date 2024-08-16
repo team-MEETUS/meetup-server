@@ -9,8 +9,9 @@ import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.interest.entity.InterestBig;
 import site.mymeetup.meetupserver.interest.entity.InterestSmall;
-
-import java.time.LocalDateTime;
+import static site.mymeetup.meetupserver.geo.dto.GeoDto.GeoSimpleDto;
+import static site.mymeetup.meetupserver.interest.dto.InterestBigDto.InterestBigSimpleDto;
+import static site.mymeetup.meetupserver.interest.dto.InterestSmallDto.InterestSmallSelectRespDto;
 
 public class CrewDto {
 
@@ -76,11 +77,9 @@ public class CrewDto {
         private String saveImg;
         private int totalMember;
         private int totalLike;
-        private LocalDateTime createDate;
-        private LocalDateTime updateDate;
-        private Geo geo;
-        private InterestBig interestBig;
-        private InterestSmall interestSmall;
+        private GeoSimpleDto geo;
+        private InterestBigSimpleDto interestBig;
+        private InterestSmallSelectRespDto interestSmall;
 
         @Builder
         public CrewSelectRespDto(Crew crew) {
@@ -93,12 +92,18 @@ public class CrewDto {
             this.saveImg = crew.getSaveImg();
             this.totalLike = crew.getTotalLike();
             this.totalMember = crew.getTotalMember();
-            this.createDate = crew.getCreateDate();
-            this.updateDate = crew.getUpdateDate();
-            this.geo = crew.getGeo();
-            this.interestBig = crew.getInterestBig();
-            this.interestSmall = crew.getInterestSmall();
+            this.geo = new GeoSimpleDto(crew.getGeo());
+            this.interestBig = new InterestBigSimpleDto(crew.getInterestBig());
+            this.interestSmall = new InterestSmallSelectRespDto(crew.getInterestSmall());
         }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class CrewInterestReqDto {
+        private Long interestBigId;
+        private Long interestSmallId;
+        private int page;
     }
 
 }

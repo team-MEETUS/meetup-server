@@ -4,12 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.crew.service.CrewService;
-import site.mymeetup.meetupserver.exception.CustomException;
-import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
@@ -18,10 +15,10 @@ import java.util.List;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewInterestReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
-import static site.mymeetup.meetupserver.crew.dto.CrewLikeDto.CrewLikeSaveRespDto;
 
 @RestController
 @RequestMapping("/api/v1/crews")
@@ -66,12 +63,10 @@ public class CrewController {
 
     // 관심사 별 모임 조회
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping
-    public ApiResponse<List<CrewSelectRespDto>> getAllCrew(@RequestParam(required = false) String city,
-                                                           @RequestParam(required = false) Long interestBigId,
-                                                           @RequestParam(required = false) Long interestSmallId,
-                                                           @RequestParam(defaultValue = "0") int page) {
-        return ApiResponse.success(crewService.getAllCrewByInterest(city, interestBigId, interestSmallId, page));
+    @PostMapping("/interests")
+    public ApiResponse<List<CrewSelectRespDto>> getAllCrew(@RequestBody CrewInterestReqDto crewInterestReqDto,
+                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.getAllCrewByInterest(crewInterestReqDto, userDetails));
     }
 
     // 모임 가입 신청

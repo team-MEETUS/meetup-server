@@ -23,4 +23,17 @@ public class InterestBigDto {
         }
     }
 
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class InterestBigSimpleDto {
+        private Long interestBigId;
+        private String name;
+
+        @Builder
+        public InterestBigSimpleDto(InterestBig interestBig) {
+            this.interestBigId = interestBig.getInterestBigId();
+            this.name = interestBig.getName();
+        }
+    }
+
 }

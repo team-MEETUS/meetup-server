@@ -1,15 +1,13 @@
 package site.mymeetup.meetupserver.crew.dto;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
-import site.mymeetup.meetupserver.member.entity.Member;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSimpleDto;
 
 public class CrewMemberDto {
 
@@ -38,13 +36,13 @@ public class CrewMemberDto {
     public static class CrewMemberSelectRespDto {
         private Long crewMemberId;
         private CrewMemberRole role;
-        private Member member;
+        private MemberSimpleDto member;
 
         @Builder
         public CrewMemberSelectRespDto(CrewMember crewMember) {
             this.crewMemberId = crewMember.getCrewMemberId();
             this.role = crewMember.getRole();
-            this.member = crewMember.getMember();
+            this.member = new MemberSimpleDto(crewMember.getMember());
         }
     }
 

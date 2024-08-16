@@ -27,4 +27,19 @@ public enum CrewMemberRole {
                 .filter(c -> c.getStatus() == status)
                 .findAny().orElse(null);
     }
+
+    // 일반 멤버가 특정 role로 변경 가능한지 확인
+    public boolean canMemberChangeTo(CrewMemberRole newRole) {
+        return newRole == LEADER || newRole == ADMIN || newRole == EXPELLED || newRole == DEPARTED;
+    }
+
+    // 운영진이 특정 role로 변경 가능한지 확인
+    public boolean canAdminChangeTo(CrewMemberRole newRole) {
+        return newRole == LEADER || newRole == MEMBER || newRole == DEPARTED;
+    }
+
+    // 승인 대기 멤버가 특정 role로 변경 가능한지 확인
+    public boolean canPendingChangeTo(CrewMemberRole newRole) {
+        return newRole == EXPELLED || newRole == MEMBER;
+    }
 }
