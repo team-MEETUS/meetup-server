@@ -56,7 +56,8 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         if (method.equals("POST") && (requestURI.equals("/api/v1/login") ||
-                requestURI.equals("/api/v1/members/join"))) {
+                                      requestURI.equals("/api/v1/members/join") ||
+                                      requestURI.equals("/api/v1/crews/interests"))) {
             filterChain.doFilter(request, response);
             return;
         }
