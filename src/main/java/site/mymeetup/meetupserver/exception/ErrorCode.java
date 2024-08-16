@@ -20,6 +20,7 @@ public enum ErrorCode {
     MEMBER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "M40102", "인증이 필요합니다."),
     MEMBER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "M40301", "비활성화된 회원은 접근할 수 없습니다."),
     MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "M40901", "이미 존재하는 회원입니다."),
+    MEMBER_AUTHENTICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "M50001", "회원 인증 중 오류가 발생했습니다."),
 
 
     // 모임

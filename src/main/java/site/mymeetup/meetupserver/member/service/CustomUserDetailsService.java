@@ -18,16 +18,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("로그인 시도: 전화번호 = " + username);
 
         Member memberData = memberRepository.findByPhone(username);
 
         if (memberData == null) {
-            System.out.println("사용자를 찾을 수 없습니다: " + username);
             throw new UsernameNotFoundException("User not found with phone: " + username);
         }
 
-        System.out.println("사용자 정보 조회 성공: " + memberData);
         return new CustomUserDetails(memberData);
     }
 }

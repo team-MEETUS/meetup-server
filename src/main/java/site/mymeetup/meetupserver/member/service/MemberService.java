@@ -6,6 +6,8 @@ import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.dto.MemberDto;
 
 
+import java.io.IOException;
+
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveRespDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSelectRespDto;
@@ -23,4 +25,10 @@ public interface MemberService {
     MemberSaveRespDto deleteMember(Long memberId, CustomUserDetails userDetails);
 
     MemberSelectRespDto getMemberByMemberId(Long memberId, CustomUserDetails userDetails);
+
+    String getAccessTokenFromProvider(String provider, String code) throws IOException;
+
+    CustomUserDetails getUserInfoFromProvider(String provider, String accessToken) throws IOException;
+
+    String generateJwtToken(CustomUserDetails userDetails);
 }
