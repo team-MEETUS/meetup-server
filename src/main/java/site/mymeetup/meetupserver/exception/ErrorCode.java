@@ -16,6 +16,7 @@ public enum ErrorCode {
 
     // 회원
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M40401", "존재하지 않는 회원입니다."),
+    MEMBER_PROVIDER_NOT_EXIST(HttpStatus.NOT_FOUND, "M40402", "존재하지 않는 리소스 제공자입니다."),
     MEMBER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "M40102", "인증이 필요합니다."),
     MEMBER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "M40301", "비활성화된 회원은 접근할 수 없습니다."),
     MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "M40901", "이미 존재하는 회원입니다."),
