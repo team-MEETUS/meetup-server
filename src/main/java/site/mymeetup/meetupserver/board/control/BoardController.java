@@ -48,7 +48,7 @@ public class BoardController {
     // 게시글 이미지 ajax 처리
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/images")
-    public ApiResponse<Map<String, List<String>>> uploadImage(@RequestPart @Valid MultipartFile[] images) {
+    public ApiResponse< List<String>> uploadImage(@RequestPart @Valid MultipartFile[] images) {
         return ApiResponse.success(boardService.uploadImage(images));
     }
 

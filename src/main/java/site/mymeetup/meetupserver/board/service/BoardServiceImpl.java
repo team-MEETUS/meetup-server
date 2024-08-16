@@ -66,16 +66,14 @@ public class BoardServiceImpl implements BoardService {
 
     // 게시글 이미지 저장
     @Override
-    public Map<String, List<String>> uploadImage(MultipartFile[] images) {
+    public List<String> uploadImage(MultipartFile[] images) {
         try {
             List<String> uploadedImageUrls = Arrays.stream(images)
                     .filter(image -> !image.isEmpty())
                     .map(s3ImageService::upload)
                     .toList();
 
-            Map<String, List<String>> data = new HashMap<>();
-            data.put("images", uploadedImageUrls);
-            return data;
+            return uploadedImageUrls;
         } catch (Exception e) {
             throw new CustomException(ErrorCode.BOARD_IMAGE_EXCEPTION);
         }
@@ -101,8 +99,15 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
         }
 
+        // 공지글에 대한 권한 검증
+        if (board.getCategory().equals("공지")) {
+            if (crewMember.getRole() != CrewMemberRole.ADMIN && crewMember.getRole() != CrewMemberRole.LEADER) {
+                throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+            }
+        }
+
         // 작성자와 요청자가 일치하는지 검증
-        if (!board.getCrewMember().getCrewMemberId().equals(crewMember.getCrewMemberId())) {
+        if (!board.getCategory().equals("공지") && !board.getCrewMember().getCrewMemberId().equals(crewMember.getCrewMemberId())) {
             throw new CustomException(ErrorCode.BOARD_WRITER_ACCESS_DENIED);
         }
 
@@ -110,7 +115,7 @@ public class BoardServiceImpl implements BoardService {
         board.updateBoard(boardSaveReqDto.toEntity(crew, crewMember));
 
         // crewMember 권한 검증
-        if (board.getCrewMember().getRole() == CrewMemberRole.MEMBER && board.getCategory().equals("공지")) {
+        if (crewMember.getRole() == CrewMemberRole.MEMBER && board.getCategory().equals("공지")) {
             throw new CustomException(ErrorCode.BOARD_ACCESS_DENIED);
         }
 
