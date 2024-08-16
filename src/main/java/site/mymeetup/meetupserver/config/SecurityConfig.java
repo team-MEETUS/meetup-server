@@ -120,9 +120,8 @@ public class SecurityConfig {
                     configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://meetus-meetup.netlify.app"));
                     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
                     configuration.setAllowCredentials(true);
-                    configuration.setAllowedHeaders(Collections.singletonList("*"));
-//                    configuration.setAllowedHeaders(Collections.singletonList("Set-Cookie"));
-                    configuration.setExposedHeaders(Arrays.asList("Authorization"));
+                    configuration.setAllowedHeaders(Arrays.asList("*", "Set-Cookie"));
+                    configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
                     configuration.setMaxAge(3600L);
                     log.debug("CORS configuration set: {}", configuration);
                     return configuration;
