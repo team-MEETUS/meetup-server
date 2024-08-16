@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MeetingMemberRepository extends JpaRepository<MeetingMember, Long> {
-
+    // 정모 참석 여부 확인
     boolean existsByMeetingAndCrewMember(Meeting meeting, CrewMember crewMember);
 
+    // 정모에 참석한 특정 유저 가져오기
     Optional<MeetingMember> findByMeetingAndCrewMember(Meeting meeting, CrewMember crewMember);
 
+    // 정모에 참석하는 멤버 리스트 가져오기
     List<MeetingMember> findByMeeting(Meeting meeting);
-
-    Optional<MeetingMember> findByMeetingMemberIdAndMeeting_MeetingId(Long meetingMemberId, Long meetingId);
 }
