@@ -37,7 +37,7 @@ public class BoardDto {
                     .title(title)
                     .content(content)
                     .category(category)
-                    .status(status != 0 ? status : 0)
+                    .status(1)
                     .crew(crew)
                     .crewMember(crewMember)
                     .build();
