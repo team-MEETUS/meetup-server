@@ -72,7 +72,7 @@ public class BoardController {
 
     // 특정 게시글 조회
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/boardId}")
+    @GetMapping("/{boardId}")
     public ApiResponse<BoardRespDto> getBoardOndByBoardId(@PathVariable Long crewId,
                                                           @PathVariable Long boardId,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
