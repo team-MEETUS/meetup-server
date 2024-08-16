@@ -3,14 +3,14 @@ package site.mymeetup.meetupserver.member.controller;
 import jakarta.validation.Valid;
 import lombok.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSelectRespDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveRespDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberUpdateReqDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberUpdateRespDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberInfoDto;
 
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
@@ -43,11 +43,11 @@ public class MemberController {
     // 회원 수정
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{memberId}")
-    public ApiResponse<MemberSaveRespDto> updateMember(@PathVariable("memberId") Long memberId,
-                                       @RequestPart MultipartFile image,
-                                       @RequestPart @Valid MemberSaveReqDto memberSaveReqDto,
-                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(memberService.updateMember(memberId, memberSaveReqDto, image, userDetails));
+    public ApiResponse<MemberUpdateRespDto> updateMember(@PathVariable("memberId") Long memberId,
+                                                       @RequestPart @Valid MemberUpdateReqDto memberUpdateReqDto,
+                                                       @RequestPart MultipartFile image,
+                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.updateMember(memberId, memberUpdateReqDto, image, userDetails));
     }
 
     //  회원 삭제

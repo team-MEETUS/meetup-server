@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 
 public class MemberDto {
 
+    //회원가입 req
     @Getter
     @NoArgsConstructor
     public static class MemberSaveReqDto {
@@ -23,22 +24,17 @@ public class MemberDto {
         @NotEmpty(message = "핸드폰 번호는 필수 입력사항입니다")
         @Size(max = 300)
         private String phone;
-        @Size(max = 300)
-        private String password;
         @NotEmpty(message = "닉네임은 필수 입력사항입니다")
         @Size(max = 20)
         private String nickname;
-        private String intro;
-        //@Patten(정규표현식)
         @NotEmpty(message = "생년월일은 필수 입력사항입니다")
         @Size(max = 20)
         private String birth;
         @NotNull(message = "성별은 필수 입력사항입니다")
         private int gender;
-        private String originalImg;
-        private String saveImg;
         @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
+        private String password;
 
         // 비밀번호 인코딩 메서드
         public void encodePassword(BCryptPasswordEncoder encoder) {
@@ -48,29 +44,48 @@ public class MemberDto {
         }
 
         // 회원가입 DTO -> Entity
-        public Member goEntity(Geo geo) {
+        public Member toEntity(Geo geo) {
             return Member.builder()
                     .geo(geo)
                     .phone(phone)
-                    .password(password)
                     .nickname(nickname)
-                    .intro(intro)
                     .birth(birth)
                     .gender(gender)
                     .role(Role.USER)
                     .status(1)
                     .build();
         }
+    }
+
+    //회원수정 req
+    @Getter
+    @NoArgsConstructor
+    public static class MemberUpdateReqDto {
+        @NotEmpty(message = "핸드폰 번호는 필수 입력사항입니다")
+        @Size(max = 300)
+        private String phone;
+        @NotEmpty(message = "닉네임은 필수 입력사항입니다")
+        @Size(max = 20)
+        private String nickname;
+        @NotEmpty(message = "생년월일은 필수 입력사항입니다")
+        @Size(max = 20)
+        private String birth;
+        private String intro;
+        @NotNull(message = "성별은 필수 입력사항입니다")
+        private int gender;
+        @NotNull(message = "관심지역은 필수 입력사항입니다")
+        private Long geoId;
+        private String originalImg;
+        private String saveImg;
 
         // 회원수정 DTO -> Entity
         public Member toEntity(Geo geo, String originalImg, String saveImg) {
             return Member.builder()
                     .geo(geo)
                     .phone(phone)
-                    .password(password)
                     .nickname(nickname)
-                    .intro(intro)
                     .birth(birth)
+                    .intro(intro)
                     .gender(gender)
                     .role(Role.USER)
                     .status(1)
@@ -80,13 +95,7 @@ public class MemberDto {
         }
     }
 
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class MemberLoginReqDto {
-        private String phone;
-        private String password;
-    }
-
+    // 회원가입 resp
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberSaveRespDto {
@@ -98,6 +107,19 @@ public class MemberDto {
         }
     }
 
+    // 회원수정 resp
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MemberUpdateRespDto {
+        private Long memberId;
+
+        @Builder
+        public MemberUpdateRespDto(Member member) {
+            this.memberId = member.getMemberId();
+        }
+    }
+
+    // 회원 정보 조회
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberInfoDto {
@@ -117,19 +139,35 @@ public class MemberDto {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MemberSnsDto {
+        private Long memberId;
+        private Geo geo;
+        private String nickname;
+
+    }
+
+
+
+    // 로그인 req
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MemberLoginReqDto {
+        private String phone;
+        private String password;
+    }
+
+    // 회원 정보 조회 resp
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberSelectRespDto {
         private Long memberId;
         private Geo geo;
         private String phone;
-        private String kakao;
-        private String naver;
-        private String password;
         private String nickname;
         private String intro;
         private String birth;
         private Integer gender;
         private Role role;
-        private Integer status;
         private LocalDateTime deadDate;
         private String originalImg;
         private String saveImg;
@@ -141,15 +179,11 @@ public class MemberDto {
             this.memberId = member.getMemberId();
             this.geo = member.getGeo();
             this.phone = member.getPhone();
-            this.kakao = member.getKakao();
-            this.naver = member.getNaver();
-            this.password = member.getPassword();
             this.nickname = member.getNickname();
             this.intro = member.getIntro();
             this.birth = member.getBirth();
             this.gender = member.getGender();
             this.role = member.getRole();
-            this.status = member.getStatus();
             this.deadDate = member.getDeadDate();
             this.originalImg = member.getOriginalImg();
             this.saveImg = member.getSaveImg();
