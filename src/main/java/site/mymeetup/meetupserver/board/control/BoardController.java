@@ -72,7 +72,7 @@ public class BoardController {
 
     // 특정 게시글 조회
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/details/{boardId}")
+    @GetMapping("/boardId}")
     public ApiResponse<BoardRespDto> getBoardOndByBoardId(@PathVariable Long crewId,
                                                           @PathVariable Long boardId,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -81,7 +81,7 @@ public class BoardController {
 
     // 게시글 삭제
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/details/{boardId}")
+    @DeleteMapping("/{boardId}")
     public ApiResponse<?> deleteBoard(@PathVariable Long crewId,
                                       @PathVariable Long boardId,
                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -91,7 +91,7 @@ public class BoardController {
 
     // 댓글 등록
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/details/{boardId}/comments")
+    @PostMapping("/{boardId}/comments")
     public ApiResponse<CommentSaveRespDto> createComment(@PathVariable Long crewId,
                                                          @PathVariable Long boardId,
                                                          @RequestBody CommentSaveReqDto commentSaveReqDto,
@@ -101,7 +101,7 @@ public class BoardController {
 
     // 댓글 수정
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/details/{boardId}/comments/{commentId}")
+    @PutMapping("/{boardId}/comments/{commentId}")
     public ApiResponse<CommentSaveRespDto> updateComment(@PathVariable Long crewId,
                                                          @PathVariable Long boardId,
                                                          @PathVariable Long commentId,
@@ -112,7 +112,7 @@ public class BoardController {
 
     // 댓글 삭제
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/details/{boardId}/comments/{commentId}")
+    @DeleteMapping("/{boardId}/comments/{commentId}")
     public ApiResponse<?> deleteComment(@PathVariable Long crewId,
                                         @PathVariable Long boardId,
                                         @PathVariable Long commentId,
@@ -123,7 +123,7 @@ public class BoardController {
 
     // 댓글 조회
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/details/{boardId}/comments")
+    @GetMapping("/{boardId}/comments")
     public ApiResponse<List<CommentRespDto>> getCommentByBoardId(@PathVariable Long crewId,
                                                                  @PathVariable Long boardId,
                                                                  @AuthenticationPrincipal CustomUserDetails userDetails,
