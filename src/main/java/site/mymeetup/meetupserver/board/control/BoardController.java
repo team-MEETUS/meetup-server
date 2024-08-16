@@ -45,6 +45,15 @@ public class BoardController {
         return ApiResponse.success(boardService.updateBoard(crewId, boardId, boardSaveReqDto, userDetails));
     }
 
+    // 게시글 고정
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{boardId}/pin")
+    public ApiResponse<BoardSaveRespDto> updateBoardStatus(@PathVariable Long crewId,
+                                            @PathVariable Long boardId,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(boardService.updateBoardStatus(crewId, boardId, userDetails));
+    }
+
     // 게시글 이미지 ajax 처리
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/images")

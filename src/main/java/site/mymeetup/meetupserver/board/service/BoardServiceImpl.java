@@ -194,6 +194,25 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
     }
 
+    // 게시글 고정
+    @Override
+    public BoardSaveRespDto updateBoardStatus(Long crewId, Long boardId, CustomUserDetails userDetails) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        if (crewMember.getRole() != CrewMemberRole.ADMIN && crewMember.getRole() != CrewMemberRole.LEADER) {
+            throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
+        }
+
+        board.updateBoardStatus(2);
+        boardRepository.save(board);
+
+        return BoardSaveRespDto.builder().board(board).build();
+    }
+
     // 댓글 등록
     @Override
     public CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto, CustomUserDetails userDetails) {
@@ -312,4 +331,5 @@ public class BoardServiceImpl implements BoardService {
                 .map(CommentRespDto::new)
                 .toList();
     }
+
 }

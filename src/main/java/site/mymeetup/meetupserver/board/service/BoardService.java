@@ -35,4 +35,6 @@ public interface BoardService {
     void deleteComment(Long crewId, Long boardId, Long commentId, CustomUserDetails userDetails);
 
     List<CommentRespDto> getCommentByBoardId(Long crewId, Long boardId, CustomUserDetails userDetails, int page);
+
+    BoardSaveRespDto updateBoardStatus(Long crewId, Long boardId, CustomUserDetails userDetails);
 }
