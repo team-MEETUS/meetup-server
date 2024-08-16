@@ -7,6 +7,7 @@ import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -55,6 +56,9 @@ public class Meeting extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "crew_and_member_id")
     private CrewMember crewMember;
+
+    @OneToMany(mappedBy = "meeting", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MeetingMember> meetingMembers;
 
     // updateMeeting
     public void updateMeeting(Meeting meeting) {

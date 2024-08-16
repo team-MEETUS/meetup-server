@@ -1,8 +1,5 @@
 package site.mymeetup.meetupserver.meeting.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,8 +8,10 @@ import lombok.NoArgsConstructor;
 import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 import site.mymeetup.meetupserver.meeting.entity.Meeting;
+import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberSimpleDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class MeetingDto {
 
@@ -79,10 +78,7 @@ public class MeetingDto {
         private int attend;
         private String originalImg;
         private String saveImg;
-        private LocalDateTime createDate;
-        private LocalDateTime updateDate;
-        private Long crewId;
-        private Long crewMemberId;
+        private List<MeetingMemberSimpleDto> meetingMembers;
 
         @Builder
         public MeetingSelectRespDto(Meeting meeting) {
@@ -96,10 +92,9 @@ public class MeetingDto {
             this.attend = meeting.getAttend();
             this.originalImg = meeting.getOriginalImg();
             this.saveImg = meeting.getSaveImg();
-            this.createDate = meeting.getCreateDate();
-            this.updateDate = meeting.getUpdateDate();
-            this.crewId = meeting.getCrew().getCrewId();
-            this.crewMemberId = meeting.getCrewMember().getCrewMemberId();
+            this.meetingMembers = meeting.getMeetingMembers().stream()
+                                        .map(MeetingMemberSimpleDto::new)
+                                        .toList();
         }
     }
 

@@ -3,9 +3,7 @@ package site.mymeetup.meetupserver.meeting.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.meeting.service.MeetingService;
@@ -31,8 +29,9 @@ public class MeetingController {
     @PostMapping("/{crewId}/meetings")
     public ApiResponse<MeetingSaveRespDto> createMeeting(@PathVariable("crewId") Long crewId,
                                                          @RequestPart MultipartFile image,
-                                                         @RequestPart @Valid MeetingSaveReqDto meetingSaveReqDto) {
-        return ApiResponse.success(meetingService.createMeeting(crewId, meetingSaveReqDto, image));
+                                                         @RequestPart @Valid MeetingSaveReqDto meetingSaveReqDto,
+                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(meetingService.createMeeting(crewId, meetingSaveReqDto, image, userDetails));
     }
 
     // 정모 수정
@@ -40,16 +39,18 @@ public class MeetingController {
     @PutMapping("/{crewId}/meetings/{meetingId}")
     public ApiResponse<MeetingSaveRespDto> updateMeeting(@PathVariable("crewId") Long crewId,
                                                          @PathVariable("meetingId") Long meetingId,
-                                                         @RequestPart @Valid MeetingSaveReqDto meetingSaveReqDto) {
-        return ApiResponse.success(meetingService.updateMeeting(crewId, meetingId, meetingSaveReqDto));
+                                                         @RequestPart @Valid MeetingSaveReqDto meetingSaveReqDto,
+                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(meetingService.updateMeeting(crewId, meetingId, meetingSaveReqDto, userDetails));
     }
 
     // 정모 삭제
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{crewId}/meetings/{meetingId}")
     public ApiResponse<Void> deleteMeeting(@PathVariable("crewId") Long crewId,
-                                           @PathVariable("meetingId") Long meetingId) {
-        meetingService.deleteMeeting(crewId, meetingId);
+                                           @PathVariable("meetingId") Long meetingId,
+                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        meetingService.deleteMeeting(crewId, meetingId, userDetails);
         return ApiResponse.success(null);
     }
 
@@ -70,9 +71,9 @@ public class MeetingController {
                                            @RequestBody(required = false) MeetingMemberReqDto meetingMemberReqDto,
                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         if (attend) {
-            meetingService.attendMeeting(crewId, meetingId);
+            meetingService.attendMeeting(crewId, meetingId, userDetails);
         } else {
-            if (meetingMemberReqDto == null) meetingService.cancelMeeting(crewId, meetingId);
+            if (meetingMemberReqDto == null) meetingService.cancelMeeting(crewId, meetingId, userDetails);
             else meetingService.rejectMeeting(crewId, meetingId, meetingMemberReqDto, userDetails);
         }
         return ApiResponse.success(null);

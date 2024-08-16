@@ -1,8 +1,6 @@
 package site.mymeetup.meetupserver.meeting.service;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
-import site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 
 import java.util.List;
@@ -14,18 +12,17 @@ import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMem
 import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberRespDto;
 
 public interface MeetingService {
-    MeetingSaveRespDto createMeeting(Long crewId, MeetingSaveReqDto meetingSaveReqDto, MultipartFile image);
+    MeetingSaveRespDto createMeeting(Long crewId, MeetingSaveReqDto meetingSaveReqDto, MultipartFile image, CustomUserDetails userDetails);
 
-    MeetingSaveRespDto updateMeeting(Long crewId, Long meetingId, MeetingSaveReqDto meetingSaveReqDto);
+    MeetingSaveRespDto updateMeeting(Long crewId, Long meetingId, MeetingSaveReqDto meetingSaveReqDto, CustomUserDetails userDetails);
 
-    void deleteMeeting(Long crewId, Long meetingId);
+    void deleteMeeting(Long crewId, Long meetingId, CustomUserDetails userDetails);
 
     List<MeetingSelectRespDto> getMeetingByCrewId(Long crewId, String status);
 
-    // 정모 참여 멤버
-    void attendMeeting(Long crewId, Long meetingId);
+    void attendMeeting(Long crewId, Long meetingId, CustomUserDetails userDetails);
 
-    void cancelMeeting(Long crewId, Long meetingId);
+    void cancelMeeting(Long crewId, Long meetingId, CustomUserDetails userDetails);
 
     void rejectMeeting(Long crewId, Long meetingId, MeetingMemberReqDto meetingMemberReqDto, CustomUserDetails userDetails);
 
