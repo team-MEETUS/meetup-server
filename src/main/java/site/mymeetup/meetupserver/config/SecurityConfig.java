@@ -121,7 +121,7 @@ public class SecurityConfig {
                     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
                     configuration.setAllowCredentials(true);
                     configuration.setAllowedHeaders(Collections.singletonList("*"));
-                    configuration.setAllowedHeaders(Collections.singletonList("Set-Cookie"));
+//                    configuration.setAllowedHeaders(Collections.singletonList("Set-Cookie"));
                     configuration.setExposedHeaders(Arrays.asList("Authorization"));
                     configuration.setMaxAge(3600L);
                     log.debug("CORS configuration set: {}", configuration);
