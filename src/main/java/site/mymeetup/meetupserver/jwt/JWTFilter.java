@@ -1,5 +1,6 @@
 package site.mymeetup.meetupserver.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,8 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.role.Role;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,25 +41,27 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 로그인 및 특정 GET 요청은 필터를 계속 진행
         if (method.equals("GET") && (requestURI.equals("/api/v1/geos") ||
-                                     requestURI.equals("/api/v1/interestBigs") ||
-                                     requestURI.matches("/api/v1/interestBigs/\\d+/interestSmalls") ||
-                                     requestURI.matches("/api/v1/members/\\d+") ||
-                                     requestURI.equals("/api/v1/crews") ||
-                                     requestURI.matches("/api/v1/crews/\\d+") ||
-                                    (requestURI.matches("/api/v1/crews/\\d+/members") && "members".equals(status)) ||
-                                     requestURI.matches("/api/v1/crews/\\d+/meetings") ||
-                                     requestURI.matches("/api/v1/crews/\\d+/meetings/\\d+") ||
-                                     requestURI.matches("/api/v1/crews/\\d+/albums") ||
-                                     requestURI.matches("/api/v1/crews/\\d+/boards") ||
-                                     requestURI.matches("/ws/info") ||
-                                     requestURI.matches("/api/v1/crews/\\d+/chats"))) {
+                requestURI.equals("/api/v1/interestBigs") ||
+                requestURI.matches("/api/v1/interestBigs/\\d+/interestSmalls") ||
+                requestURI.matches("/api/v1/members/\\d+") ||
+                requestURI.matches("^\\\\/login(?:\\\\/.*)?$") ||
+                requestURI.matches("^\\/oauth2(?:\\/.*)?$") ||
+                requestURI.equals("/api/v1/crews") ||
+                requestURI.matches("/api/v1/crews/\\d+") ||
+                (requestURI.matches("/api/v1/crews/\\d+/members") && "members".equals(status)) ||
+                requestURI.matches("/api/v1/crews/\\d+/meetings") ||
+                requestURI.matches("/api/v1/crews/\\d+/meetings/\\d+") ||
+                requestURI.matches("/api/v1/crews/\\d+/albums") ||
+                requestURI.matches("/api/v1/crews/\\d+/boards") ||
+                requestURI.matches("/ws/info") ||
+                requestURI.matches("/api/v1/crews/\\d+/chats"))) {
             filterChain.doFilter(request, response);
             return;
         }
 
         if (method.equals("POST") && (requestURI.equals("/api/v1/login") ||
-                                      requestURI.equals("/api/v1/members/join") ||
-                                      requestURI.equals("/api/v1/crews/interests"))) {
+                requestURI.equals("/api/v1/members/join") ||
+                requestURI.equals("/api/v1/crews/interests"))) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -79,7 +80,7 @@ public class JWTFilter extends OncePerRequestFilter {
             }
         }
         // 3. 헤더에도 쿠키에도 없을 경우 에러 응답
-        if(authorization == null || !authorization.startsWith("Bearer ")) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
             sendErrorResponse(response, "INVALID_TOKEN", "토큰이 없습니다.");
             return;
         }

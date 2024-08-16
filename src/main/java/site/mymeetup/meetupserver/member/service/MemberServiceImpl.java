@@ -21,6 +21,8 @@ import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 
+import java.io.IOException;
+
 
 @Service
 @RequiredArgsConstructor
@@ -116,6 +118,21 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return MemberSelectRespDto.builder().member(member).build();
+    }
+
+    @Override
+    public String getAccessTokenFromProvider(String provider, String code) throws IOException {
+        return "";
+    }
+
+    @Override
+    public CustomUserDetails getUserInfoFromProvider(String provider, String accessToken) throws IOException {
+        return null;
+    }
+
+    @Override
+    public String generateJwtToken(CustomUserDetails userDetails) {
+        return "";
     }
 
 }
