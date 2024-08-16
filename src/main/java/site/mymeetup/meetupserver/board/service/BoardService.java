@@ -18,7 +18,7 @@ public interface BoardService {
 
     BoardSaveRespDto createBoard(Long crewId, BoardSaveReqDto boardSaveReqDto, CustomUserDetails userDetails);
 
-    Map<String, List<String>> uploadImage(MultipartFile[] images);
+    List<String> uploadImage(MultipartFile[] images);
 
     BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardSaveReqDto boardSaveReqDto, CustomUserDetails userDetails);
 

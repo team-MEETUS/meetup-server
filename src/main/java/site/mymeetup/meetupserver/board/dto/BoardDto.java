@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import site.mymeetup.meetupserver.board.entity.Board;
 import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberInfoDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
 
 import java.time.LocalDateTime;
 
@@ -30,14 +32,12 @@ public class BoardDto {
 
         private int status;
 
-        private Long crewId;
-
         public Board toEntity(Crew crew, CrewMember crewMember) {
             return Board.builder()
                     .title(title)
                     .content(content)
                     .category(category)
-                    .status(status == 0 ? 1 : status)
+                    .status(status != 0 ? status : 0)
                     .crew(crew)
                     .crewMember(crewMember)
                     .build();
@@ -64,7 +64,7 @@ public class BoardDto {
         private int hit;
         private int status;
         private int totalComment;
-        private CrewMember crewMember;
+        private CrewMemberSelectRespDto crewMember;
         private LocalDateTime createDate;
         private LocalDateTime updateDate;
 
@@ -77,7 +77,7 @@ public class BoardDto {
             this.hit = board.getHit();
             this.status = board.getStatus();
             this.totalComment = board.getTotalComment();
-            this.crewMember = board.getCrewMember();
+            this.crewMember = new CrewMemberSelectRespDto(board.getCrewMember());
             this.createDate = board.getCreateDate();
             this.updateDate = board.getUpdateDate();
         }
