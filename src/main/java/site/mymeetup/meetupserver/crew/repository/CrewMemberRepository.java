@@ -13,10 +13,14 @@ public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
     // 모임과 회원으로 모임멤버 가져오기
     Optional<CrewMember> findByCrewAndMember(Crew crew, Member member);
 
+    // 특정 role인 멤버 조회
     Optional<CrewMember> findByCrewAndMemberAndRoleIn(Crew crew, Member member, List<CrewMemberRole> roles);
 
     // 특정 모임의 권한을 가졌는지 확인 (ex. 모임장인지)
     boolean existsByCrewAndMemberAndRole(Crew crew, Member member, CrewMemberRole role);
+
+    // 특정 모임의 유효한 권한을 가진 멤버인지 확인 (ex. 일반, 운영진, 모임장)
+    boolean existsByCrewAndMemberAndRoleIn(Crew crew, Member member, List<CrewMemberRole> roles);
 
     // 모임원 조회
     List<CrewMember> findByCrewAndRoleInOrderByRoleDesc(Crew crew, List<CrewMemberRole> roles);
@@ -25,9 +29,5 @@ public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
     List<CrewMember> findByCrewAndRole(Crew crew, CrewMemberRole role);
 
     Optional<CrewMember> findByCrew_CrewIdAndMember_MemberId(Long crewId, Long memberId);
-
-    Optional<CrewMember> findByCrew_CrewIdAndMember_MemberIdAndRoleIn(Long crewId, Long memberId, List<CrewMemberRole> roles);
-
-    boolean existsByCrewMemberIdAndRoleIn(Long crewMemberId, List<CrewMemberRole> roles);
 
 }
