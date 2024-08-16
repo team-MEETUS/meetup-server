@@ -3,6 +3,7 @@ package site.mymeetup.meetupserver.jwt;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -62,12 +63,29 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+        // 1. 헤더에서 Authorization 확인
         if (authorization == null || !authorization.startsWith("Bearer ")) {
+            // 2. 헤더에 없을 경우 쿠키에서 확인
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("Authorization".equals(cookie.getName())) {
+                        authorization = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        // 3. 헤더에도 쿠키에도 없을 경우 에러 응답
+        if(authorization == null || !authorization.startsWith("Bearer ")) {
             sendErrorResponse(response, "INVALID_TOKEN", "토큰이 없습니다.");
             return;
         }
 
-        String token = authorization.split(" ")[1];
+        // 토큰 생성
+        String token = authorization.startsWith("Bearer ")
+                ? authorization.split(" ")[1]
+                : authorization;
 
         try {
             if (jwtUtil.isExpired(token)) {
