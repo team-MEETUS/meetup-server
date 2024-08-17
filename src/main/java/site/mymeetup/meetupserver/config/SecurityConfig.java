@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import site.mymeetup.meetupserver.exception.CustomAccessDeniedHandler;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.jwt.JWTFilter;
@@ -128,6 +129,11 @@ public class SecurityConfig {
                 }
             }));
             log.info("CORS configuration applied successfully");
+
+            // AccessDeniedHandler 추가
+            http.exceptionHandling(exceptionHandling -> exceptionHandling
+                    .accessDeniedHandler(new CustomAccessDeniedHandler()));
+            log.info("CustomAccessDeniedHandler added to SecurityFilterChain");
 
             log.info("SecurityFilterChain configured successfully");
             return http.build();
