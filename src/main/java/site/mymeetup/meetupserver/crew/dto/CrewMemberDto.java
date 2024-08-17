@@ -1,5 +1,6 @@
 package site.mymeetup.meetupserver.crew.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,8 +17,8 @@ public class CrewMemberDto {
     public static class CrewMemberSaveReqDto {
         @NotNull(message = "회원은 필수 입력사항입니다.")
         private Long memberId;
-        @NotNull(message = "권한은 필수 입력사항입니다.")
-        private int newRoleStatus;
+        @NotEmpty(message = "권한은 필수 입력사항입니다.")
+        private String newRoleStatus;
     }
 
     @Getter

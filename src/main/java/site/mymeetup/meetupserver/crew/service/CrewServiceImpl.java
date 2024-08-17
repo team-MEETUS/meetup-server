@@ -25,6 +25,7 @@ import site.mymeetup.meetupserver.interest.repository.InterestSmallRepository;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
+
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
@@ -346,7 +347,12 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         // 변경할 역할
-        CrewMemberRole newRole = CrewMemberRole.enumOf(crewMemberSaveReqDto.getNewRoleStatus());
+        CrewMemberRole newRole;
+        try {
+            newRole = CrewMemberRole.valueOf(crewMemberSaveReqDto.getNewRoleStatus());
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.NOT_FOUND_ROLE);
+        }
 
         // role 변경 가능한지 확인
         canChangeRole(initiator.getRole(), target.getRole(), newRole);
