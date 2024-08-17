@@ -1,5 +1,6 @@
 package site.mymeetup.meetupserver.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.jwt.JWTFilter;
 import site.mymeetup.meetupserver.jwt.JWTUtil;
 import site.mymeetup.meetupserver.jwt.LoginFilter;
+import site.mymeetup.meetupserver.jwt.UrlValidationFilter;
 import site.mymeetup.meetupserver.member.oauth2.CustomSuccessHandler;
 import site.mymeetup.meetupserver.member.service.CustomOAuth2UserService;
 
@@ -97,9 +99,12 @@ public class SecurityConfig {
                     .requestMatchers("/ws/**").permitAll()
                     .anyRequest().authenticated());
 
+            // URL 검증 Filter
+            http.addFilterBefore(new UrlValidationFilter(new ObjectMapper()), UsernamePasswordAuthenticationFilter.class);
+
             // JWTFilter
-            http.addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
-            http.addFilterAt(new JWTFilter(jwtUtil), LoginFilter.class);
+            http.addFilterAfter(new JWTFilter(jwtUtil), UrlValidationFilter.class);
+            http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
             // LoginFilter 추가
             LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
