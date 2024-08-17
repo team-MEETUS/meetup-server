@@ -134,12 +134,12 @@ public class BoardServiceImpl implements BoardService {
 
         Page<Board> boardList = null;
         if (category == null || category.isEmpty()) {
-            boardList = boardRepository.findBoardByCrew_CrewIdAndStatusNot(crewId, 0, PageRequest.of(page, 5, Sort.by(Sort.Direction.ASC, "createDate")));
+            boardList = boardRepository.findBoardByCrew_CrewIdAndStatusNot(crewId, 0, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createDate")));
         } else {
             if (!category.equals("공지") && !category.equals("모임후기") && !category.equals("가입인사") && !category.equals("자유")) {
                 throw new CustomException(ErrorCode.BOARD_CATEGORY_NOT_FOUND);
             }
-            boardList = boardRepository.findBoardByCrew_CrewIdAndCategoryAndStatusNot(crewId, category, 0, PageRequest.of(page, 5, Sort.by(Sort.Direction.ASC, "createDate")));
+            boardList = boardRepository.findBoardByCrew_CrewIdAndCategoryAndStatusNot(crewId, category, 0, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createDate")));
         }
 
         return boardList.stream()
