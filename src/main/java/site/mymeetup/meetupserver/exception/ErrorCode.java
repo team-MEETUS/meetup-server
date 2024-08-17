@@ -5,9 +5,6 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
-    // 403
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "E40301", "접근 권한이 없습니다."),
-
     // S3
     NO_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "I40001", "파일 확장자가 존재하지 않습니다."),
     INVALID_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "I40002", "유효하지 않은 파일 확장자입니다."),
