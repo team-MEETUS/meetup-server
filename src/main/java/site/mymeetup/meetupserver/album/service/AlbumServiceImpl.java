@@ -1,6 +1,8 @@
 package site.mymeetup.meetupserver.album.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumSelectRespDto;
@@ -73,11 +75,14 @@ public class AlbumServiceImpl implements AlbumService {
 
     // 사진첩 조회
     @Override
-    public List<AlbumSelectRespDto> getAlbumByCrewId(Long crewId) {
-        List<Album> albumList = albumRepository.findAlbumByCrewCrewIdAndStatus(crewId, 1);
+    public List<AlbumSelectRespDto> getAlbumByCrewId(Long crewId, int page) {
+        if (page < 0) {
+            throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
+        }
+
+        List<Album> albumList = albumRepository.findAlbumByCrewCrewIdAndStatus(crewId, 1, PageRequest.of(page, 15, Sort.by(Sort.Direction.DESC, "albumId")));
 
         return albumList.stream()
-                .filter(album -> album.getStatus() != 0)
                 .map(AlbumSelectRespDto::new)
                 .toList();
     }
