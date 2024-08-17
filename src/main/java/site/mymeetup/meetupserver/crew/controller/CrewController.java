@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.crew.service.CrewService;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.response.ApiResponse;
@@ -15,6 +16,7 @@ import java.util.List;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewDetailRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewInterestReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
@@ -57,7 +59,7 @@ public class CrewController {
     // 특정 모임 상세 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{crewId}")
-    public ApiResponse<CrewSelectRespDto> getCrewByCrewId(@PathVariable("crewId") Long crewId) {
+    public ApiResponse<CrewDetailRespDto> getCrewByCrewId(@PathVariable("crewId") Long crewId) {
         return ApiResponse.success(crewService.getCrewByCrewId(crewId));
     }
 
@@ -69,12 +71,12 @@ public class CrewController {
         return ApiResponse.success(crewService.getAllCrewByInterest(crewInterestReqDto, userDetails));
     }
 
-    // 모임 가입 유무
+    // 모임 권한 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{crewId}/members/me")
-    public ApiResponse<Boolean> isCrewMember(@PathVariable("crewId") Long crewId,
-                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(crewService.isCrewMember(crewId, userDetails));
+    public ApiResponse<CrewMemberRole> getCrewMemberRole(@PathVariable("crewId") Long crewId,
+                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.getCrewMemberRole(crewId, userDetails));
     }
 
     // 모임 가입 신청

@@ -1,11 +1,13 @@
 package site.mymeetup.meetupserver.crew.service;
 
 import org.springframework.web.multipart.MultipartFile;
+import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewDetailRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewInterestReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
@@ -21,9 +23,9 @@ public interface CrewService {
 
     void deleteCrew(Long crewId, CustomUserDetails userDetails);
 
-    CrewSelectRespDto getCrewByCrewId(Long crewId);
+    CrewDetailRespDto getCrewByCrewId(Long crewId);
 
-    Boolean isCrewMember(Long crewId, CustomUserDetails userDetails);
+    CrewMemberRole getCrewMemberRole(Long crewId, CustomUserDetails userDetails);
 
     CrewMemberSaveRespDto signUpCrew(Long crewId, CustomUserDetails userDetails);
 

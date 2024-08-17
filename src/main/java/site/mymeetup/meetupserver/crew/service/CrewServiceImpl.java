@@ -28,6 +28,7 @@ import site.mymeetup.meetupserver.member.repository.MemberRepository;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewDetailRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewInterestReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
@@ -173,11 +174,11 @@ public class CrewServiceImpl implements CrewService {
     }
 
     // 모임 상세 조회
-    public CrewSelectRespDto getCrewByCrewId(Long crewId) {
+    public CrewDetailRespDto getCrewByCrewId(Long crewId) {
         // 해당 모임이 존재하는지 검증
         Crew crew = validateCrew(crewId);
 
-        return CrewSelectRespDto.builder().crew(crew).build();
+        return CrewDetailRespDto.builder().crew(crew).build();
     }
 
     // 관심사 별 모임 조회
@@ -224,7 +225,7 @@ public class CrewServiceImpl implements CrewService {
     }
 
     @Override
-    public Boolean isCrewMember(Long crewId, CustomUserDetails userDetails) {
+    public CrewMemberRole getCrewMemberRole(Long crewId, CustomUserDetails userDetails) {
         // 현재 로그인 한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
 
@@ -238,7 +239,10 @@ public class CrewServiceImpl implements CrewService {
                 CrewMemberRole.LEADER
         );
 
-        return crewMemberRepository.existsByCrewAndMemberAndRoleIn(crew, member, roles);
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, member, roles)
+                .orElse(null);
+
+        return crewMember != null ? crewMember.getRole() : null;
     }
 
     // 모임 가입 신청
