@@ -1,6 +1,7 @@
 package site.mymeetup.meetupserver.crew.service;
 
 import org.springframework.web.multipart.MultipartFile;
+import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
@@ -24,7 +25,7 @@ public interface CrewService {
 
     CrewDetailRespDto getCrewByCrewId(Long crewId);
 
-    Boolean isCrewMember(Long crewId, CustomUserDetails userDetails);
+    CrewMemberRole getCrewMemberRole(Long crewId, CustomUserDetails userDetails);
 
     CrewMemberSaveRespDto signUpCrew(Long crewId, CustomUserDetails userDetails);
 

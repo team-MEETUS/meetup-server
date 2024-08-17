@@ -225,7 +225,7 @@ public class CrewServiceImpl implements CrewService {
     }
 
     @Override
-    public Boolean isCrewMember(Long crewId, CustomUserDetails userDetails) {
+    public CrewMemberRole getCrewMemberRole(Long crewId, CustomUserDetails userDetails) {
         // 현재 로그인 한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
 
@@ -239,7 +239,10 @@ public class CrewServiceImpl implements CrewService {
                 CrewMemberRole.LEADER
         );
 
-        return crewMemberRepository.existsByCrewAndMemberAndRoleIn(crew, member, roles);
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, member, roles)
+                .orElse(null);
+
+        return crewMember != null ? crewMember.getRole() : null;
     }
 
     // 모임 가입 신청
