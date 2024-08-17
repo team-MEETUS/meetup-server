@@ -40,6 +40,6 @@ public enum CrewMemberRole {
 
     // 승인 대기 멤버가 특정 role로 변경 가능한지 확인
     public boolean canPendingChangeTo(CrewMemberRole newRole) {
-        return newRole == EXPELLED || newRole == MEMBER;
+        return newRole == MEMBER || newRole == DEPARTED;
     }
 }
