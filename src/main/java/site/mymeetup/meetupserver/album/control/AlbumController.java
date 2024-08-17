@@ -31,8 +31,9 @@ public class AlbumController {
     // 사진첩 목록 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{crewId}/albums")
-    public ApiResponse<List<AlbumSelectRespDto>> getAlbumByCrewId (@PathVariable Long crewId) {
-        return ApiResponse.success(albumService.getAlbumByCrewId(crewId));
+    public ApiResponse<List<AlbumSelectRespDto>> getAlbumByCrewId (@PathVariable Long crewId,
+                                                                   @RequestParam(defaultValue = "0") int page) {
+        return ApiResponse.success(albumService.getAlbumByCrewId(crewId, page));
     }
 
     // 사진첩 상세 조회

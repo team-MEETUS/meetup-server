@@ -13,7 +13,7 @@ public interface AlbumService {
 
     List<AlbumSaveRespDto> createAlbum(Long crewId, List<MultipartFile> images, CustomUserDetails userDetails);
 
-    List<AlbumSelectRespDto> getAlbumByCrewId(Long crewId);
+    List<AlbumSelectRespDto> getAlbumByCrewId(Long crewId, int page);
 
     AlbumSelectRespDto getAlbumByCrewIdAndAlbumId(Long crewId, Long albumId, CustomUserDetails userDetails);
 
