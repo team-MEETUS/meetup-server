@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.mymeetup.meetupserver.album.entity.Album;
+import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
+
 import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewMember;
 
@@ -46,28 +48,24 @@ public class AlbumDto {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class AlbumRespDto {
+    public static class AlbumSelectRespDto {
         private Long albumId;
         private int totalLike;
         private int status;
         private String originalImg;
         private String saveImg;
-        private CrewMember crewMember;
-        private Crew crew;
+        private CrewMemberSelectRespDto crewMember;
         private LocalDateTime createDate;
-        private LocalDateTime updateDate;
 
         @Builder
-        public AlbumRespDto(Album album) {
+        public AlbumSelectRespDto(Album album) {
             this.albumId = album.getAlbumId();
             this.totalLike = album.getTotalLike();
             this.status = album.getStatus();
             this.originalImg = album.getOriginalImg();
             this.saveImg = album.getSaveImg();
-            this.crewMember = album.getCrewMember();
-            this.crew = album.getCrew();
+            this.crewMember = new CrewMemberSelectRespDto(album.getCrewMember());
             this.createDate = album.getCreateDate();
-            this.updateDate = album.getUpdateDate();
         }
     }
 }
