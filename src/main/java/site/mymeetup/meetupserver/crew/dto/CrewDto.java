@@ -71,7 +71,6 @@ public class CrewDto {
         private Long crewId;
         private String name;
         private String intro;
-        private String content;
         private int max;
         private String originalImg;
         private String saveImg;
@@ -86,7 +85,6 @@ public class CrewDto {
             this.crewId = crew.getCrewId();
             this.name = crew.getName();
             this.intro = crew.getIntro();
-            this.content = crew.getContent();
             this.max = crew.getMax();
             this.originalImg = crew.getOriginalImg();
             this.saveImg = crew.getSaveImg();
@@ -94,6 +92,39 @@ public class CrewDto {
             this.totalMember = crew.getTotalMember();
             this.geo = new GeoSimpleDto(crew.getGeo());
             this.interestBig = new InterestBigSimpleDto(crew.getInterestBig());
+            this.interestSmall = new InterestSmallSelectRespDto(crew.getInterestSmall());
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class CrewDetailRespDto {
+        private Long crewId;
+        private String name;
+        private String intro;
+        private String content;
+        private int max;
+        private String originalImg;
+        private String saveImg;
+        private int totalMember;
+        private int totalLike;
+        private GeoSimpleDto geo;
+        private InterestBig interestBig;
+        private InterestSmallSelectRespDto interestSmall;
+
+        @Builder
+        public CrewDetailRespDto(Crew crew) {
+            this.crewId = crew.getCrewId();
+            this.name = crew.getName();
+            this.intro = crew.getIntro();
+            this.content = crew.getContent();
+            this.max = crew.getMax();
+            this.originalImg = crew.getOriginalImg();
+            this.saveImg = crew.getSaveImg();
+            this.totalLike = crew.getTotalLike();
+            this.totalMember = crew.getTotalMember();
+            this.geo = new GeoSimpleDto(crew.getGeo());
+            this.interestBig = crew.getInterestBig();
             this.interestSmall = new InterestSmallSelectRespDto(crew.getInterestSmall());
         }
     }

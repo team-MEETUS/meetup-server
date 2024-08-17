@@ -15,6 +15,7 @@ import java.util.List;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewDetailRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewInterestReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
@@ -57,7 +58,7 @@ public class CrewController {
     // 특정 모임 상세 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{crewId}")
-    public ApiResponse<CrewSelectRespDto> getCrewByCrewId(@PathVariable("crewId") Long crewId) {
+    public ApiResponse<CrewDetailRespDto> getCrewByCrewId(@PathVariable("crewId") Long crewId) {
         return ApiResponse.success(crewService.getCrewByCrewId(crewId));
     }
 
