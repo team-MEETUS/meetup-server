@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import static site.mymeetup.meetupserver.chat.dto.ChatDto.ChatRespDto;
 import site.mymeetup.meetupserver.chat.entity.Chat;
 import site.mymeetup.meetupserver.chat.service.ChatService;
+import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
 import java.time.LocalDateTime;
@@ -22,7 +24,9 @@ public class ChatController {
 
     @MessageMapping("/send")
     @SendTo("/topic/messages")
-    public Mono<ApiResponse<ChatRespDto>> sendMessage(ChatRespDto chatRespDto) {
+    public Mono<ApiResponse<ChatRespDto>> sendMessage(ChatRespDto chatRespDto,
+                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
+        System.out.println(userDetails.getMemberId());
         return chatService.createChat(chatRespDto);
     }
 
