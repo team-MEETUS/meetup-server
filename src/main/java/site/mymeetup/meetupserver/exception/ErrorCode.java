@@ -35,6 +35,7 @@ public enum ErrorCode {
     ALREADY_PENDING(HttpStatus.BAD_REQUEST, "CM40002", "이미 가입 신청을 한 모임입니다."),
     MAX_CREW_MEMBER(HttpStatus.BAD_REQUEST, "CM40003", "모임의 정원이 이미 찼습니다."),
     LEADER_PERMISSION_DENIED(HttpStatus.NOT_FOUND, "CM40302", "모임장의 권한을 변경할 수 없습니다."),
+    NOT_FOUND_ROLE(HttpStatus.NOT_FOUND, "R40401", "존재하지 않는 권한입니다."),
 
     // 모임 찜
     ALREADY_CREW_LIKE(HttpStatus.BAD_REQUEST, "CL40001", "이미 찜을 한 모임입니다."),
