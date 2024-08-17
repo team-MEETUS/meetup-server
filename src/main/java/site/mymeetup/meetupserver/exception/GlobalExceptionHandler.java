@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import site.mymeetup.meetupserver.response.ApiError;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
@@ -21,6 +22,14 @@ public class GlobalExceptionHandler {
         log.error("CustomException: {}", ex.getErrorCode());
         ApiResponse<?> response = ApiResponse.error(ex.getErrorCode());
         return new ResponseEntity<>(response, ex.getErrorCode().getHttpStatus());
+    }
+
+    // 유효하지 않은 url 예외
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleNoHandlerFoundException(NoHandlerFoundException ex) {
+
+        ApiResponse<?> response = ApiResponse.error("E40401", "처리할 수 없는 요청입니다.");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     // 유효성 검사 실패 예외 처리
