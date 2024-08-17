@@ -217,7 +217,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto, CustomUserDetails userDetails) {
         // boardId로 Board 객체 조회
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findBoardByBoardIdAndStatusNot(boardId, 0)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
@@ -243,7 +243,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public CommentSaveRespDto updateComment(Long crewId, Long boardId, Long commentId, CommentSaveReqDto commentSaveReqDto, CustomUserDetails userDetails) {
         // boardId로 Board 객체 조회
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findBoardByBoardIdAndStatusNot(boardId, 0)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
@@ -279,7 +279,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void deleteComment(Long crewId, Long boardId, Long commentId, CustomUserDetails userDetails) {
         // boardId로 Board 객체 조회
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findBoardByBoardIdAndStatusNot(boardId, 0)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
         // crewMemberId로 CrewMember 객체 조회
         CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
@@ -322,7 +322,7 @@ public class BoardServiceImpl implements BoardService {
         CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findBoardByBoardIdAndStatusNot(boardId, 0)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         commentList = commentRepository.findCommentByBoard_BoardIdAndStatus(boardId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.ASC, "createDate")));

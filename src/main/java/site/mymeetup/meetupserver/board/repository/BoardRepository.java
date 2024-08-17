@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import site.mymeetup.meetupserver.board.entity.Board;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
     // crewId로 게시글 조회
@@ -13,4 +14,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     // crewId & category 로 게시글 조회
     Page<Board> findBoardByCrew_CrewIdAndCategoryAndStatusNot(Long crewId, String category, int status, Pageable pageable);
+
+    // boardId와 status 로 게시글 조회
+    Optional<Board> findBoardByBoardIdAndStatusNot(Long boardId, int status);
 }
