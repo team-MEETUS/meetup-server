@@ -62,8 +62,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             // 리디렉션
             response.sendRedirect("http://localhost:3000");
 
-            logger.info("Authentication success. User: {}, Role: {}, MemberID: {}", username, role, memberId);
-
         } catch (Exception e) {
             logger.error("Error during authentication success handling", e);
             ErrorCode errorCode = ErrorCode.MEMBER_AUTHENTICATION_FAILED;
@@ -73,15 +71,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private Cookie createCookie(String key, String value) {
-        try {
             Cookie cookie = new Cookie(key, value);
             cookie.setMaxAge(60 * 60 * 60);
+            //cookie.setSecure(true);
             cookie.setPath("/");
             cookie.setHttpOnly(true);
             return cookie;
-        } catch (Exception e) {
-            logger.error("Error creating cookie", e);
-            return null;
-        }
     }
 }

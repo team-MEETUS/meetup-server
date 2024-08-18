@@ -2,8 +2,7 @@ package site.mymeetup.meetupserver.member.service;
 
 import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.message.model.Message;
-import net.nurigo.sdk.message.response.SingleMessageSentResponse;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,22 +13,14 @@ import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.geo.repository.GeoRepository;
-
-import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSelectRespDto;
-import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveRespDto;
-import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
-import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberUpdateReqDto;
-import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberUpdateRespDto;
-import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberInfoDto;
-import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSMSRespDto;
-import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSMSReqDto;
-
+import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.dto.MemberDto;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
-import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 
 import java.io.IOException;
+
+import static site.mymeetup.meetupserver.member.dto.MemberDto.*;
 
 
 @Service
@@ -42,16 +33,16 @@ public class MemberServiceImpl implements MemberService {
 
     // 회원 가입
     @Override
-    public MemberSaveRespDto createMember(Long memberId, MemberSaveReqDto memberSaveReqDto, CustomUserDetails userDetails) {
-        // 핸드폰 번호와 상태값으로 해당 회원이 존재하는지 확인
-        boolean memberExists = memberRepository.findByMemberIdAndStatus(memberId, 1).isPresent();
-        if(memberExists){
+    public MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto) {
+
+        // 핸드폰으로 신규 회원인지 검증
+        Member memberExists = memberRepository.findByPhone(memberSaveReqDto.getPhone());
+        if (memberExists != null) {
             throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
         }
 
-        // geoId로 Geo 객체 조회
-        Geo geo = geoRepository.findById(memberSaveReqDto.getGeoId())
-                .orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
+        // 지역이 존재하는지 확인
+        Geo geo = validateGeo(memberSaveReqDto.getGeoId());
 
         // 비밀번호 인코딩
         memberSaveReqDto.encodePassword(new BCryptPasswordEncoder());
@@ -60,35 +51,56 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberSaveReqDto.toEntity(geo);
         memberRepository.save(member);
 
-
         return MemberSaveRespDto.builder().member(member).build();
     }
 
+    @Override
+    public Member createSNSMember(MemberDto.MemberSNSReqDto memberSNSReqDto) {
+        // 핸드폰으로 신규 회원인지 검증
+        Member memberExists = memberRepository.findByPhone(memberSNSReqDto.getPhone());
+        if (memberExists != null) {
+            throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
+        }
+
+        // 지역이 존재하는지 확인
+        Geo geo = validateGeo(memberSNSReqDto.getGeoId());
+
+        // DTO -> Entity 변환 및 저장
+        Member newMember = memberSNSReqDto.toEntity(geo);
+        memberRepository.save(newMember);
+
+        return newMember;
+    }
+
+
     // 로그인 사용자 정보 조회
     @Override
-    public MemberInfoDto getUserInfoByMemberId(Long memberId, CustomUserDetails userDetails) {
-        // 핸드폰 번호와 상태값으로 해당 회원이 존재하는지 검증
-        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    public MemberInfoDto getMemberInfo() {
+        // 현재 로그인된 사용자 정보를 SecurityContextHolder에서 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // 로그인한 사용자와 요청된 사용자가 일치하지 않으면 예외 처리
-        Long loginMemberId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getMemberId();
-        if (!loginMemberId.equals(memberId)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
             throw new CustomException(ErrorCode.MEMBER_UNAUTHORIZED);
         }
 
-        return MemberInfoDto.builder().member(member).build();
+        // 로그인한 사용자의 ID 가져오기
+        Long loginMemberId = userDetails.getMemberId();
+
+        // 로그인한 사용자의 정보 검증
+        Member member = validateMember(loginMemberId);
+
+        return MemberInfoDto.builder()
+                .member(member)
+                .build();
     }
 
     @Override
     public MemberUpdateRespDto updateMember(Long memberId, MemberUpdateReqDto memberUpdateReqDto, MultipartFile image, CustomUserDetails userDetails) {
-        // 핸드폰 번호로 해당 회원이 존재하는지 확인
-        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        // 로그인한 사용자 검증
+        Member member = validateMember(userDetails.getMemberId());
 
         // 지역이 존재하는지 확인
-        Geo geo = geoRepository.findById(memberUpdateReqDto.getGeoId())
-                .orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
+        Geo geo = validateGeo(memberUpdateReqDto.getGeoId());
 
         // S3 이미지 업로드
         String originalImg = null;
@@ -124,14 +136,15 @@ public class MemberServiceImpl implements MemberService {
     //회원 삭제
     @Override
     public MemberSaveRespDto deleteMember(Long memberId, CustomUserDetails userDetails) {
-        // 핸드폰 번호로 해당 회원이 존재하는지 검증
-        Member member = memberRepository.findByMemberIdAndStatus(memberId, 1)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 로그인한 사용자 검증
+        Member member = validateMember(userDetails.getMemberId());
+
         // 회원 상태값 변경
         member.changeMemberStatus(0);
         // DB 수정
         memberRepository.save(member);
-        return null;
+        return new MemberSaveRespDto(member);
     }
 
     // 특정 회원 조회
@@ -140,21 +153,6 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return MemberSelectRespDto.builder().member(member).build();
-    }
-
-    @Override
-    public String getAccessTokenFromProvider(String provider, String code) throws IOException {
-        return "";
-    }
-
-    @Override
-    public CustomUserDetails getUserInfoFromProvider(String provider, String accessToken) throws IOException {
-        return null;
-    }
-
-    @Override
-    public String generateJwtToken(CustomUserDetails userDetails) {
-        return "";
     }
 
     @Override
@@ -179,4 +177,15 @@ public class MemberServiceImpl implements MemberService {
         return MemberSMSRespDto.builder().randomNum(randomNum).build();
     }
 
+    // 지역 검증 후 GEO 엔티티 반환
+    private Geo validateGeo(Long geoId) {
+        return geoRepository.findById(geoId)
+                .orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
+    }
+
+    // 사용자 검증 후 MEMBER 엔티티 반환
+    private Member validateMember(Long memberId) {
+        return memberRepository.findByMemberIdAndStatus(memberId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
 }

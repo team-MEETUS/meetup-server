@@ -24,6 +24,8 @@ public class MemberDto {
         @NotEmpty(message = "핸드폰 번호는 필수 입력사항입니다")
         @Size(max = 300)
         private String phone;
+        @Size(max=300)
+        private String password;
         @NotEmpty(message = "닉네임은 필수 입력사항입니다")
         @Size(max = 20)
         private String nickname;
@@ -34,8 +36,6 @@ public class MemberDto {
         private int gender;
         @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
-        @Size(max=300)
-        private String password;
 
         // 비밀번호 인코딩 메서드
         public void encodePassword(BCryptPasswordEncoder encoder) {
@@ -63,11 +63,13 @@ public class MemberDto {
     @Getter
     @NoArgsConstructor
     public static class MemberSNSReqDto {
+        private Long geoId;
         private String phone;
         private String nickname;
         private String birth;
         private int gender;
-        private Long geoId;
+        private String naver;
+        private String kakao;
 
         // 회원가입 DTO -> Entity
         public Member toEntity(Geo geo) {
@@ -77,12 +79,30 @@ public class MemberDto {
                     .nickname(nickname)
                     .birth(birth)
                     .gender(gender)
+                    .kakao(kakao)
+                    .naver(naver)
                     .role(Role.USER)
                     .status(1)
                     .build();
         }
     }
 
+    @Getter
+    @NoArgsConstructor
+    public static class MemberLoginReqDto {
+        @NotEmpty(message = "message = 핸드폰 번호는 필수 입력사항입니다.")
+        @Size(max = 300)
+        private String phone;
+
+        @NotEmpty(message = "비밀번호는 필수 입력사항입니다.")
+        private String password;
+
+        @Builder
+        public MemberLoginReqDto(String phone, String password) {
+            this.phone = phone;
+            this.password = password;
+        }
+    }
 
     //회원수정 req
     @Getter
