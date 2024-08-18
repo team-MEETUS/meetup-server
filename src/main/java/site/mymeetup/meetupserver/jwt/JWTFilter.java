@@ -96,6 +96,39 @@ public class JWTFilter extends OncePerRequestFilter {
                 requestURI.equals("/api/v1/members/join") ||
                 requestURI.equals("/api/v1/crews/interests") ||
                 requestURI.matches("/api/v1/members/phoneCheck"))) {
+
+            // 토큰이 없을 경우에도 진행
+            if (authorization != null && authorization.startsWith("Bearer ")) {
+                // 토큰 처리 로직
+                String token = authorization.split(" ")[1];
+                try {
+                    if (jwtUtil.isExpired(token)) {
+                        sendErrorResponse(response, "INVALID_TOKEN", "로그인 유효기간이 끝났습니다.");
+                        return;
+                    }
+
+                    String username = jwtUtil.getUsername(token);
+                    String role = jwtUtil.getRole(token);
+                    Long memberId = jwtUtil.getMemberId(token);
+
+                    Member member = Member.builder()
+                            .role(Role.valueOf(role))
+                            .memberId(memberId)
+                            .build();
+
+                    CustomUserDetails customUserDetails = new CustomUserDetails(member);
+
+                    Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } catch (ExpiredJwtException e) {
+                    sendErrorResponse(response, "INVALID_TOKEN", "토큰이 만료되었습니다.");
+                    return;
+                } catch (Exception e) {
+                    sendErrorResponse(response, "INVALID_TOKEN", "Invalid JWT token");
+                    return;
+                }
+            }
+
             filterChain.doFilter(request, response);
             return;
         }
