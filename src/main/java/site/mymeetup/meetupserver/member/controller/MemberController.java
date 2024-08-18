@@ -29,9 +29,10 @@ public class MemberController {
     // 회원 가입
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/join")
-    public ApiResponse<MemberSaveRespDto> createMember(@RequestBody @Valid MemberSaveReqDto memberSaveReqDto) {
-        MemberSaveRespDto memberSaveRespDto = memberService.createMember(memberSaveReqDto);
-        return ApiResponse.success(memberSaveRespDto);
+    public ApiResponse<MemberSaveRespDto> createMember(@PathVariable("memberId") Long memberId,
+                                                       @RequestBody @Valid MemberSaveReqDto memberSaveReqDto,
+                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.createMember(memberId, memberSaveReqDto, userDetails));
     }
     // 로그인 사용자 정보 조회
     @ResponseStatus(HttpStatus.OK)
@@ -39,6 +40,32 @@ public class MemberController {
     public ApiResponse<MemberInfoDto> getMemberInfo(@PathVariable Long memberId,
                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ApiResponse.success(memberService.getUserInfoByMemberId(memberId, userDetails));
+    }
+
+    // 회원 수정
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{memberId}")
+    public ApiResponse<MemberUpdateRespDto> updateMember(@PathVariable("memberId") Long memberId,
+                                                         @RequestPart @Valid MemberUpdateReqDto memberUpdateReqDto,
+                                                         @RequestPart MultipartFile image,
+                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.updateMember(memberId, memberUpdateReqDto, image, userDetails));
+    }
+
+    // 회원 삭제
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{memberId}")
+    public ApiResponse<MemberSaveRespDto> deleteMember(@PathVariable Long memberId,
+                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.deleteMember(memberId, userDetails));
+    }
+
+    // 특정 회원 조회(삭제, 비활성 회원 포함)
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{memberId}")
+    public ApiResponse<MemberSelectRespDto> getMemberByMemberId(@PathVariable Long memberId,
+                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.getMemberByMemberId(memberId, userDetails));
     }
 
     // SNS 로그인 요청 리디렉션
@@ -78,32 +105,6 @@ public class MemberController {
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         return cookie;
-    }
-
-    // 회원 수정
-    @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/{memberId}")
-    public ApiResponse<MemberUpdateRespDto> updateMember(@PathVariable("memberId") Long memberId,
-                                                         @RequestPart @Valid MemberUpdateReqDto memberUpdateReqDto,
-                                                         @RequestPart MultipartFile image,
-                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(memberService.updateMember(memberId, memberUpdateReqDto, image, userDetails));
-    }
-
-    // 회원 삭제
-    @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/{memberId}")
-    public ApiResponse<MemberSaveRespDto> deleteMember(@PathVariable Long memberId,
-                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(memberService.deleteMember(memberId, userDetails));
-    }
-
-    // 특정 회원 조회(삭제, 비활성 회원 포함)
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{memberId}")
-    public ApiResponse<MemberSelectRespDto> getMemberByMemberId(@PathVariable Long memberId,
-                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(memberService.getMemberByMemberId(memberId, userDetails));
     }
 
     // 문자 인증

@@ -5,6 +5,7 @@ import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.common.service.MessageService;
@@ -41,12 +42,25 @@ public class MemberServiceImpl implements MemberService {
 
     // 회원 가입
     @Override
-    public MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto) {
+    public MemberSaveRespDto createMember(Long memberId, MemberSaveReqDto memberSaveReqDto, CustomUserDetails userDetails) {
+        // 핸드폰 번호와 상태값으로 해당 회원이 존재하는지 확인
+        boolean memberExists = memberRepository.findByMemberIdAndStatus(memberId, 1).isPresent();
+        if(memberExists){
+            throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
+        }
+
         // geoId로 Geo 객체 조회
         Geo geo = geoRepository.findById(memberSaveReqDto.getGeoId())
                 .orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
 
-        Member member = memberRepository.save(memberSaveReqDto.toEntity(geo));
+        // 비밀번호 인코딩
+        memberSaveReqDto.encodePassword(new BCryptPasswordEncoder());
+
+        // DTO -> Entity 변환 및 저장
+        Member member = memberSaveReqDto.toEntity(geo);
+        memberRepository.save(member);
+
+
         return MemberSaveRespDto.builder().member(member).build();
     }
 
