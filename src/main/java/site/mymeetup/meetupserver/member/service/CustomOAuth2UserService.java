@@ -57,23 +57,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .build();
 
             if ("naver".equals(oAuth2Resp.getProvider())) {
-                newMember.builder().naver(oAuth2Resp.getNaver()).build();
+                Member.builder().naver(oAuth2Resp.getNaver()).build();
             } else if ("kakao".equals(oAuth2Resp.getProvider())) {
-                newMember.builder().kakao(oAuth2Resp.getKakao()).build();
+                Member.builder().kakao(oAuth2Resp.getKakao()).build();
             }
 
             memberRepository.save(newMember);
             return new CustomUserDetails(memberData);
-        // 기존 회원이지만 SNS 정보가 없는 경우 업데이트
+            // 기존 회원이지만 SNS 정보가 없는 경우 업데이트
         } else {
             boolean updated = false;
             if ("naver".equals(oAuth2Resp.getProvider()) && memberData.getNaver() == null) {
-            Member member = Member.builder()
-                .naver(oAuth2Resp.getNaver()).build();
+                Member member = Member.builder()
+                        .naver(oAuth2Resp.getNaver()).build();
                 updated = true;
             } else if ("kakao".equals(oAuth2Resp.getProvider()) && memberData.getKakao() == null) {
                 Member member = Member.builder()
-                .kakao(oAuth2Resp.getKakao()).build();
+                        .kakao(oAuth2Resp.getKakao()).build();
                 updated = true;
             }
             if (updated) {
