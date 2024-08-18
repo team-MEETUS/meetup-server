@@ -16,17 +16,17 @@ public interface CrewRepository extends JpaRepository<Crew, Long> {
     // id & status 값으로 특정 모임 조회
     Optional<Crew> findByCrewIdAndStatus(Long crewId, int status);
 
-    // interestBigId 값으로 특정 모임 조회
-    Page<Crew> findAllByInterestBigAndStatus(InterestBig interestBig, int status, Pageable pageable);
+    // 관심사 별 모임 조회
+    @Query("SELECT c FROM Crew c " +
+            "WHERE (:city IS NULL OR c.geo.city = :city) " +
+            "AND (:interestBig IS NULL OR c.interestBig = :interestBig) " +
+            "AND (:interestSmall IS NULL OR c.interestSmall = :interestSmall) " +
+            "AND c.status = 1")
+    Page<Crew> findCrewsByInterest(@Param("city") String city,
+                                   @Param("interestBig") InterestBig interestBig,
+                                   @Param("interestSmall") InterestSmall interestSmall,
+                                   Pageable pageable);
 
-    // interestSmallId 값으로 특정 모임 조회
-    Page<Crew> findAllByInterestSmallAndStatus(InterestSmall interestSmall, int status, Pageable pageable);
-
-    // city & interestBigId 값으로 특정 모임 조회
-    Page<Crew> findAllByGeo_CityAndInterestBigAndStatus(String city, InterestBig interestBig, int status, Pageable pageable);
-
-    // city & interestSmallId 값으로 특정 모임 조회
-    Page<Crew> findAllByGeo_CityAndInterestSmallAndStatus(String city, InterestSmall interestSmall, int status, Pageable pageable);
 
     // 모임 검색
     @Query("SELECT c FROM Crew c " +

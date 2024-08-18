@@ -71,7 +71,7 @@ public class CrewController {
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/interests")
     public ApiResponse<List<CrewSelectRespDto>> getAllCrewByInterest(@RequestBody CrewInterestReqDto crewInterestReqDto,
-                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ApiResponse.success(crewService.getAllCrewByInterest(crewInterestReqDto, userDetails));
     }
 

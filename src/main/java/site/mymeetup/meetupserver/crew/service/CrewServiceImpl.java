@@ -209,18 +209,8 @@ public class CrewServiceImpl implements CrewService {
         int page = crewInterestReqDto.getPage() - 1;
 
         // 모임 리스트 조회
-        Page<Crew> crews;
         Pageable pageable = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "totalMember"));
-
-        if (city == null) {     // 비회원
-            crews = interestBig != null
-                    ? crewRepository.findAllByInterestBigAndStatus(interestBig, 1, pageable)
-                    : crewRepository.findAllByInterestSmallAndStatus(interestSmall, 1, pageable);
-        } else {                // 회원
-            crews = interestBig != null
-                    ? crewRepository.findAllByGeo_CityAndInterestBigAndStatus(city, interestBig, 1, pageable)
-                    : crewRepository.findAllByGeo_CityAndInterestSmallAndStatus(city, interestSmall, 1, pageable);
-        }
+        Page<Crew> crews = crewRepository.findCrewsByInterest(city, interestBig, interestSmall, pageable);
 
         return crews.stream()
                 .map(CrewSelectRespDto::new)
@@ -250,19 +240,12 @@ public class CrewServiceImpl implements CrewService {
     // 모임 검색
     @Override
     public List<CrewSelectRespDto> getSearchCrew(String keyword, int page, CustomUserDetails userDetails) {
-        System.out.println(">>>>>>>>>>>>> keyword : " + keyword);
-        System.out.println(">>>>>>>>>>>>> page : " + page);
-
         // 로그인 한 사용자 검증
         String city = null;
         if (userDetails != null) {
             Member member = validateMember(userDetails.getMemberId());
             city = member.getGeo().getCity();
-            System.out.println(">>>>>>>>>>>>>> member : " + userDetails.getMemberId());
-            System.out.println(">>>>>>>>>>>>>> city : " + city);
         }
-
-
 
         // 페이지 번호 유효성 검사
         if (page < 1) {
