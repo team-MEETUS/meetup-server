@@ -16,7 +16,7 @@ import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberInfoDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberUpdateRespDto;
 
 public interface MemberService {
-    MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto);
+    MemberSaveRespDto createMember(Long memberId, MemberSaveReqDto memberSaveReqDto, CustomUserDetails userDetails);
 
     MemberInfoDto getUserInfoByMemberId(Long memberId, CustomUserDetails userDetails);
 
