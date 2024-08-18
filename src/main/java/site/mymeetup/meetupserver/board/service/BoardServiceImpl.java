@@ -26,6 +26,8 @@ import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
+import site.mymeetup.meetupserver.member.entity.Member;
+import site.mymeetup.meetupserver.member.repository.MemberRepository;
 
 import java.util.*;
 
@@ -37,17 +39,17 @@ public class BoardServiceImpl implements BoardService {
     private final CrewMemberRepository crewMemberRepository;
     private final S3ImageService s3ImageService;
     private final CommentRepository commentRepository;
+    private final MemberRepository memberRepository;
 
     // 게시글 등록
     @Override
     public BoardSaveRespDto createBoard(Long crewId, BoardSaveReqDto boardSaveReqDto, CustomUserDetails userDetails) {
+        Member member = validMember(userDetails.getMemberId());
         // crewId로 Crew 객체 조회
-        Crew crew = crewRepository.findById(crewId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+        Crew crew = validCrew(crewId);
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        CrewMember crewMember = validCrewMember(crew, member);
 
         // Board 카테고리 검증
         if (!(boardSaveReqDto.getCategory().equals("공지") || boardSaveReqDto.getCategory().equals("모임후기") || boardSaveReqDto.getCategory().equals("가입인사") || boardSaveReqDto.getCategory().equals("자유"))) {
@@ -82,16 +84,15 @@ public class BoardServiceImpl implements BoardService {
     // 게시글 수정
     @Override
     public BoardSaveRespDto updateBoard(Long crewId, Long boardId, BoardSaveReqDto boardSaveReqDto, CustomUserDetails userDetails) {
+        Member member = validMember(userDetails.getMemberId());
         // 해당 모임이 존재하는지 검증
-        Crew crew = crewRepository.findById(crewId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+        Crew crew = validCrew(crewId);
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        CrewMember crewMember = validCrewMember(crew, member);
 
         // 해당 게시글이 존재하는지 검증
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // 요청된 모임의 게시글인지 검증
@@ -150,12 +151,15 @@ public class BoardServiceImpl implements BoardService {
     // 특정 게시글 조회
     @Override
     public BoardRespDto getBoardByBoardId(Long crewId, Long boardId, CustomUserDetails userDetails) {
-        Board board = boardRepository.findById(boardId)
+        Member member = validMember(userDetails.getMemberId());
+
+        Crew crew = validCrew(crewId);
+
+        Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        CrewMember crewMember = validCrewMember(crew, member);
 
         if (!board.getCrew().getCrewId().equals(crewId)) {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
@@ -173,12 +177,15 @@ public class BoardServiceImpl implements BoardService {
     // 게시글 삭제
     @Override
     public void deleteBoard(Long crewId, Long boardId, CustomUserDetails userDetails) {
-        Board board = boardRepository.findById(boardId)
+        Member member = validMember(userDetails.getMemberId());
+
+        Crew crew = validCrew(crewId);
+
+        Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        CrewMember crewMember = validCrewMember(crew, member);
 
         if (!board.getCrew().getCrewId().equals(crewId)) {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
@@ -197,11 +204,14 @@ public class BoardServiceImpl implements BoardService {
     // 게시글 고정
     @Override
     public BoardSaveRespDto updateBoardStatus(Long crewId, Long boardId, CustomUserDetails userDetails) {
-        Board board = boardRepository.findById(boardId)
+        Member member = validMember(userDetails.getMemberId());
+
+        Crew crew = validCrew(crewId);
+
+        Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
-        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        CrewMember crewMember = validCrewMember(crew, member);
 
         if (crewMember.getRole() != CrewMemberRole.ADMIN && crewMember.getRole() != CrewMemberRole.LEADER) {
             throw new CustomException(ErrorCode.BOARD_CREW_ACCESS_DENIED);
@@ -216,13 +226,16 @@ public class BoardServiceImpl implements BoardService {
     // 댓글 등록
     @Override
     public CommentSaveRespDto createComment(Long crewId, Long boardId, CommentSaveReqDto commentSaveReqDto, CustomUserDetails userDetails) {
+        Member member = validMember(userDetails.getMemberId());
+
+        Crew crew = validCrew(crewId);
+
         // boardId로 Board 객체 조회
-        Board board = boardRepository.findBoardByBoardIdAndStatusNot(boardId, 0)
+        Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        CrewMember crewMember = validCrewMember(crew, member);
 
         // 모임에 가입된 모임원 확인 및 role 확인
         if (!board.getCrew().getCrewId().equals(crewId)) {
@@ -242,16 +255,19 @@ public class BoardServiceImpl implements BoardService {
     // 댓글 수정
     @Override
     public CommentSaveRespDto updateComment(Long crewId, Long boardId, Long commentId, CommentSaveReqDto commentSaveReqDto, CustomUserDetails userDetails) {
+        Member member = validMember(userDetails.getMemberId());
+
+        Crew crew = validCrew(crewId);
+
         // boardId로 Board 객체 조회
-        Board board = boardRepository.findBoardByBoardIdAndStatusNot(boardId, 0)
+        Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         // crewAndMemberId로 CrewAndMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        CrewMember crewMember = validCrewMember(crew, member);
 
         // commentId로 Comment 객체 조회
-        Comment comment = commentRepository.findById(commentId)
+        Comment comment = commentRepository.findByBoard_BoardIdAndCommentId(boardId, commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_COMMENT_NOT_FOUND));
 
         // 유효성 검사
@@ -278,14 +294,17 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public void deleteComment(Long crewId, Long boardId, Long commentId, CustomUserDetails userDetails) {
+        Member member = validMember(userDetails.getMemberId());
+
+        Crew crew = validCrew(crewId);
+
         // boardId로 Board 객체 조회
-        Board board = boardRepository.findBoardByBoardIdAndStatusNot(boardId, 0)
+        Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
         // crewMemberId로 CrewMember 객체 조회
-        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        CrewMember crewMember = validCrewMember(crew, member);
         // commentId로 Comment 객체 조회
-        Comment comment = commentRepository.findById(commentId)
+        Comment comment = commentRepository.findByBoard_BoardIdAndCommentId(boardId, commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_COMMENT_NOT_FOUND));
 
         // 유효성 검사
@@ -319,10 +338,13 @@ public class BoardServiceImpl implements BoardService {
 
         Page<Comment> commentList = null;
 
-        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        Member member = validMember(userDetails.getMemberId());
 
-        Board board = boardRepository.findBoardByBoardIdAndStatusNot(boardId, 0)
+        Crew crew = validCrew(crewId);
+
+        CrewMember crewMember = validCrewMember(crew, member);
+
+        Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         commentList = commentRepository.findCommentByBoard_BoardIdAndStatus(boardId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.ASC, "createDate")));
@@ -330,6 +352,26 @@ public class BoardServiceImpl implements BoardService {
         return commentList.stream()
                 .map(CommentRespDto::new)
                 .toList();
+    }
+
+    private Member validMember(Long memberId) {
+        return memberRepository.findByMemberIdAndStatus(memberId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private Crew validCrew(Long crewId) {
+        return crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+    }
+
+    private CrewMember validCrewMember(Crew crew, Member member) {
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+        return crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, member, roles)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
     }
 
 }
