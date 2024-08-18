@@ -3,6 +3,7 @@ package site.mymeetup.meetupserver.crew.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -209,15 +210,16 @@ public class CrewServiceImpl implements CrewService {
 
         // 모임 리스트 조회
         Page<Crew> crews;
+        Pageable pageable = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "totalMember"));
 
         if (city == null) {     // 비회원
             crews = interestBig != null
-                    ? crewRepository.findAllByInterestBigAndStatus(interestBig, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")))
-                    : crewRepository.findAllByInterestSmallAndStatus(interestSmall, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")));
+                    ? crewRepository.findAllByInterestBigAndStatus(interestBig, 1, pageable)
+                    : crewRepository.findAllByInterestSmallAndStatus(interestSmall, 1, pageable);
         } else {                // 회원
             crews = interestBig != null
-                    ? crewRepository.findAllByGeo_CityAndInterestBigAndStatus(city, interestBig, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")))
-                    : crewRepository.findAllByGeo_CityAndInterestSmallAndStatus(city, interestSmall, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "totalMember")));
+                    ? crewRepository.findAllByGeo_CityAndInterestBigAndStatus(city, interestBig, 1, pageable)
+                    : crewRepository.findAllByGeo_CityAndInterestSmallAndStatus(city, interestSmall, 1, pageable);
         }
 
         return crews.stream()
@@ -245,6 +247,37 @@ public class CrewServiceImpl implements CrewService {
                 .toList();
     }
 
+    // 모임 검색
+    @Override
+    public List<CrewSelectRespDto> getSearchCrew(String keyword, int page, CustomUserDetails userDetails) {
+        System.out.println(">>>>>>>>>>>>> keyword : " + keyword);
+        System.out.println(">>>>>>>>>>>>> page : " + page);
+
+        // 로그인 한 사용자 검증
+        String city = null;
+        if (userDetails != null) {
+            Member member = validateMember(userDetails.getMemberId());
+            city = member.getGeo().getCity();
+            System.out.println(">>>>>>>>>>>>>> member : " + userDetails.getMemberId());
+            System.out.println(">>>>>>>>>>>>>> city : " + city);
+        }
+
+
+
+        // 페이지 번호 유효성 검사
+        if (page < 1) {
+            throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, 20, Sort.by(Sort.Direction.DESC, "totalMember"));
+        List<Crew> crews = crewRepository.searchCrews(keyword, city, pageable);
+
+        return crews.stream()
+                .map(CrewSelectRespDto::new)
+                .toList();
+    }
+
+    // 로그인 한 사용자의 권한 조회
     @Override
     public CrewMemberRole getCrewMemberRole(Long crewId, CustomUserDetails userDetails) {
         // 현재 로그인 한 사용자 검증

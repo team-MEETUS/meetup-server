@@ -33,6 +33,8 @@ public interface CrewService {
 
     List<CrewSelectRespDto> getMyCrew(CustomUserDetails userDetails);
 
+    List<CrewSelectRespDto> getSearchCrew(String keyword, int page, CustomUserDetails userDetails);
+
     List<CrewMemberSelectRespDto> getCrewMemberByCrewId(Long crewId);
 
     List<CrewMemberSelectRespDto> getSignUpMemberByCrewId(Long crewId, CustomUserDetails userDetails);

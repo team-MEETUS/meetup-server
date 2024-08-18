@@ -82,6 +82,15 @@ public class CrewController {
         return ApiResponse.success(crewService.getMyCrew(userDetails));
     }
 
+    // 모임 검색
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/search")
+    public ApiResponse<List<CrewSelectRespDto>> getSearchCrew(@RequestParam String keyword,
+                                                              @RequestParam(defaultValue = "1") int page,
+                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.getSearchCrew(keyword, page, userDetails));
+    }
+
     // 모임 권한 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{crewId}/members/me")
