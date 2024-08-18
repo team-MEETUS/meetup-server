@@ -26,6 +26,21 @@ public class MemberController {
     private final MemberService memberService;
     private final JWTUtil jwtUtil;
 
+    // 회원 가입
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/join")
+    public ApiResponse<MemberSaveRespDto> createMember(@RequestBody @Valid MemberSaveReqDto memberSaveReqDto) {
+        MemberSaveRespDto memberSaveRespDto = memberService.createMember(memberSaveReqDto);
+        return ApiResponse.success(memberSaveRespDto);
+    }
+    // 로그인 사용자 정보 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{memberId}/memberInfo")
+    public ApiResponse<MemberInfoDto> getMemberInfo(@PathVariable Long memberId,
+                                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.getUserInfoByMemberId(memberId, userDetails));
+    }
+
     // SNS 로그인 요청 리디렉션
     @GetMapping("/oauth2")
     public void authorize(@RequestParam String provider, HttpServletResponse response) throws IOException {
