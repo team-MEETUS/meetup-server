@@ -16,5 +16,5 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findBoardByCrew_CrewIdAndCategoryAndStatusNot(Long crewId, String category, int status, Pageable pageable);
 
     // boardId와 status 로 게시글 조회
-    Optional<Board> findBoardByBoardIdAndStatusNot(Long boardId, int status);
+    Optional<Board> findBoardByBoardIdAndStatusNotAndCrew_CrewId(Long boardId, int status, Long crewId);
 }
