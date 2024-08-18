@@ -75,6 +75,14 @@ public class CrewController {
         return ApiResponse.success(crewService.getAllCrewByInterest(crewInterestReqDto, userDetails));
     }
 
+    // 새로 생긴 모임 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/new")
+    public ApiResponse<List<CrewSelectRespDto>> getNewCrew(@RequestParam(defaultValue = "1") int page,
+                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.getNewCrew(page, userDetails));
+    }
+
     // 내 모임 조회
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/me")

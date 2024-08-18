@@ -92,7 +92,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET,  "/api/v1/geos", "/api/v1/interestBigs", "/api/v1/interestBigs/{interestBigId}/interestSmalls",
                                                       "/api/v1/members/{memberId}",
                                                       "/api/v1/crews", "/api/v1/crews/{crewId}", "/api/v1/crews/{crewId}/members",
-                                                      "/api/v1/crews/search",
+                                                      "/api/v1/crews/new", "/api/v1/crews/search",
                                                       "/api/v1/crews/{crewId}/meetings", "/api/v1/crews/{crewId}/meetings/{meetingId}",
                                                       "/api/v1/crews/{crewId}/albums",
                                                       "/api/v1/crews/{crewId}/boards", "/api/v1/crews/{crewId}/chats", "/api/v1/crews/send").permitAll()
