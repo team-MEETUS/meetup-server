@@ -27,6 +27,12 @@ public interface CrewRepository extends JpaRepository<Crew, Long> {
                                    @Param("interestSmall") InterestSmall interestSmall,
                                    Pageable pageable);
 
+    // 새로 생긴 모임 조회
+    @Query("SELECT c FROM Crew c " +
+            "WHERE (:city IS NULL OR c.geo.city = :city) " +
+            "AND c.status = 1")
+    Page<Crew> newCrews(@Param("city") String city,
+                        Pageable pageable);
 
     // 모임 검색
     @Query("SELECT c FROM Crew c " +
@@ -38,7 +44,7 @@ public interface CrewRepository extends JpaRepository<Crew, Long> {
             "LOWER(c.interestSmall.name) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
             ") " +
             "AND c.status = 1")
-    List<Crew> searchCrews(@Param("keyword") String keyword,
+    Page<Crew> searchCrews(@Param("keyword") String keyword,
                            @Param("city") String city,
                            Pageable pageable);
 }

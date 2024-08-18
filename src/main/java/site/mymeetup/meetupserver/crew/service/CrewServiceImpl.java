@@ -218,6 +218,28 @@ public class CrewServiceImpl implements CrewService {
     }
 
     @Override
+    public List<CrewSelectRespDto> getNewCrew(int page, CustomUserDetails userDetails) {
+        // 로그인 한 사용자 검증
+        String city = null;
+        if (userDetails != null) {
+            Member member = validateMember(userDetails.getMemberId());
+            city = member.getGeo().getCity();
+        }
+
+        // 페이지 번호 유효성 검사
+        if (page < 1) {
+            throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, 20, Sort.by(Sort.Direction.DESC, "createDate"));
+        Page<Crew> crews = crewRepository.newCrews(city, pageable);
+
+        return crews.stream()
+                .map(CrewSelectRespDto::new)
+                .toList();
+    }
+
+    @Override
     public List<CrewSelectRespDto> getMyCrew(CustomUserDetails userDetails) {
         // 현재 로그인 한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
@@ -253,7 +275,7 @@ public class CrewServiceImpl implements CrewService {
         }
 
         Pageable pageable = PageRequest.of(page - 1, 20, Sort.by(Sort.Direction.DESC, "totalMember"));
-        List<Crew> crews = crewRepository.searchCrews(keyword, city, pageable);
+        Page<Crew> crews = crewRepository.searchCrews(keyword, city, pageable);
 
         return crews.stream()
                 .map(CrewSelectRespDto::new)

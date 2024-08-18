@@ -31,6 +31,8 @@ public interface CrewService {
 
     List<CrewSelectRespDto> getAllCrewByInterest(CrewInterestReqDto crewInterestReqDto, CustomUserDetails userDetails);
 
+    List<CrewSelectRespDto> getNewCrew(int page, CustomUserDetails userDetails);
+
     List<CrewSelectRespDto> getMyCrew(CustomUserDetails userDetails);
 
     List<CrewSelectRespDto> getSearchCrew(String keyword, int page, CustomUserDetails userDetails);
