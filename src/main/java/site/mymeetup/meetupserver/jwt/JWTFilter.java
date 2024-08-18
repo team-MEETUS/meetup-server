@@ -47,6 +47,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 requestURI.matches("^\\\\/login(?:\\\\/.*)?$") ||
                 requestURI.matches("^\\/oauth2(?:\\/.*)?$") ||
                 requestURI.equals("/api/v1/crews") ||
+                requestURI.equals("/api/v1/crews/search") ||
                 requestURI.matches("/api/v1/crews/\\d+") ||
                 (requestURI.matches("/api/v1/crews/\\d+/members") && "members".equals(status)) ||
                 requestURI.matches("/api/v1/crews/\\d+/meetings") ||
@@ -54,6 +55,39 @@ public class JWTFilter extends OncePerRequestFilter {
                 requestURI.matches("/api/v1/crews/\\d+/albums") ||
                 requestURI.matches("/api/v1/crews/\\d+/boards") ||
                 requestURI.matches("/ws/.+"))) {
+
+            // 토큰이 없을 경우에도 진행
+            if (authorization != null && authorization.startsWith("Bearer ")) {
+                // 토큰 처리 로직
+                String token = authorization.split(" ")[1];
+                try {
+                    if (jwtUtil.isExpired(token)) {
+                        sendErrorResponse(response, "INVALID_TOKEN", "로그인 유효기간이 끝났습니다.");
+                        return;
+                    }
+
+                    String username = jwtUtil.getUsername(token);
+                    String role = jwtUtil.getRole(token);
+                    Long memberId = jwtUtil.getMemberId(token);
+
+                    Member member = Member.builder()
+                            .role(Role.valueOf(role))
+                            .memberId(memberId)
+                            .build();
+
+                    CustomUserDetails customUserDetails = new CustomUserDetails(member);
+
+                    Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } catch (ExpiredJwtException e) {
+                    sendErrorResponse(response, "INVALID_TOKEN", "토큰이 만료되었습니다.");
+                    return;
+                } catch (Exception e) {
+                    sendErrorResponse(response, "INVALID_TOKEN", "Invalid JWT token");
+                    return;
+                }
+            }
+
             filterChain.doFilter(request, response);
             return;
         }
