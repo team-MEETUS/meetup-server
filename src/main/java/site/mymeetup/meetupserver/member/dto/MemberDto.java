@@ -34,6 +34,7 @@ public class MemberDto {
         private int gender;
         @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
+        @Size(max=300)
         private String password;
 
         // 비밀번호 인코딩 메서드
@@ -56,6 +57,31 @@ public class MemberDto {
                     .build();
         }
     }
+
+    // 소셜 회원가입 req
+    @Getter
+    @NoArgsConstructor
+    public static class MemberSNSReqDto {
+        private String phone;
+        private String nickname;
+        private String birth;
+        private int gender;
+        private Long geoId;
+
+        // 회원가입 DTO -> Entity
+        public Member toEntity(Geo geo) {
+            return Member.builder()
+                    .geo(geo)
+                    .phone(phone)
+                    .nickname(nickname)
+                    .birth(birth)
+                    .gender(gender)
+                    .role(Role.USER)
+                    .status(1)
+                    .build();
+        }
+    }
+
 
     //회원수정 req
     @Getter
@@ -95,7 +121,7 @@ public class MemberDto {
         }
     }
 
-    // 회원가입 resp
+    // 자체 회원가입 resp
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberSaveRespDto {
@@ -103,6 +129,18 @@ public class MemberDto {
 
         @Builder
         public MemberSaveRespDto(Member member) {
+            this.memberId = member.getMemberId();
+        }
+    }
+
+    // 소셜 회원가입 resp
+    @Getter
+    @NoArgsConstructor(access= AccessLevel.PROTECTED)
+    public static class MemberSNSRespDto {
+        private Long memberId;
+
+        @Builder
+        public MemberSNSRespDto(Member member) {
             this.memberId = member.getMemberId();
         }
     }
@@ -135,25 +173,6 @@ public class MemberDto {
             this.nickname = member.getNickname();
             this.saveImg = member.getSaveImg();
         }
-    }
-
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class MemberSnsDto {
-        private Long memberId;
-        private Geo geo;
-        private String nickname;
-
-    }
-
-
-
-    // 로그인 req
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class MemberLoginReqDto {
-        private String phone;
-        private String password;
     }
 
     // 회원 정보 조회 resp
