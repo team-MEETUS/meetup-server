@@ -95,7 +95,7 @@ public class SecurityConfig {
                                                       "/api/v1/crews/{crewId}/meetings", "/api/v1/crews/{crewId}/meetings/{meetingId}",
                                                       "/api/v1/crews/{crewId}/albums",
                                                       "/api/v1/crews/{crewId}/boards", "/api/v1/crews/{crewId}/chats", "/api/v1/crews/send").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/members/join", "/api/v1/login", "/api/v1/crews/interests").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/members/join", "/api/v1/login", "/api/v1/crews/interests", "/api/v1/members/phoneCheck").permitAll()
                     .requestMatchers("/ws/**").permitAll()
                     .anyRequest().authenticated());
 

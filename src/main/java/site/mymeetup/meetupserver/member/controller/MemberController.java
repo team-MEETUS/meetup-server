@@ -106,5 +106,11 @@ public class MemberController {
         return ApiResponse.success(memberService.getMemberByMemberId(memberId, userDetails));
     }
 
+    // 문자 인증
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/phoneCheck")
+    public ApiResponse<MemberSMSRespDto> sendSMS(@RequestBody MemberSMSReqDto memberSMSReqDto) {
+        return ApiResponse.success(memberService.sendSMS(memberSMSReqDto));
+    }
 
 }

@@ -62,6 +62,9 @@ dependencies {
     // security messaging
     implementation 'org.springframework.security:spring-security-messaging'
 
+    // coolsms
+    implementation 'net.nurigo:sdk:4.3.0'
+
     //redis
 //    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.3.1'
 }
