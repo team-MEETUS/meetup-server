@@ -78,7 +78,6 @@ public class CrewDto {
         private int totalLike;
         private GeoSimpleDto geo;
         private InterestBigSimpleDto interestBig;
-        private InterestSmallSelectRespDto interestSmall;
 
         @Builder
         public CrewSelectRespDto(Crew crew) {
@@ -92,7 +91,6 @@ public class CrewDto {
             this.totalMember = crew.getTotalMember();
             this.geo = new GeoSimpleDto(crew.getGeo());
             this.interestBig = new InterestBigSimpleDto(crew.getInterestBig());
-            this.interestSmall = new InterestSmallSelectRespDto(crew.getInterestSmall());
         }
     }
 
