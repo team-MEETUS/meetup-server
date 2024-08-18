@@ -226,6 +226,26 @@ public class CrewServiceImpl implements CrewService {
     }
 
     @Override
+    public List<CrewSelectRespDto> getMyCrew(CustomUserDetails userDetails) {
+        // 현재 로그인 한 사용자 검증
+        Member member = validateMember(userDetails.getMemberId());
+
+        // 해당 모임의 멤버인지 확인
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+
+        // 사용자가 속한 모임 조회
+        List<Crew> crews = crewMemberRepository.findCrewsByMember(member, roles);
+
+        return crews.stream()
+                .map(CrewSelectRespDto::new)
+                .toList();
+    }
+
+    @Override
     public CrewMemberRole getCrewMemberRole(Long crewId, CustomUserDetails userDetails) {
         // 현재 로그인 한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
@@ -252,11 +272,19 @@ public class CrewServiceImpl implements CrewService {
         // 현재 로그인 한 사용자 정보 가져오기
         Member member = validateMember(userDetails.getMemberId());
 
-        // 해당 모임이 존재하는지 검증
+        // 해당 모임이 존재 하는지 검증
         Crew crew = validateCrew(crewId);
 
-        // 모임원으로 존재하는지 검증
-        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, member).orElse(null);
+        // 이미 모임원 이거나 강퇴 , 승인 대기 중인지 확인
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.EXPELLED,
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER,
+                CrewMemberRole.PENDING
+        );
+
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, member, roles).orElse(null);
         if (crewMember != null) {
             if (crewMember.getRole() == CrewMemberRole.MEMBER || crewMember.getRole() == CrewMemberRole.ADMIN || crewMember.getRole() == CrewMemberRole.LEADER) {
                 throw new CustomException(ErrorCode.ALREADY_CREW_MEMBER);
@@ -264,9 +292,6 @@ public class CrewServiceImpl implements CrewService {
                 throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
             } else if (crewMember.getRole() == CrewMemberRole.PENDING) {
                 throw new CustomException(ErrorCode.ALREADY_PENDING);
-            } else if (crewMember.getRole() == CrewMemberRole.DEPARTED) {
-                crewMember.updateRole(CrewMemberRole.PENDING);
-                return CrewMemberSaveRespDto.builder().crewMember(crewMemberRepository.save(crewMember)).build();
             }
         }
 
@@ -305,6 +330,9 @@ public class CrewServiceImpl implements CrewService {
 
         // 해당 모임이 존재하는지 검증
         Crew crew = validateCrew(crewId);
+
+        System.out.println(">>>>>>>>>>>>member " + member.getMemberId());
+        System.out.println(">>>>>>>>>>>>crew " + crew.getCrewId());
 
         // 해당 모임의 멤버인지 확인
         if (!crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.LEADER)
