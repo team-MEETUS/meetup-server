@@ -2,12 +2,16 @@ package site.mymeetup.meetupserver.crew.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.crew.service.CrewService;
+import site.mymeetup.meetupserver.exception.CustomException;
+import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
@@ -66,9 +70,16 @@ public class CrewController {
     // 관심사 별 모임 조회
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/interests")
-    public ApiResponse<List<CrewSelectRespDto>> getAllCrew(@RequestBody CrewInterestReqDto crewInterestReqDto,
+    public ApiResponse<List<CrewSelectRespDto>> getAllCrewByInterest(@RequestBody CrewInterestReqDto crewInterestReqDto,
                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ApiResponse.success(crewService.getAllCrewByInterest(crewInterestReqDto, userDetails));
+    }
+
+    // 내 모임 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/me")
+    public ApiResponse<List<CrewSelectRespDto>> getMyCrew(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.getMyCrew(userDetails));
     }
 
     // 모임 권한 조회
@@ -99,6 +110,8 @@ public class CrewController {
             response = crewService.getCrewMemberByCrewId(crewId);
         } else if ("signup".equals(status)) {
             response = crewService.getSignUpMemberByCrewId(crewId, userDetails);
+        } else {
+            throw new CustomException(ErrorCode.INVALID_PATH);
         }
 
         return ApiResponse.success(response);

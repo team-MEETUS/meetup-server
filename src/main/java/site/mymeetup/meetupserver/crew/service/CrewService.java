@@ -31,6 +31,8 @@ public interface CrewService {
 
     List<CrewSelectRespDto> getAllCrewByInterest(CrewInterestReqDto crewInterestReqDto, CustomUserDetails userDetails);
 
+    List<CrewSelectRespDto> getMyCrew(CustomUserDetails userDetails);
+
     List<CrewMemberSelectRespDto> getCrewMemberByCrewId(Long crewId);
 
     List<CrewMemberSelectRespDto> getSignUpMemberByCrewId(Long crewId, CustomUserDetails userDetails);

@@ -82,6 +82,9 @@ public enum ErrorCode {
     ALBUM_DELETE_ACCESS_DENIED(HttpStatus.NOT_FOUND, "A40303", "사진첩 삭제는 작성자 또는 운영진, 모임장만 가능합니다."),
     ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "A40401", "존재하지 않는 사진첩입니다."),
 
+    // 기타
+    INVALID_PATH(HttpStatus.NOT_FOUND, "P40401", "유효하지 않은 경로입니다."),
+
     // 테스트
     NOT_FOUND_DEPT(HttpStatus.NOT_FOUND, "T-40401", "존재하지 않는 테스트입니다.");
 

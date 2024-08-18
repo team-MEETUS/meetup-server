@@ -27,7 +27,7 @@ public class UrlValidationFilter extends OncePerRequestFilter {
             "/api/v1/crews/[0-9]+/boards", "/api/v1/crews/[0-9]+/boards/[0-9]+", "/api/v1/crews/[0-9]+/boards/[0-9]+/pin", "/api/v1/crews/[0-9]+/boards/images",
             "/api/v1/crews/[0-9]+/boards/[0-9]+/comments", "/api/v1/crews/[0-9]+/boards/[0-9]+/comments/[0-9]+",
             "/api/v1/crews/[0-9]+/chats", "/ws/.*",
-            "/api/v1/crews", "/api/v1/crews/[0-9]+", "/api/v1/crews/interests", "/api/v1/crews/[0-9]+/members/me", "/api/v1/crews/[0-9]+/members", "/api/v1/crews/[0-9]+/likes",
+            "/api/v1/crews", "/api/v1/crews/[0-9]+", "/api/v1/crews/me", "/api/v1/crews/interests", "/api/v1/crews/[0-9]+/members/me", "/api/v1/crews/[0-9]+/members", "/api/v1/crews/[0-9]+/likes",
             "/api/v1/geos", "/api/v1/interestBigs", "/api/v1/interestBigs/[0-9]+/interestSmalls",
             "/api/v1/crews/[0-9]+/meetings", "/api/v1/crews/[0-9]+/meetings/[0-9]+",
             "/api/v1/members/oauth2", "/api/v1/login", "/api/v1/members/login/oauth2/code/.*", "/api/v1/members/[0-9]+", "/api/v1/members/join", "/api/v1/members/phoneCheck"
