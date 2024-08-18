@@ -1,9 +1,13 @@
 package site.mymeetup.meetupserver.member.service;
 
 import lombok.RequiredArgsConstructor;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import site.mymeetup.meetupserver.common.service.MessageService;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
@@ -16,7 +20,10 @@ import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberUpdateReqDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberUpdateRespDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberInfoDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSMSRespDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSMSReqDto;
 
+import site.mymeetup.meetupserver.member.dto.MemberDto;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
@@ -30,6 +37,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final GeoRepository geoRepository;
     private final S3ImageService s3ImageService;
+    private final MessageService messageService;
 
     // 회원 가입
     @Override
@@ -133,6 +141,28 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public String generateJwtToken(CustomUserDetails userDetails) {
         return "";
+    }
+
+    @Override
+    public MemberSMSRespDto sendSMS(MemberSMSReqDto memberSMSReqDto) {
+        Member member = memberRepository.findByPhone(memberSMSReqDto.getPhone());
+
+        // 이미 존재하는 회원일 시 에러 반환
+        if (member != null) {
+            throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
+        }
+
+        int randomNum = (int)(Math.random()* (9999 - 1000 +1)) + 1000;
+
+        Message message = new Message();
+        message.setFrom("01065639503");
+        message.setTo(memberSMSReqDto.getPhone());
+        message.setText("[MEETUP] 인증번호는" + "[" + randomNum + "]" + "입니다.");
+
+        // 메시지 전송
+        messageService.sendOne(message);
+
+        return MemberSMSRespDto.builder().randomNum(randomNum).build();
     }
 
 }

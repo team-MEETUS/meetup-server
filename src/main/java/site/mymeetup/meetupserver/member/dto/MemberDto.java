@@ -208,4 +208,21 @@ public class MemberDto {
             this.saveImg = member.getSaveImg();
         }
     }
+
+    // 문자 인증
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MemberSMSReqDto {
+        private String phone;
+    }
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MemberSMSRespDto {
+        private Integer randomNum;
+
+        @Builder
+        public MemberSMSRespDto(Integer randomNum) {
+            this.randomNum = randomNum;
+        }
+    }
 }

@@ -4,6 +4,7 @@ package site.mymeetup.meetupserver.member.service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.dto.MemberDto;
+import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSMSRespDto;
 
 
 import java.io.IOException;
@@ -31,4 +32,6 @@ public interface MemberService {
     CustomUserDetails getUserInfoFromProvider(String provider, String accessToken) throws IOException;
 
     String generateJwtToken(CustomUserDetails userDetails);
+
+    MemberSMSRespDto sendSMS(MemberDto.MemberSMSReqDto memberSMSReqDto);
 }

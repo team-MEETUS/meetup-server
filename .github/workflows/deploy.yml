@@ -58,6 +58,10 @@ jobs:
                   value: ${{ secrets.KAKAO_CLIENT_ID }}
                 - name: KAKAO_CLIENT_SECRET
                   value: ${{ secrets.KAKAO_CLIENT_SECRET }}
+                - name: COOLSMS_KEY
+                  value: ${{ secrets.COOLSMS_KEY }}
+                - name: COOLSMS_SECRET
+                  value: ${{ secrets.COOLSMS_SECRET }}
               buildenv: []
             context:
               git:
