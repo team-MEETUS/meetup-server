@@ -49,6 +49,7 @@ public class MemberDto {
             return Member.builder()
                     .geo(geo)
                     .phone(phone)
+                    .password(password)
                     .nickname(nickname)
                     .birth(birth)
                     .gender(gender)
