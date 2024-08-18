@@ -20,10 +20,13 @@ import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
+import site.mymeetup.meetupserver.member.entity.Member;
+import site.mymeetup.meetupserver.member.repository.MemberRepository;
 
 import static site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumSaveReqDto;
 import static site.mymeetup.meetupserver.album.dto.AlbumDto.AlbumSaveRespDto;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -34,6 +37,7 @@ public class AlbumServiceImpl implements AlbumService {
     private final CrewMemberRepository crewMemberRepository;
     private final S3ImageService s3ImageService;
     private final AlbumLikeRepository albumLikeRepository;
+    private final MemberRepository memberRepository;
 
     // 사진첩 등록
     @Override
@@ -43,16 +47,10 @@ public class AlbumServiceImpl implements AlbumService {
 
         // 해당 모임이 존재하는지 검증
         Crew crew = validateCrew(crewId);
+        // 해당 유저가 존재하는지 검증
+        Member member = validateMember(userDetails);
         // 해당 유저가 모임원인지 검증
-        CrewMember crewMember = validateCrewMember(crewId, userDetails);
-
-        // 로그인한 유저의 role이 강퇴, 승인대기, 퇴장일 경우 등록 불가
-        if (crewMember.getRole() == CrewMemberRole.EXPELLED ||
-            crewMember.getRole() == CrewMemberRole.PENDING  ||
-            crewMember.getRole() == CrewMemberRole.DEPARTED ) {
-
-            throw new CustomException(ErrorCode.ALBUM_ACCESS_DENIED);
-        }
+        CrewMember crewMember = validateCrewMember(crew, member);
 
         // 이미지가 여러개일 경우 반복해서 업로드
         for(int i = 0; i < images.size(); i++) {
@@ -94,8 +92,10 @@ public class AlbumServiceImpl implements AlbumService {
         Album album = validateAlbum(albumId);
         // 해당 모임이 존재하는지 검증
         Crew crew = validateCrew(crewId);
+        // 해당 유저가 존재하는지 검증
+        Member member = validateMember(userDetails);
         // 해당 유저가 모임원인지 검증
-        CrewMember crewMember = validateCrewMember(crewId, userDetails);
+        CrewMember crewMember = validateCrewMember(crew, member);
 
         // 로그인한 유저의 role이 강퇴, 승인대기, 퇴장일 경우 조회 불가
         if (crewMember.getRole() == CrewMemberRole.EXPELLED ||
@@ -115,8 +115,10 @@ public class AlbumServiceImpl implements AlbumService {
         Album album = validateAlbum(albumId);
         // 해당 모임이 존재하는지 검증
         Crew crew = validateCrew(crewId);
+        // 해당 유저가 존재하는지 검증
+        Member member = validateMember(userDetails);
         // 해당 유저가 모임원인지 검증
-        CrewMember crewMember = validateCrewMember(crewId, userDetails);
+        CrewMember crewMember = validateCrewMember(crew, member);
 
         // 로그인한 유저가 삭제할 권한(모임장 or 관리자 or 작성자)이 있는지 확인
         if(album.getCrewMember().getCrewMemberId() != crewMember.getCrewMemberId() &&
@@ -137,8 +139,10 @@ public class AlbumServiceImpl implements AlbumService {
         Album album = validateAlbum(albumId);
         // 해당 모임이 존재하는지 검증
         Crew crew = validateCrew(crewId);
+        // 해당 유저가 존재하는지 검증
+        Member member = validateMember(userDetails);
         // 해당 유저가 모임원인지 검증
-        CrewMember crewMember = validateCrewMember(crewId, userDetails);
+        CrewMember crewMember = validateCrewMember(crew, member);
 
         AlbumLike albumLike = albumLikeRepository.findByAlbumAndCrewMember(album, crewMember);
         AlbumLike albumLikeRtn = null;
@@ -166,11 +170,19 @@ public class AlbumServiceImpl implements AlbumService {
         // 해당 사진첩이 존재하는지 검증
         Album album = validateAlbum(albumId);
         // 해당 모임이 존재하는지 검증
-        validateCrew(crewId);
+        Crew crew = validateCrew(crewId);
+        // 해당 유저가 존재하는지 검증
+        Member member = validateMember(userDetails);
         // 해당 유저가 모임원인지 검증
-        CrewMember crewMember = validateCrewMember(crewId, userDetails);
+        CrewMember crewMember = validateCrewMember(crew, member);
 
         return albumLikeRepository.existsByAlbumAndCrewMember(album, crewMember);
+    }
+
+    private Member validateMember(CustomUserDetails userDetails) {
+        // 해당 유저가 존재하는지 검증
+        return memberRepository.findByMemberIdAndStatus(userDetails.getMemberId(), 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     private Crew validateCrew(Long crewId) {
@@ -185,9 +197,15 @@ public class AlbumServiceImpl implements AlbumService {
                 .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
     }
 
-    private CrewMember validateCrewMember(Long crewId, CustomUserDetails userDetails) {
+    private CrewMember validateCrewMember(Crew crew, Member member) {
         // 해당 유저가 모임원인지 검증
-        return crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, userDetails.getMemberId())
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+
+        return crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, member, roles)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
     }
