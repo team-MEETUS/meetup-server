@@ -9,6 +9,7 @@ import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewDetailRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewInterestReqDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewChatRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
@@ -30,6 +31,8 @@ public interface CrewService {
     CrewMemberSaveRespDto signUpCrew(Long crewId, CustomUserDetails userDetails);
 
     List<CrewSelectRespDto> getAllCrewByInterest(CrewInterestReqDto crewInterestReqDto, CustomUserDetails userDetails);
+
+    List<CrewChatRespDto> getActiveCrew(int page, CustomUserDetails userDetails);
 
     List<CrewSelectRespDto> getNewCrew(int page, CustomUserDetails userDetails);
 

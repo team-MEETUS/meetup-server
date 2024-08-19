@@ -1,12 +1,12 @@
 package site.mymeetup.meetupserver.crew.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import site.mymeetup.meetupserver.chat.entity.Chat;
+import site.mymeetup.meetupserver.chat.repository.ChatRepository;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
 import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.crew.entity.CrewLike;
@@ -32,11 +32,16 @@ import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewDetailRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewInterestReqDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewChatRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -50,6 +55,8 @@ public class CrewServiceImpl implements CrewService {
     private final MemberRepository memberRepository;
     private final CrewMemberRepository crewMemberRepository;
     private final CrewLikeRepository crewLikeRepository;
+    private final MongoTemplate mongoTemplate;
+    private final ChatRepository chatRepository;
 
     // 모임 등록
     public CrewSaveRespDto createCrew(CrewSaveReqDto crewSaveReqDto, MultipartFile image, CustomUserDetails userDetails) {
@@ -215,6 +222,23 @@ public class CrewServiceImpl implements CrewService {
         return crews.stream()
                 .map(CrewSelectRespDto::new)
                 .toList();
+    }
+
+    @Override
+    public List<CrewChatRespDto> getActiveCrew(int page, CustomUserDetails userDetails) {
+        // 로그인 한 사용자 검증
+        String city = null;
+        if (userDetails != null) {
+            Member member = validateMember(userDetails.getMemberId());
+            city = member.getGeo().getCity();
+        }
+
+        // 페이지 번호 유효성 검사
+        if (page < 1) {
+            throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
+        }
+
+        return getCrewWithLastChatTime(city, page);
     }
 
     @Override
@@ -496,6 +520,37 @@ public class CrewServiceImpl implements CrewService {
         Crew crew = validateCrew(crewId);
 
         return crewLikeRepository.existsByCrewAndMember(crew, member);
+    }
+
+    // 마지막 채팅 시간 조회 및 페이징 처리
+    private List<CrewChatRespDto> getCrewWithLastChatTime(String city, int page) {
+        // 전체 모임 조회
+        List<Crew> crews = crewRepository.activeCrew(city);
+
+        // 마지막 채팅 시간 매핑
+        List<CrewChatRespDto> crewList = new ArrayList<>();
+        for (Crew crew : crews) {
+            LocalDateTime lastChatTime = getLastChatTime(crew.getCrewId());
+            if (lastChatTime != null) {
+                crewList.add(new CrewChatRespDto(crew, lastChatTime));
+            }
+        }
+
+        // 마지막 대화 시간 기준 정렬
+        crewList.sort(Comparator.comparing(CrewChatRespDto::getLastChatTime).reversed());
+
+        // 페이징 처리
+        int size = 20;
+        int start = (page - 1) * size;
+        int end = Math.min(start + size, crewList.size());
+        return crewList.subList(start, end);
+    }
+
+    // MongoDB 에서 마지막 채팅 시간 조회
+    private LocalDateTime getLastChatTime(Long crewId) {
+        return chatRepository.findFirstByCrewIdOrderByCreateDateDesc(crewId)
+                .map(Chat::getCreateDate)
+                .block();
     }
 
     // 사용자 검증 후 MEMBER 엔티티 반환
