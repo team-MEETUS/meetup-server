@@ -12,6 +12,9 @@ import site.mymeetup.meetupserver.chat.repository.ChatRepository;
 //import site.mymeetup.meetupserver.crew.repository.CrewRepository;
 //import site.mymeetup.meetupserver.exception.CustomException;
 //import site.mymeetup.meetupserver.exception.ErrorCode;
+import site.mymeetup.meetupserver.crew.entity.CrewMember;
+import site.mymeetup.meetupserver.crew.repository.CrewMemberRepository;
+import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
@@ -23,6 +26,7 @@ import java.util.UUID;
 public class ChatServiceImpl implements ChatService {
     private final ChatRepository chatRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final CrewMemberRepository crewMemberRepository;
 
     @Override
     public Mono<ApiResponse<ChatRespDto>> createChat(ChatRespDto chatRespDto) {
@@ -47,8 +51,9 @@ public class ChatServiceImpl implements ChatService {
 
 
     @Override
-    public Flux<ApiResponse<ChatRespDto>> getAllChatByCrewId(Long crewId, LocalDateTime createDate) {
-        return chatRepository.findAllByCrewIdAndCreateDateAfter(crewId, createDate)
+    public Flux<ApiResponse<ChatRespDto>> getAllChatByCrewId(Long crewId, Long senderId) {
+        CrewMember crewMember = crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, senderId).orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+        return chatRepository.findAllByCrewIdAndCreateDateAfter(crewId, crewMember.getCreateDate())
                 .map(chat -> {
                     ChatRespDto chatRespDto = ChatRespDto.builder().chat(chat).build();
                     return ApiResponse.success(chatRespDto);
