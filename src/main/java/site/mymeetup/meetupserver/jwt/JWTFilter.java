@@ -47,6 +47,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 requestURI.matches("^\\\\/login(?:\\\\/.*)?$") ||
                 requestURI.matches("^\\/oauth2(?:\\/.*)?$") ||
                 requestURI.equals("/api/v1/crews") ||
+                requestURI.equals("/api/v1/crews/active") ||
                 requestURI.equals("/api/v1/crews/new") ||
                 requestURI.equals("/api/v1/crews/search") ||
                 requestURI.matches("/api/v1/crews/\\d+") ||
