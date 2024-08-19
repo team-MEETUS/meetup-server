@@ -33,13 +33,13 @@ public class ChatController {
     // 채팅 내역 조회
     @GetMapping("/{crewId}/chats")
     public Flux<ApiResponse<ChatRespDto>> getAllChatByCrewId(@PathVariable Long crewId,
-                                                   @RequestParam(required = false) Long senderId,
-                                                   @RequestParam(required = false) Long receiverId,
-                                                   @RequestParam(required = false) LocalDateTime createDate) {
+                                                   @AuthenticationPrincipal CustomUserDetails userDetails,
+                                                   @RequestParam(required = false) Long receiverId) {
+        System.out.println(receiverId);
         if (receiverId == null) {
-            return chatService.getAllChatByCrewId(crewId, createDate);
+            return chatService.getAllChatByCrewId(crewId, userDetails.getMemberId());
         } else {
-            return chatService.getAllByCrewIdAndSenderIdAndReceiverId(crewId, senderId, receiverId);
+            return chatService.getAllByCrewIdAndSenderIdAndReceiverId(crewId, userDetails.getMemberId(), receiverId);
         }
     }
 }

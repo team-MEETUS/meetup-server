@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public interface ChatService {
     Mono<ApiResponse<ChatRespDto>> createChat(ChatRespDto chatRespDto);
 
-    Flux<ApiResponse<ChatRespDto>> getAllChatByCrewId(Long crewId, LocalDateTime createDate);
+    Flux<ApiResponse<ChatRespDto>> getAllChatByCrewId(Long crewId, Long senderId);
 
     Flux<ApiResponse<ChatRespDto>> getAllByCrewIdAndSenderIdAndReceiverId(Long crewId, Long senderId, Long receiverId);
 }
