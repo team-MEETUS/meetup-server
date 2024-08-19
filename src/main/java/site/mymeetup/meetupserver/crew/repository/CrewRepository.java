@@ -16,6 +16,12 @@ public interface CrewRepository extends JpaRepository<Crew, Long> {
     // id & status 값으로 특정 모임 조회
     Optional<Crew> findByCrewIdAndStatus(Long crewId, int status);
 
+    // 활동이 활발한 모임 조회
+    @Query("SELECT c FROM Crew c " +
+            "WHERE (:city IS NULL OR c.geo.city = :city) " +
+            "AND c.status = 1")
+    List<Crew> activeCrew(@Param("city") String city);
+
     // 관심사 별 모임 조회
     @Query("SELECT c FROM Crew c " +
             "WHERE (:city IS NULL OR c.geo.city = :city) " +

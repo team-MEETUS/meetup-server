@@ -2,12 +2,10 @@ package site.mymeetup.meetupserver.crew.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.NoHandlerFoundException;
 import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.crew.service.CrewService;
 import site.mymeetup.meetupserver.exception.CustomException;
@@ -22,6 +20,7 @@ import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSelectRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewDetailRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewInterestReqDto;
+import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewChatRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSaveRespDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewMemberDto.CrewMemberSelectRespDto;
@@ -73,6 +72,14 @@ public class CrewController {
     public ApiResponse<List<CrewSelectRespDto>> getAllCrewByInterest(@RequestBody CrewInterestReqDto crewInterestReqDto,
                                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ApiResponse.success(crewService.getAllCrewByInterest(crewInterestReqDto, userDetails));
+    }
+
+    // 활동이 활발한 모임 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/active")
+    public ApiResponse<List<CrewChatRespDto>> getActiveCrew(@RequestParam(defaultValue = "1") int page,
+                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.getActiveCrew(page, userDetails));
     }
 
     // 새로 생긴 모임 조회

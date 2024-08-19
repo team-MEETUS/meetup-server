@@ -9,6 +9,9 @@ import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.interest.entity.InterestBig;
 import site.mymeetup.meetupserver.interest.entity.InterestSmall;
+
+import java.time.LocalDateTime;
+
 import static site.mymeetup.meetupserver.geo.dto.GeoDto.GeoSimpleDto;
 import static site.mymeetup.meetupserver.interest.dto.InterestBigDto.InterestBigSimpleDto;
 import static site.mymeetup.meetupserver.interest.dto.InterestSmallDto.InterestSmallSelectRespDto;
@@ -124,6 +127,37 @@ public class CrewDto {
             this.geo = new GeoSimpleDto(crew.getGeo());
             this.interestBig = crew.getInterestBig();
             this.interestSmall = new InterestSmallSelectRespDto(crew.getInterestSmall());
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class CrewChatRespDto {
+        private Long crewId;
+        private String name;
+        private String intro;
+        private int max;
+        private String originalImg;
+        private String saveImg;
+        private int totalMember;
+        private int totalLike;
+        private GeoSimpleDto geo;
+        private InterestBigSimpleDto interestBig;
+        private LocalDateTime lastChatTime;
+
+        @Builder
+        public CrewChatRespDto(Crew crew, LocalDateTime lastChatTime) {
+            this.crewId = crew.getCrewId();
+            this.name = crew.getName();
+            this.intro = crew.getIntro();
+            this.max = crew.getMax();
+            this.originalImg = crew.getOriginalImg();
+            this.saveImg = crew.getSaveImg();
+            this.totalLike = crew.getTotalLike();
+            this.totalMember = crew.getTotalMember();
+            this.geo = new GeoSimpleDto(crew.getGeo());
+            this.interestBig = new InterestBigSimpleDto(crew.getInterestBig());
+            this.lastChatTime = lastChatTime;
         }
     }
 
