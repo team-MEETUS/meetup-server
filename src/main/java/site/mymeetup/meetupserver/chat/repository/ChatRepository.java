@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public interface ChatRepository extends ReactiveMongoRepository<Chat, String> {
 
     // 모임 단체 채팅 조회
+    @Query("{ 'crewId': ?0, 'createDate': { $gt: ?1 }, 'receiverId': null }")
     Flux<Chat> findAllByCrewIdAndCreateDateAfter(Long crewId, LocalDateTime createDate);
 
     // 모임 1대1 채팅 조회
