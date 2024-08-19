@@ -31,7 +31,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
-        setFilterProcessesUrl("/api/v1/members/login");
+        setFilterProcessesUrl("/api/v1/login");
         this.jwtUtil = jwtUtil;
         this.objectMapper = new ObjectMapper(); // ObjectMapper 초기화
     }
