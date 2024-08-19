@@ -2,7 +2,6 @@ package site.mymeetup.meetupserver.crew.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.chat.entity.Chat;
@@ -55,7 +54,6 @@ public class CrewServiceImpl implements CrewService {
     private final MemberRepository memberRepository;
     private final CrewMemberRepository crewMemberRepository;
     private final CrewLikeRepository crewLikeRepository;
-    private final MongoTemplate mongoTemplate;
     private final ChatRepository chatRepository;
 
     // 모임 등록
@@ -542,6 +540,9 @@ public class CrewServiceImpl implements CrewService {
         // 페이징 처리
         int size = 20;
         int start = (page - 1) * size;
+        if (start >= crewList.size()) {
+            return new ArrayList<>();
+        }
         int end = Math.min(start + size, crewList.size());
         return crewList.subList(start, end);
     }
