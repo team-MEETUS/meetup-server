@@ -29,20 +29,13 @@ public class MemberServiceImpl implements MemberService {
 
     // 회원 가입
     @Override
-    public MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto, CustomUserDetails userDetails) {
+    public MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto) {
 
         // 핸드폰으로 신규 회원인지 검증
         Member memberExists = memberRepository.findByPhone(memberSaveReqDto.getPhone());
         if (memberExists != null) {
-            throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
-        }
-
-        // 기존회원/비활성 회원인지 검증
-        Long memberId = userDetails.getMemberId();
-        int status = userDetails.getStatus();
-
-        if (status == 1 || status == 2) {
-            throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
+            if (memberExists.getStatus() == 1 || memberExists.getStatus() == 2)
+                throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
         }
 
         // 지역이 존재하는지 확인
@@ -53,13 +46,13 @@ public class MemberServiceImpl implements MemberService {
         String encodedPhone = passwordEncoder.encode(memberSaveReqDto.getPhone());
 
         // DTO -> Entity 변환 및 저장
-        Member member = memberSaveReqDto.toEntity(geo);
+        Member newMember = memberSaveReqDto.toEntity(geo);
 
         Member.builder().password(encodedPassword).phone(encodedPhone);
 
-        memberRepository.save(member);
+        memberRepository.save(newMember);
 
-        return MemberSaveRespDto.builder().member(member).build();
+        return MemberSaveRespDto.builder().member(newMember).build();
     }
 
     // 로그인 사용자 정보 조회

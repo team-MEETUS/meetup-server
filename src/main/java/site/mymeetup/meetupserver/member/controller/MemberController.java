@@ -29,9 +29,8 @@ public class MemberController {
     // 회원 가입
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/join")
-    public ApiResponse<MemberSaveRespDto> createMember(@RequestBody @Valid MemberSaveReqDto memberSaveReqDto,
-                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(memberService.createMember(memberSaveReqDto, userDetails));
+    public ApiResponse<MemberSaveRespDto> createMember(@RequestBody @Valid MemberSaveReqDto memberSaveReqDto) {
+        return ApiResponse.success(memberService.createMember(memberSaveReqDto));
     }
 
     // 로그인 사용자 정보 조회

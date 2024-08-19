@@ -3,13 +3,8 @@ package site.mymeetup.meetupserver.member.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
-import site.mymeetup.meetupserver.member.dto.MemberDto;
-import site.mymeetup.meetupserver.member.entity.Member;
 
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSMSRespDto;
-
-
-import java.io.IOException;
 
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveRespDto;
@@ -20,7 +15,7 @@ import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSMSReqDto;
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberUpdateReqDto;
 
 public interface MemberService {
-    MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto, CustomUserDetails customUserDetails);
+    MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto);
 
     MemberInfoDto getMemberInfo(CustomUserDetails userDetails);
 
