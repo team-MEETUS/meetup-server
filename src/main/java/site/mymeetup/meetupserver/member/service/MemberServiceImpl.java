@@ -2,8 +2,6 @@ package site.mymeetup.meetupserver.member.service;
 
 import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.message.model.Message;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,11 +12,8 @@ import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.geo.repository.GeoRepository;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
-import site.mymeetup.meetupserver.member.dto.MemberDto;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
-
-import java.io.IOException;
 
 import static site.mymeetup.meetupserver.member.dto.MemberDto.*;
 
@@ -30,10 +25,11 @@ public class MemberServiceImpl implements MemberService {
     private final GeoRepository geoRepository;
     private final S3ImageService s3ImageService;
     private final MessageService messageService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     // 회원 가입
     @Override
-    public MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto) {
+    public MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto, CustomUserDetails userDetails) {
 
         // 핸드폰으로 신규 회원인지 검증
         Member memberExists = memberRepository.findByPhone(memberSaveReqDto.getPhone());
@@ -41,47 +37,34 @@ public class MemberServiceImpl implements MemberService {
             throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
         }
 
+        // 기존회원/비활성 회원인지 검증
+        Long memberId = userDetails.getMemberId();
+        int status = userDetails.getStatus();
+
+        if (status == 1 || status == 2) {
+            throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
+        }
+
         // 지역이 존재하는지 확인
         Geo geo = validateGeo(memberSaveReqDto.getGeoId());
 
-        // 비밀번호 인코딩
-        memberSaveReqDto.encodePassword(new BCryptPasswordEncoder());
+        // 비밀번호, 핸드폰 인코딩
+        String encodedPassword = passwordEncoder.encode(memberSaveReqDto.getPassword());
+        String encodedPhone = passwordEncoder.encode(memberSaveReqDto.getPhone());
 
         // DTO -> Entity 변환 및 저장
         Member member = memberSaveReqDto.toEntity(geo);
+
+        Member.builder().password(encodedPassword).phone(encodedPhone);
+
         memberRepository.save(member);
 
         return MemberSaveRespDto.builder().member(member).build();
     }
 
-    @Override
-    public Member createSNSMember(MemberDto.MemberSNSReqDto memberSNSReqDto) {
-        // 핸드폰으로 신규 회원인지 검증
-        Member memberExists = memberRepository.findByPhone(memberSNSReqDto.getPhone());
-        if (memberExists != null) {
-            throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
-        }
-
-        // 지역이 존재하는지 확인
-        Geo geo = validateGeo(memberSNSReqDto.getGeoId());
-
-        // DTO -> Entity 변환 및 저장
-        Member newMember = memberSNSReqDto.toEntity(geo);
-        memberRepository.save(newMember);
-
-        return newMember;
-    }
-
-
     // 로그인 사용자 정보 조회
     @Override
-    public MemberInfoDto getMemberInfo() {
-        // 현재 로그인된 사용자 정보를 SecurityContextHolder에서 가져오기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
-            throw new CustomException(ErrorCode.MEMBER_UNAUTHORIZED);
-        }
+    public MemberInfoDto getMemberInfo(CustomUserDetails userDetails) {
 
         // 로그인한 사용자의 ID 가져오기
         Long loginMemberId = userDetails.getMemberId();
@@ -89,15 +72,20 @@ public class MemberServiceImpl implements MemberService {
         // 로그인한 사용자의 정보 검증
         Member member = validateMember(loginMemberId);
 
-        return MemberInfoDto.builder()
-                .member(member)
-                .build();
+        return MemberInfoDto.builder().member(member).build();
     }
 
     @Override
-    public MemberUpdateRespDto updateMember(Long memberId, MemberUpdateReqDto memberUpdateReqDto, MultipartFile image, CustomUserDetails userDetails) {
+    public MemberUpdateRespDto updateMember(MemberUpdateReqDto memberUpdateReqDto, MultipartFile image, CustomUserDetails userDetails) {
+
         // 로그인한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
+
+        // 비활성 회원인지 검증
+        int status = userDetails.getStatus();
+        if (status == 2) {
+            throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
+        }
 
         // 지역이 존재하는지 확인
         Geo geo = validateGeo(memberUpdateReqDto.getGeoId());
@@ -125,20 +113,40 @@ public class MemberServiceImpl implements MemberService {
             throw new CustomException(ErrorCode.IMAGE_BAD_REQUEST);
         }
 
-        // dto -> entity
-        member.updateMember(memberUpdateReqDto.toEntity(geo, originalImg, saveImg));
-        // DB 수정
-        Member updatedMember = memberRepository.save(member);
+        // 비밀번호 변경하는 경우 현재 비밀번호 검증
+        if (memberUpdateReqDto.getPassword() != null) {
 
-        return MemberUpdateRespDto.builder().member(updatedMember).build();
+            String currentPassword = userDetails.getPassword();
+            if (currentPassword == null || !authenticateUser(currentPassword, member.getPassword())) {
+                throw new CustomException(ErrorCode.MEMBER_ACCESS_DENIED);
+            }
+
+            // 새 비밀번호 인코딩 및 업데이트
+            String newPassword = passwordEncoder.encode(memberUpdateReqDto.getPassword());
+            Member.builder().password(newPassword);
+
+            // dto -> entity
+            member.updateMember(memberUpdateReqDto.toEntity(geo, originalImg, saveImg));
+
+            // DB 수정
+            Member updatedMember = memberRepository.save(member);
+            Member.builder().password(newPassword);
+        }
+        return MemberUpdateRespDto.builder().member(member).build();
     }
+
 
     //회원 삭제
     @Override
-    public MemberSaveRespDto deleteMember(Long memberId, CustomUserDetails userDetails) {
+    public MemberSaveRespDto deleteMember(CustomUserDetails userDetails) {
 
         // 로그인한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
+
+        // 현재 비밀번호 검증
+        if (authenticateUser(userDetails.getPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.MEMBER_AUTHENTICATION_FAILED);
+        }
 
         // 회원 상태값 변경
         member.changeMemberStatus(0);
@@ -149,9 +157,11 @@ public class MemberServiceImpl implements MemberService {
 
     // 특정 회원 조회
     @Override
-    public MemberSelectRespDto getMemberByMemberId(Long memberId, CustomUserDetails userDetails) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    public MemberSelectRespDto getMemberByMemberId(CustomUserDetails userDetails) {
+
+        // 로그인한 사용자의 정보 검증
+        Member member = validateMember(userDetails.getMemberId());
+
         return MemberSelectRespDto.builder().member(member).build();
     }
 
@@ -164,7 +174,7 @@ public class MemberServiceImpl implements MemberService {
             throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
         }
 
-        int randomNum = (int)(Math.random()* (9999 - 1000 +1)) + 1000;
+        int randomNum = (int) (Math.random() * (9999 - 1000 + 1)) + 1000;
 
         Message message = new Message();
         message.setFrom("01065639503");
@@ -187,5 +197,10 @@ public class MemberServiceImpl implements MemberService {
     private Member validateMember(Long memberId) {
         return memberRepository.findByMemberIdAndStatus(memberId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    // 비밀번호 검증
+    public boolean authenticateUser(String rawPassword, String encodedPassword) {
+        return !passwordEncoder.matches(rawPassword, encodedPassword);
     }
 }

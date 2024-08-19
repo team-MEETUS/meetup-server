@@ -31,7 +31,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
-        setFilterProcessesUrl("/api/v1/login");
+        setFilterProcessesUrl("/api/v1/members/login");
         this.jwtUtil = jwtUtil;
         this.objectMapper = new ObjectMapper(); // ObjectMapper 초기화
     }
@@ -57,7 +57,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         }
 
         log.info("Attempting to authenticate user: {}", username);
-        log.debug("Password provided: {}", password); // 비밀번호는 보안상 로그에 남기지 않는 것이 좋습니다.
+        log.debug("Password provided: {}", password);
 
         // 추가적인 확인
         if (username == null || username.isEmpty()) {
