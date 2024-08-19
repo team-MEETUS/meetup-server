@@ -135,12 +135,12 @@ public class BoardServiceImpl implements BoardService {
 
         Page<Board> boardList = null;
         if (category == null || category.isEmpty()) {
-            boardList = boardRepository.findBoardByCrew_CrewIdAndStatusNotWithCustomSort(crewId, 0, PageRequest.of(page, 5));
+            boardList = boardRepository.findBoardByCrew_CrewIdAndStatusNotWithCustomSort(crewId, 0, PageRequest.of(page, 20));
         } else {
             if (!category.equals("공지") && !category.equals("모임후기") && !category.equals("가입인사") && !category.equals("자유")) {
                 throw new CustomException(ErrorCode.BOARD_CATEGORY_NOT_FOUND);
             }
-            boardList = boardRepository.findBoardByCrew_CrewIdAndCategoryAndStatusNotWithCustomSort(crewId, category, 0, PageRequest.of(page, 5));
+            boardList = boardRepository.findBoardByCrew_CrewIdAndCategoryAndStatusNotWithCustomSort(crewId, category, 0, PageRequest.of(page, 20));
         }
 
         return boardList.stream()
@@ -347,7 +347,7 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
-        commentList = commentRepository.findCommentByBoard_BoardIdAndStatus(boardId, 1, PageRequest.of(page, 5, Sort.by(Sort.Direction.ASC, "createDate")));
+        commentList = commentRepository.findCommentByBoard_BoardIdAndStatus(boardId, 1, PageRequest.of(page, 20, Sort.by(Sort.Direction.ASC, "createDate")));
 
         return commentList.stream()
                 .map(CommentRespDto::new)
