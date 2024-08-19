@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -23,8 +22,6 @@ import site.mymeetup.meetupserver.jwt.JWTFilter;
 import site.mymeetup.meetupserver.jwt.JWTUtil;
 import site.mymeetup.meetupserver.jwt.LoginFilter;
 import site.mymeetup.meetupserver.jwt.UrlValidationFilter;
-import site.mymeetup.meetupserver.member.oauth2.CustomSuccessHandler;
-import site.mymeetup.meetupserver.member.service.CustomOAuth2UserService;
 
 import java.util.Arrays;
 
@@ -35,14 +32,10 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomSuccessHandler customSuccessHandler;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler, JWTUtil jwtUtil) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.customSuccessHandler = customSuccessHandler;
         log.info("SecurityConfig initialized with AuthenticationConfiguration");
     }
 
@@ -81,21 +74,15 @@ public class SecurityConfig {
             http.httpBasic(auth -> auth.disable());
             log.debug("HTTP Basic authentication disabled");
 
-            // oauth2
-            http.oauth2Login(oauth2 -> oauth2
-                    .successHandler(customSuccessHandler)
-                    .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                            .userService(customOAuth2UserService)));
-
             // 경로별 인가 작업
             http.authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.GET,  "/api/v1/geos", "/api/v1/interestBigs", "/api/v1/interestBigs/{interestBigId}/interestSmalls",
-                                                      "/api/v1/members/{memberId}",
-                                                      "/api/v1/crews", "/api/v1/crews/{crewId}", "/api/v1/crews/{crewId}/members",
-                                                      "/api/v1/crews/new", "/api/v1/crews/search",
-                                                      "/api/v1/crews/{crewId}/meetings", "/api/v1/crews/{crewId}/meetings/{meetingId}",
-                                                      "/api/v1/crews/{crewId}/albums",
-                                                      "/api/v1/crews/{crewId}/boards", "/api/v1/crews/{crewId}/chats", "/api/v1/crews/send").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/geos", "/api/v1/interestBigs", "/api/v1/interestBigs/{interestBigId}/interestSmalls",
+                            "/api/v1/members/{memberId}",
+                            "/api/v1/crews", "/api/v1/crews/{crewId}", "/api/v1/crews/{crewId}/members",
+                            "/api/v1/crews/new", "/api/v1/crews/search",
+                            "/api/v1/crews/{crewId}/meetings", "/api/v1/crews/{crewId}/meetings/{meetingId}",
+                            "/api/v1/crews/{crewId}/albums",
+                            "/api/v1/crews/{crewId}/boards", "/api/v1/crews/{crewId}/chats", "/api/v1/crews/send").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/members/join", "/api/v1/login", "/api/v1/crews/interests", "/api/v1/members/phoneCheck").permitAll()
                     .requestMatchers("/ws/**").permitAll()
                     .anyRequest().authenticated());

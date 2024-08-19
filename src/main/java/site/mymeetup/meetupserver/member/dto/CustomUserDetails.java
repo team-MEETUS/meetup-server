@@ -2,24 +2,17 @@ package site.mymeetup.meetupserver.member.dto;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import site.mymeetup.meetupserver.member.entity.Member;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
-public class CustomUserDetails implements UserDetails, OAuth2User {
+public class CustomUserDetails implements UserDetails {
 
     private final Member member;
-    private Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(Member member) {
         this.member = member;
-    }
-    public CustomUserDetails(Member member, Collection<? extends GrantedAuthority> authorities) {
-        this.member = member;
-        this.authorities = authorities;;
     }
 
     @Override
@@ -57,19 +50,6 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return member.getPhone();
     }
 
-    @Override
-    public String getName() { return member.getNickname(); }
-
-    @Override
-    public Map<String, Object> getAttributes() { return null; }
-
-    public String getNaver(){
-        return member.getNaver();
-    }
-
-    public String getKakao(){
-        return member.getKakao();
-    }
 
     @Override
     public boolean isAccountNonExpired() {

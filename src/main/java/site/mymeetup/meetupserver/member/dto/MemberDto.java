@@ -2,6 +2,7 @@ package site.mymeetup.meetupserver.member.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,7 +25,11 @@ public class MemberDto {
         @NotEmpty(message = "핸드폰 번호는 필수 입력사항입니다")
         @Size(max = 300)
         private String phone;
-        @Size(max=300)
+        @Size(min=8, max=300)
+        @Pattern(
+                regexp = "^\\d{8,}$",
+                message = "비밀번호는 8자리 이상의 숫자여야 합니다."
+        )
         private String password;
         @NotEmpty(message = "닉네임은 필수 입력사항입니다")
         @Size(max = 20)
@@ -37,13 +42,6 @@ public class MemberDto {
         @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
 
-        // 비밀번호 인코딩 메서드
-        public void encodePassword(BCryptPasswordEncoder encoder) {
-            if (this.password != null) {
-                this.password = encoder.encode(this.password);
-            }
-        }
-
         // 회원가입 DTO -> Entity
         public Member toEntity(Geo geo) {
             return Member.builder()
@@ -55,34 +53,8 @@ public class MemberDto {
                     .gender(gender)
                     .role(Role.USER)
                     .status(1)
-                    .build();
-        }
-    }
-
-    // 소셜 회원가입 req
-    @Getter
-    @NoArgsConstructor
-    public static class MemberSNSReqDto {
-        private Long geoId;
-        private String phone;
-        private String nickname;
-        private String birth;
-        private int gender;
-        private String naver;
-        private String kakao;
-
-        // 회원가입 DTO -> Entity
-        public Member toEntity(Geo geo) {
-            return Member.builder()
-                    .geo(geo)
-                    .phone(phone)
-                    .nickname(nickname)
-                    .birth(birth)
-                    .gender(gender)
-                    .kakao(kakao)
-                    .naver(naver)
-                    .role(Role.USER)
-                    .status(1)
+                    .originalImg("profile-default.jpg")
+                    .saveImg("/images/profile-default.jpg")
                     .build();
         }
     }
@@ -111,6 +83,11 @@ public class MemberDto {
         @NotEmpty(message = "핸드폰 번호는 필수 입력사항입니다")
         @Size(max = 300)
         private String phone;
+        @Pattern(
+                regexp = "^\\d{8,}$",
+                message = "비밀번호는 8자리 이상의 숫자여야 합니다."
+        )
+        private String password;
         @NotEmpty(message = "닉네임은 필수 입력사항입니다")
         @Size(max = 20)
         private String nickname;
@@ -131,13 +108,14 @@ public class MemberDto {
                     .geo(geo)
                     .phone(phone)
                     .nickname(nickname)
+                    .password(password)
                     .birth(birth)
                     .intro(intro)
                     .gender(gender)
                     .role(Role.USER)
                     .status(1)
-                    .originalImg(originalImg != null ? originalImg : "test.jpg")
-                    .saveImg(saveImg != null ? saveImg : "test.jpg")
+                    .originalImg(originalImg != null ? originalImg : "profile-default.jpg")
+                    .saveImg(saveImg != null ? saveImg : "/images/profile-default.jpg")
                     .build();
         }
     }
@@ -150,18 +128,6 @@ public class MemberDto {
 
         @Builder
         public MemberSaveRespDto(Member member) {
-            this.memberId = member.getMemberId();
-        }
-    }
-
-    // 소셜 회원가입 resp
-    @Getter
-    @NoArgsConstructor(access= AccessLevel.PROTECTED)
-    public static class MemberSNSRespDto {
-        private Long memberId;
-
-        @Builder
-        public MemberSNSRespDto(Member member) {
             this.memberId = member.getMemberId();
         }
     }
