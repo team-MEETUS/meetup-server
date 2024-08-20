@@ -56,7 +56,8 @@ public class JWTFilter extends OncePerRequestFilter {
                 requestURI.matches("/api/v1/crews/\\d+/meetings/\\d+") ||
                 requestURI.matches("/api/v1/crews/\\d+/albums") ||
                 requestURI.matches("/api/v1/crews/\\d+/boards") ||
-                requestURI.matches("/ws/.+"))) {
+                requestURI.matches("/ws/.+") ||
+                requestURI.equals("/ws"))) {
 
             // 토큰이 없을 경우에도 진행
             if (authorization != null && authorization.startsWith("Bearer ")) {
