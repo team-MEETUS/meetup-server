@@ -13,4 +13,6 @@ public interface NotificationService {
     void notifyComment(Long crewId, Long boardId);
 
     List<NotificationRespDto> getNotification(CustomUserDetails userDetails);
+
+    void markAsRead(Long notificationId, CustomUserDetails userDetails);
 }
