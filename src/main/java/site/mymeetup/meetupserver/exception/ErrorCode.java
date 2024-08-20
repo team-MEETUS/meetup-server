@@ -51,6 +51,9 @@ public enum ErrorCode {
     MEETING_FULL(HttpStatus.BAD_REQUEST, "M40004", "정모의 정원이 꽉 찼습니다."),
     MEETING_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M40402", "존재하지 않는 정모 회원입니다."),
 
+    // 알림
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "N40401", "존재하지 않는 알림입니다."),
+
     // 게시판
     BOARD_ACCESS_DENIED(HttpStatus.NOT_FOUND, "B40301", "일반 모임원은 공지 등록이 불가능합니다."),
     BOARD_WRITER_ACCESS_DENIED(HttpStatus.NOT_FOUND, "B40302", "작성자와 로그인 회원이 일치하지 않습니다."),
