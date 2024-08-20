@@ -65,8 +65,9 @@ dependencies {
     // coolsms
     implementation 'net.nurigo:sdk:4.3.0'
 
-    //redis
-//    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.3.1'
+    // base64
+    implementation group: 'net.iharder', name: 'base64', version: '2.3.9'
+
 }
 
 tasks.named('test') {

@@ -94,6 +94,4 @@ public class Member extends BaseEntity{
     public void changeMemberStatus(int status) {
         this.status = status;
     }
-
-
 }
