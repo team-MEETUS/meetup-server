@@ -31,10 +31,8 @@ public class Member extends BaseEntity{
     @JoinColumn(name = "geo_id", nullable = false)
     private Geo geo;
 
-    @Column(unique = true)
     private String kakao;
 
-    @Column(unique = true)
     private String naver;
 
     private String password;
@@ -79,6 +77,10 @@ public class Member extends BaseEntity{
         if(updateMember.getNickname()!=null) {
             this.nickname = updateMember.getNickname();
         }
+        if (updateMember.getBirth() != null) {
+            this.birth = updateMember.getBirth();
+        }
+        this.gender = updateMember.getGender();
         if(updateMember.getIntro()!=null) {
             this.intro = updateMember.getIntro();
         }

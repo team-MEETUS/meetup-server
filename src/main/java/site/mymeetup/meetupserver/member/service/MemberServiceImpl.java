@@ -1,6 +1,7 @@
 package site.mymeetup.meetupserver.member.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.model.Message;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import site.mymeetup.meetupserver.member.repository.MemberRepository;
 
 import static site.mymeetup.meetupserver.member.dto.MemberDto.*;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
@@ -70,52 +71,67 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberUpdateRespDto updateMember(Long memberId, MemberUpdateReqDto memberUpdateReqDto,
                                             MultipartFile image, CustomUserDetails userDetails) {
-        AES128 aes = new AES128("AES_KEY");
-        // 로그인한 사용자 검증
-        Member member = validateMember(userDetails.getMemberId());
 
-        // 비활성 회원인지 검증
+        // Create an instance of AES128
+        AES128 aes = new AES128("AES_KEY");
+
+        // Log the incoming request details
+        log.info("Update request for member ID: {}", memberId);
+        log.info("Request DTO: {}", memberUpdateReqDto);
+
+        // Encode fields in DTO
+        memberUpdateReqDto.encodeFields(passwordEncoder, aes);
+        log.debug("Encoded password: {}", memberUpdateReqDto.getPassword());
+        log.debug("Encoded phone: {}", memberUpdateReqDto.getPhone());
+
+        // Validate logged-in user
+        Member member = validateMember(userDetails.getMemberId());
+        log.info("Member found for update: {}", member);
+
+        // Check if the user is active
         int status = userDetails.getStatus();
         if (status == 2) {
+            log.error("Inactive member status: {}", status);
             throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
         }
 
-        // 지역이 존재하는지 확인
+        // Validate Geo entity
         Geo geo = validateGeo(memberUpdateReqDto.getGeoId());
+        log.info("Geo validated: {}", geo);
 
-        // S3 이미지 업로드
+        // Handle image upload
         String originalImg = null;
         String saveImg = null;
 
-        // 이미지 변경하는 경우 업로드 후 DB저장
         if (!image.isEmpty()) {
             saveImg = s3ImageService.upload(image);
             originalImg = image.getOriginalFilename();
-        }
-        // 이미지를 변경하지 않는 경우 기존 이미지 그대로
-        else if (memberUpdateReqDto.getOriginalImg() != null && memberUpdateReqDto.getSaveImg() != null) {
+            log.info("Image uploaded: {}", originalImg);
+        } else if (memberUpdateReqDto.getOriginalImg() != null && memberUpdateReqDto.getSaveImg() != null) {
             if (!memberUpdateReqDto.getSaveImg().equals(member.getSaveImg())
                     && !memberUpdateReqDto.getOriginalImg().equals(member.getOriginalImg())) {
+                log.error("Image mismatch: DTO saveImg={} but DB saveImg={}", memberUpdateReqDto.getSaveImg(), member.getSaveImg());
                 throw new CustomException(ErrorCode.IMAGE_BAD_REQUEST);
             }
             originalImg = memberUpdateReqDto.getOriginalImg();
             saveImg = memberUpdateReqDto.getSaveImg();
-        }
-        //원본/저장 둘 중 하나만 널일 경우 삭제
-        else if (memberUpdateReqDto.getOriginalImg() != null || memberUpdateReqDto.getSaveImg() != null) {
+            log.info("Using existing images: originalImg={}, saveImg={}", originalImg, saveImg);
+        } else if (memberUpdateReqDto.getOriginalImg() != null || memberUpdateReqDto.getSaveImg() != null) {
+            log.error("One of the image fields is set but not both.");
             throw new CustomException(ErrorCode.IMAGE_BAD_REQUEST);
         }
 
-        memberUpdateReqDto.encodeFields(passwordEncoder, aes);
-
-        // dto -> entity
+        // Update the member entity with new data
         member.updateMember(memberUpdateReqDto.toEntity(geo, originalImg, saveImg));
+        log.info("Member updated entity: {}", member);
 
-        // DB 수정
+        // Save the updated member entity
         Member updatedMember = memberRepository.save(member);
-//        }
-        return MemberUpdateRespDto.builder().member(member).build();
+        log.info("Member saved to DB: {}", updatedMember);
+
+        return MemberUpdateRespDto.builder().member(updatedMember).build();
     }
+
 
 
     //회원 삭제
