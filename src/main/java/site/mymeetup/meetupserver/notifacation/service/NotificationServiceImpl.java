@@ -63,6 +63,7 @@ public class NotificationServiceImpl implements NotificationService {
         return sseEmitter;
     }
 
+    // 댓글 알림
     @Override
     public void notifyComment(Long crewId, Long boardId) {
         Board board = boardRepository.findBoardByBoardIdAndStatusNotAndCrew_CrewId(boardId, 0, crewId)
@@ -118,6 +119,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    // 알림 조회
     @Override
     public List<NotificationRespDto> getNotification(CustomUserDetails userDetails) {
         // 로그인 한 유저 id 가져오기
@@ -129,6 +131,36 @@ public class NotificationServiceImpl implements NotificationService {
         return notifications.stream()
                 .map(NotificationRespDto::new)
                 .toList();
+    }
+
+    // 알림 읽음 처리
+    @Override
+    public void markAsRead(Long notificationId, CustomUserDetails userDetails) {
+        // 알림 가져오기
+        Notification notification = notificationRepository.findByNotificationIdAndIsRead(notificationId, false)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        // 로그인 한 유저 id 가져오기
+        Long memberId = userDetails.getMemberId();
+
+        // DB 업데이트
+        notification.updateIsRead();
+        notificationRepository.save(notification);
+
+        // Map 에서 memberId 로 사용자 검색
+        if (sseEmitters.containsKey(memberId)) {
+            SseEmitter sseEmitter = sseEmitters.get(memberId);
+            // 알림 메세지 전송 및 해제
+            try {
+                // 알림 개수 감소
+                notificationCounts.put(memberId, notificationCounts.get(memberId) - 1);
+
+                // 현재 알림 개수 전송
+                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(memberId)));
+            } catch (Exception e) {
+                sseEmitters.remove(memberId);
+            }
+        }
     }
 
 }

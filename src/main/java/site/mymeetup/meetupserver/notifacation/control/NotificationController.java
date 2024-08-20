@@ -29,4 +29,12 @@ public class NotificationController {
     public ApiResponse<List<NotificationRespDto>> getNotification(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ApiResponse.success(notificationService.getNotification(userDetails));
     }
+
+    // 알림 읽음 처리
+    @PutMapping("/{notificationId}")
+    public ApiResponse<Void> markAsRead(@PathVariable Long notificationId,
+                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        notificationService.markAsRead(notificationId, userDetails);
+        return ApiResponse.success(null);
+    }
 }

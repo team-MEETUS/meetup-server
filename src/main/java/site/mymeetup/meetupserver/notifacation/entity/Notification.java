@@ -33,4 +33,8 @@ public class Notification extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public void updateIsRead() {
+        this.isRead = true;
+    }
 }
