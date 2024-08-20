@@ -32,24 +32,17 @@ public class MemberServiceImpl implements MemberService {
     public MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto) {
 
         // 핸드폰으로 신규 회원인지 검증
-        Member memberExists = memberRepository.findByPhone(memberSaveReqDto.getPhone());
-        if (memberExists != null) {
-            if (memberExists.getStatus() == 1 || memberExists.getStatus() == 2)
+        Member member = memberRepository.findByPhone(memberSaveReqDto.getPhone());
+        if (member != null) {
+            if (member.getStatus() == 1 || member.getStatus() == 2)
                 throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
         }
 
         // 지역이 존재하는지 확인
         Geo geo = validateGeo(memberSaveReqDto.getGeoId());
 
-        // 비밀번호, 핸드폰 인코딩
-        String encodedPassword = passwordEncoder.encode(memberSaveReqDto.getPassword());
-        String encodedPhone = passwordEncoder.encode(memberSaveReqDto.getPhone());
-
         // DTO -> Entity 변환 및 저장
         Member newMember = memberSaveReqDto.toEntity(geo);
-
-        Member.builder().password(encodedPassword).phone(encodedPhone);
-
         memberRepository.save(newMember);
 
         return MemberSaveRespDto.builder().member(newMember).build();
@@ -108,24 +101,18 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 비밀번호 변경하는 경우 현재 비밀번호 검증
-        if (memberUpdateReqDto.getPassword() != null) {
+//        if (memberUpdateReqDto.getPassword() != null) {
 
-            String currentPassword = userDetails.getPassword();
-            if (currentPassword == null || !authenticateUser(currentPassword, member.getPassword())) {
-                throw new CustomException(ErrorCode.MEMBER_ACCESS_DENIED);
-            }
-
-            // 새 비밀번호 인코딩 및 업데이트
-            String newPassword = passwordEncoder.encode(memberUpdateReqDto.getPassword());
-//            memberUpdateReqDto.getpassword();
+//            if (!authenticateUser(userDetails.getPassword(), member.getPassword())) {
+//                throw new CustomException(ErrorCode.MEMBER_ACCESS_DENIED);
+//            }
 
             // dto -> entity
             member.updateMember(memberUpdateReqDto.toEntity(geo, originalImg, saveImg));
 
             // DB 수정
             Member updatedMember = memberRepository.save(member);
-            Member.builder().password(newPassword);
-        }
+//        }
         return MemberUpdateRespDto.builder().member(member).build();
     }
 
@@ -137,10 +124,10 @@ public class MemberServiceImpl implements MemberService {
         // 로그인한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
 
-        // 현재 비밀번호 검증
-        if (authenticateUser(userDetails.getPassword(), member.getPassword())) {
-            throw new CustomException(ErrorCode.MEMBER_AUTHENTICATION_FAILED);
-        }
+//        // 현재 비밀번호 검증
+//        if (authenticateUser(userDetails.getPassword(), member.getPassword())) {
+//            throw new CustomException(ErrorCode.MEMBER_AUTHENTICATION_FAILED);
+//        }
 
         // 회원 상태값 변경
         member.changeMemberStatus(0);
@@ -158,7 +145,6 @@ public class MemberServiceImpl implements MemberService {
         return MemberSelectRespDto.builder().member(member).build();
     }
 
-
     // 지역 검증 후 GEO 엔티티 반환
     private Geo validateGeo(Long geoId) {
         return geoRepository.findById(geoId)
@@ -169,11 +155,6 @@ public class MemberServiceImpl implements MemberService {
     private Member validateMember(Long memberId) {
         return memberRepository.findByMemberIdAndStatus(memberId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-    }
-
-    // 비밀번호 검증
-    public boolean authenticateUser(String rawPassword, String encodedPassword) {
-        return !passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     @Override
@@ -197,5 +178,10 @@ public class MemberServiceImpl implements MemberService {
 
         return MemberSMSRespDto.builder().randomNum(randomNum).build();
     }
+
+//    // 비밀번호 검증
+//    public boolean authenticateUser(String rawPassword, String encodedPassword) {
+//        return passwordEncoder.matches(rawPassword, encodedPassword);
+//    }
 
 }

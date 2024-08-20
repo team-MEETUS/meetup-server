@@ -44,6 +44,16 @@ public class MemberDto {
         @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
 
+        // 비밀번호, 핸드폰 인코딩 메서드
+        public void encodePassword(BCryptPasswordEncoder encoder) {
+            if (this.password != null) {
+                this.password = encoder.encode(this.password);
+            }
+            if (this.phone != null) {
+                this.phone = encoder.encode(this.phone);
+            }
+        }
+
         // 회원가입 DTO -> Entity
         public Member toEntity(Geo geo) {
             return Member.builder()
@@ -104,10 +114,13 @@ public class MemberDto {
         private String originalImg;
         private String saveImg;
 
-        // 비밀번호 인코딩 메서드
+        // 비밀번호, 핸드폰 인코딩 메서드
         public void encodePassword(BCryptPasswordEncoder encoder) {
             if (this.password != null) {
                 this.password = encoder.encode(this.password);
+            }
+            if (this.phone != null) {
+                this.phone = encoder.encode(this.phone);
             }
         }
 
