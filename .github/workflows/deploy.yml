@@ -62,6 +62,8 @@ jobs:
                   value: ${{ secrets.COOLSMS_KEY }}
                 - name: COOLSMS_SECRET
                   value: ${{ secrets.COOLSMS_SECRET }}
+                - name: AES_KEY
+                  value: ${{ secrets.AES_KEY }}
               buildenv: []
             context:
               git:
