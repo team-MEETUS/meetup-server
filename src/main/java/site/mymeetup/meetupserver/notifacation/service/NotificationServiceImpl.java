@@ -11,11 +11,13 @@ import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.notifacation.entity.Notification;
-import site.mymeetup.meetupserver.notifacation.notification.NotificationRepository;
+import site.mymeetup.meetupserver.notifacation.repository.NotificationRepository;
 import site.mymeetup.meetupserver.notifacation.type.NotificationType;
+import static site.mymeetup.meetupserver.notifacation.dto.NotificationDto.NotificationRespDto;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -100,6 +102,19 @@ public class NotificationServiceImpl implements NotificationService {
                 sseEmitters.remove(receiverId);
             }
         }
+    }
+
+    @Override
+    public List<NotificationRespDto> getNotification(CustomUserDetails userDetails) {
+        // 로그인 한 유저 id 가져오기
+        Long memberId = userDetails.getMemberId();
+
+        // 알림 가져오기
+        List<Notification> notifications = notificationRepository.findByMember_MemberIdAndIsReadOrderByCreateDateDesc(memberId, false);
+
+        return notifications.stream()
+                .map(NotificationRespDto::new)
+                .toList();
     }
 
 }
