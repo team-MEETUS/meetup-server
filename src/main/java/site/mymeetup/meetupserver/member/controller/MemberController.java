@@ -42,10 +42,11 @@ public class MemberController {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{memberId}")
     public ApiResponse<MemberUpdateRespDto> updateMember(@PathVariable("memberId") Long memberId,
-                                                         @Valid @RequestPart MemberUpdateReqDto memberUpdateReqDto,
-                                                         @RequestPart MultipartFile image,
+                                                         @RequestPart @Valid MemberUpdateReqDto memberUpdateReqDto,
+                                                         @RequestPart(value = "image", required = false) MultipartFile image,
                                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(memberService.updateMember(memberId, memberUpdateReqDto, image, userDetails));
+        MemberUpdateRespDto response = memberService.updateMember(memberId, memberUpdateReqDto, image, userDetails);
+        return ApiResponse.success(response);
     }
 
     // 회원 삭제
