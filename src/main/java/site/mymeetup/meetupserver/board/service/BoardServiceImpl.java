@@ -28,7 +28,6 @@ import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
-import site.mymeetup.meetupserver.notifacation.service.NotificationService;
 
 import java.util.*;
 
