@@ -160,6 +160,8 @@ public class MemberDto {
         private Long memberId;
         private GeoMemberDto geo;
         private String nickname;
+        private String intro;
+        private String birth;
         private String saveImg;
 
         @Builder
@@ -167,6 +169,8 @@ public class MemberDto {
             this.memberId = member.getMemberId();
             this.geo = new GeoMemberDto(member.getGeo());
             this.nickname = member.getNickname();
+            this.intro = member.getIntro();
+            this.birth = member.getBirth();
             this.saveImg = member.getSaveImg();
         }
     }
