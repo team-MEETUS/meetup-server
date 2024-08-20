@@ -171,13 +171,6 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberSMSRespDto sendSMS(MemberSMSReqDto memberSMSReqDto) {
-        Member member = memberRepository.findByPhone(memberSMSReqDto.getPhone());
-
-        // 이미 존재하는 회원일 시 에러 반환
-        if (member != null) {
-            throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
-        }
-
         int randomNum = (int) (Math.random() * (9999 - 1000 + 1)) + 1000;
 
         Message message = new Message();
