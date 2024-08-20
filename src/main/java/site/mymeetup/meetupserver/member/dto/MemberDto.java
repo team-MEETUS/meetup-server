@@ -8,6 +8,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import static site.mymeetup.meetupserver.geo.dto.GeoDto.GeoMemberDto;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.role.Role;
@@ -101,6 +104,13 @@ public class MemberDto {
         private String originalImg;
         private String saveImg;
 
+        // 비밀번호 인코딩 메서드
+        public void encodePassword(BCryptPasswordEncoder encoder) {
+            if (this.password != null) {
+                this.password = encoder.encode(this.password);
+            }
+        }
+
         // 회원수정 DTO -> Entity
         public Member toEntity(Geo geo, String originalImg, String saveImg) {
             return Member.builder()
@@ -148,14 +158,14 @@ public class MemberDto {
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberInfoDto {
         private Long memberId;
-        private Geo geo;
+        private GeoMemberDto geo;
         private String nickname;
         private String saveImg;
 
         @Builder
         public MemberInfoDto(Member member) {
             this.memberId = member.getMemberId();
-            this.geo = member.getGeo();
+            this.geo = new GeoMemberDto(member.getGeo());
             this.nickname = member.getNickname();
             this.saveImg = member.getSaveImg();
         }
@@ -166,7 +176,7 @@ public class MemberDto {
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberSelectRespDto {
         private Long memberId;
-        private Geo geo;
+        private GeoMemberDto geo;
         private String phone;
         private String nickname;
         private String intro;
@@ -182,7 +192,7 @@ public class MemberDto {
         @Builder
         public MemberSelectRespDto(Member member) {
             this.memberId = member.getMemberId();
-            this.geo = member.getGeo();
+            this.geo = new GeoMemberDto(member.getGeo());
             this.phone = member.getPhone();
             this.nickname = member.getNickname();
             this.intro = member.getIntro();

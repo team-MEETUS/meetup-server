@@ -44,4 +44,21 @@ public class GeoDto {
         }
     }
 
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class GeoMemberDto {
+        private Long geoId;
+        private String city;
+        private String district;
+        private String county;
+
+        @Builder
+        public GeoMemberDto(Geo geo) {
+            this.geoId = geo.getGeoId();
+            this.city = geo.getCity();
+            this.district = geo.getDistrict();
+            this.county = geo.getCounty();
+        }
+    }
+
 }
