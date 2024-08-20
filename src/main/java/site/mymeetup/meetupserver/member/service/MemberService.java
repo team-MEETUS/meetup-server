@@ -19,12 +19,12 @@ public interface MemberService {
 
     MemberInfoDto getMemberInfo(CustomUserDetails userDetails);
 
-    MemberUpdateRespDto updateMember(MemberUpdateReqDto memberUpdateReqDto,
+    MemberUpdateRespDto updateMember(Long memberId, MemberUpdateReqDto memberUpdateReqDto,
                                      MultipartFile image, CustomUserDetails userDetails);
 
-    MemberSaveRespDto deleteMember(CustomUserDetails userDetails);
+    void deleteMember(Long memberId, CustomUserDetails userDetails);
 
-    MemberSelectRespDto getMemberByMemberId(CustomUserDetails userDetails);
+    MemberSelectRespDto getMemberByMemberId(Long memberId);
 
     MemberSMSRespDto sendSMS(MemberSMSReqDto memberSMSReqDto);
 }
