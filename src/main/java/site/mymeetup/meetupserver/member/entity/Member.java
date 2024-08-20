@@ -63,22 +63,31 @@ public class Member extends BaseEntity{
 
     private String saveImg;
 
-    // 멤버 수정
+    // 멤버 수정. 성별, 생년월일 수정 불가
     public void updateMember(Member updateMember) {
-        this.geo = updateMember.getGeo();
-        //==핸드폰 번호 수정의 경우 인증 과정 필요 - 수정 예정==
-        Optional.ofNullable(updateMember.getPhone()).ifPresent(phone -> this.phone = phone);
-        //==신규 카카오/네이버 계정 추가, 혹은 기존 카카오/네이버 계정정보 수정의 경우 인증 과정 필요 - 수정 예정 ==
+        if(updateMember.getGeo() !=null) {
+            this.geo = updateMember.getGeo();
+        }
+        if(updateMember.getPhone()!=null) {
+            this.phone = updateMember.getPhone();
+        }
         this.kakao = updateMember.getKakao();
         this.naver = updateMember.getNaver();
-        //==비밀번호 수정의 경우 인증 과정 필요 - 수정 예정==
-        this.password = updateMember.getPassword();
-        Optional.ofNullable(updateMember.getNickname()).ifPresent(nickname -> this.nickname = nickname);
-        this.intro = updateMember.getIntro();
-        Optional.ofNullable(updateMember.getBirth()).ifPresent(birth -> this.birth = birth);
-        Optional.of(updateMember.getGender()).ifPresent(gender -> this.gender = gender);
-        this.originalImg = updateMember.getOriginalImg();
-        this.saveImg = updateMember.getSaveImg();
+        if(updateMember.getPassword()!=null) {
+            this.password = updateMember.getPassword();
+        }
+        if(updateMember.getNickname()!=null) {
+            this.nickname = updateMember.getNickname();
+        }
+        if(updateMember.getIntro()!=null) {
+            this.intro = updateMember.getIntro();
+        }
+        if(updateMember.getOriginalImg()!=null) {
+            this.originalImg = updateMember.getOriginalImg();
+        }
+        if(updateMember.getSaveImg()!=null) {
+            this.saveImg = updateMember.getSaveImg();
+        }
     }
 
     // 멤버 삭제

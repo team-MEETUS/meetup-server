@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.common.service.MessageService;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
+import site.mymeetup.meetupserver.config.AES128;
 import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.geo.entity.Geo;
@@ -26,30 +27,28 @@ public class MemberServiceImpl implements MemberService {
     private final S3ImageService s3ImageService;
     private final MessageService messageService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final AES128 aes128;
+
 
     // 회원 가입
     @Override
     public MemberSaveRespDto createMember(MemberSaveReqDto memberSaveReqDto) {
+        AES128 aes = new AES128("AES_KEY");
+
+        memberSaveReqDto.encodeFields(passwordEncoder, aes);
 
         // 핸드폰으로 신규 회원인지 검증
-        Member memberExists = memberRepository.findByPhone(memberSaveReqDto.getPhone());
-        if (memberExists != null) {
-            if (memberExists.getStatus() == 1 || memberExists.getStatus() == 2)
+        Member member = memberRepository.findByPhone(memberSaveReqDto.getPhone());
+        if (member != null) {
+            if (member.getStatus() == 1 || member.getStatus() == 2)
                 throw new CustomException(ErrorCode.MEMBER_ALREADY_EXISTS);
         }
 
         // 지역이 존재하는지 확인
         Geo geo = validateGeo(memberSaveReqDto.getGeoId());
 
-        // 비밀번호, 핸드폰 인코딩
-        String encodedPassword = passwordEncoder.encode(memberSaveReqDto.getPassword());
-        String encodedPhone = passwordEncoder.encode(memberSaveReqDto.getPhone());
-
         // DTO -> Entity 변환 및 저장
         Member newMember = memberSaveReqDto.toEntity(geo);
-
-        Member.builder().password(encodedPassword).phone(encodedPhone);
-
         memberRepository.save(newMember);
 
         return MemberSaveRespDto.builder().member(newMember).build();
@@ -71,7 +70,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberUpdateRespDto updateMember(Long memberId, MemberUpdateReqDto memberUpdateReqDto,
                                             MultipartFile image, CustomUserDetails userDetails) {
-
+        AES128 aes = new AES128("AES_KEY");
         // 로그인한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
 
@@ -107,25 +106,14 @@ public class MemberServiceImpl implements MemberService {
             throw new CustomException(ErrorCode.IMAGE_BAD_REQUEST);
         }
 
-        // 비밀번호 변경하는 경우 현재 비밀번호 검증
-        if (memberUpdateReqDto.getPassword() != null) {
+        memberUpdateReqDto.encodeFields(passwordEncoder, aes);
 
-            String currentPassword = userDetails.getPassword();
-            if (currentPassword == null || !authenticateUser(currentPassword, member.getPassword())) {
-                throw new CustomException(ErrorCode.MEMBER_ACCESS_DENIED);
-            }
+        // dto -> entity
+        member.updateMember(memberUpdateReqDto.toEntity(geo, originalImg, saveImg));
 
-            // 새 비밀번호 인코딩 및 업데이트
-            String newPassword = passwordEncoder.encode(memberUpdateReqDto.getPassword());
-//            memberUpdateReqDto.getpassword();
-
-            // dto -> entity
-            member.updateMember(memberUpdateReqDto.toEntity(geo, originalImg, saveImg));
-
-            // DB 수정
-            Member updatedMember = memberRepository.save(member);
-            Member.builder().password(newPassword);
-        }
+        // DB 수정
+        Member updatedMember = memberRepository.save(member);
+//        }
         return MemberUpdateRespDto.builder().member(member).build();
     }
 
@@ -136,11 +124,6 @@ public class MemberServiceImpl implements MemberService {
 
         // 로그인한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
-
-        // 현재 비밀번호 검증
-        if (authenticateUser(userDetails.getPassword(), member.getPassword())) {
-            throw new CustomException(ErrorCode.MEMBER_AUTHENTICATION_FAILED);
-        }
 
         // 회원 상태값 변경
         member.changeMemberStatus(0);
@@ -158,7 +141,6 @@ public class MemberServiceImpl implements MemberService {
         return MemberSelectRespDto.builder().member(member).build();
     }
 
-
     // 지역 검증 후 GEO 엔티티 반환
     private Geo validateGeo(Long geoId) {
         return geoRepository.findById(geoId)
@@ -169,11 +151,6 @@ public class MemberServiceImpl implements MemberService {
     private Member validateMember(Long memberId) {
         return memberRepository.findByMemberIdAndStatus(memberId, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-    }
-
-    // 비밀번호 검증
-    public boolean authenticateUser(String rawPassword, String encodedPassword) {
-        return !passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     @Override
@@ -197,5 +174,4 @@ public class MemberServiceImpl implements MemberService {
 
         return MemberSMSRespDto.builder().randomNum(randomNum).build();
     }
-
 }

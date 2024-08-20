@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import static site.mymeetup.meetupserver.geo.dto.GeoDto.GeoMemberDto;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import site.mymeetup.meetupserver.config.AES128;
 import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.role.Role;
@@ -43,6 +44,16 @@ public class MemberDto {
         private int gender;
         @NotNull(message = "관심지역은 필수 입력사항입니다")
         private Long geoId;
+
+        // 비밀번호, 핸드폰 인코딩 메서드
+        public void encodeFields(BCryptPasswordEncoder encoder, AES128 aes) {
+            if (this.password != null) {
+                this.password = encoder.encode(this.password);
+            }
+            if(this.phone != null){
+                this.phone = aes.encrypt(this.phone);
+            }
+        }
 
         // 회원가입 DTO -> Entity
         public Member toEntity(Geo geo) {
@@ -104,10 +115,13 @@ public class MemberDto {
         private String originalImg;
         private String saveImg;
 
-        // 비밀번호 인코딩 메서드
-        public void encodePassword(BCryptPasswordEncoder encoder) {
+        // 비밀번호, 핸드폰 인코딩 메서드
+        public void encodeFields(BCryptPasswordEncoder encoder, AES128 aes) {
             if (this.password != null) {
                 this.password = encoder.encode(this.password);
+            }
+            if(this.phone != null){
+                this.phone = aes.encrypt(this.phone);
             }
         }
 
