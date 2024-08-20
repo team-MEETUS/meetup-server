@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
     private final Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
+    private final Map<Long, Integer> notificationCounts = new HashMap<>();
     private final NotificationRepository notificationRepository;
     private final BoardRepository boardRepository;
 
@@ -40,6 +41,13 @@ public class NotificationServiceImpl implements NotificationService {
         // 연결
         try {
             sseEmitter.send(SseEmitter.event().name("connect"));
+
+            // 초기 알림 개수 조회 및 map 에 저장
+            int initialNotificationCount = notificationRepository.countByMember_MemberIdAndIsRead(memberId, false);
+            notificationCounts.put(memberId, initialNotificationCount);
+
+            // 알림 개수 전송
+            sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(memberId)));
         } catch (IOException e) {
             log.error("Error while sending SSE connection event for memberId {}: {}", memberId, e.getMessage(), e);
         }
@@ -98,6 +106,12 @@ public class NotificationServiceImpl implements NotificationService {
                 eventData.put("type", save.getType().toString());
 
                 sseEmitter.send(SseEmitter.event().name("addComment").data(eventData));
+
+                // 알림 개수 증가
+                notificationCounts.put(receiverId, notificationCounts.get(receiverId) + 1);
+
+                // 현재 알림 개수 전송
+                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(receiverId)));
             } catch (Exception e) {
                 sseEmitters.remove(receiverId);
             }
