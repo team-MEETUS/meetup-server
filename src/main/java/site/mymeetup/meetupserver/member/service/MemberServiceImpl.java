@@ -69,7 +69,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberUpdateRespDto updateMember(MemberUpdateReqDto memberUpdateReqDto, MultipartFile image, CustomUserDetails userDetails) {
+    public MemberUpdateRespDto updateMember(Long memberId, MemberUpdateReqDto memberUpdateReqDto,
+                                            MultipartFile image, CustomUserDetails userDetails) {
 
         // 로그인한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
@@ -116,7 +117,7 @@ public class MemberServiceImpl implements MemberService {
 
             // 새 비밀번호 인코딩 및 업데이트
             String newPassword = passwordEncoder.encode(memberUpdateReqDto.getPassword());
-            Member.builder().password(newPassword);
+//            memberUpdateReqDto.getpassword();
 
             // dto -> entity
             member.updateMember(memberUpdateReqDto.toEntity(geo, originalImg, saveImg));
@@ -131,7 +132,7 @@ public class MemberServiceImpl implements MemberService {
 
     //회원 삭제
     @Override
-    public MemberSaveRespDto deleteMember(CustomUserDetails userDetails) {
+    public void deleteMember(Long memberId, CustomUserDetails userDetails) {
 
         // 로그인한 사용자 검증
         Member member = validateMember(userDetails.getMemberId());
@@ -145,17 +146,34 @@ public class MemberServiceImpl implements MemberService {
         member.changeMemberStatus(0);
         // DB 수정
         memberRepository.save(member);
-        return new MemberSaveRespDto(member);
     }
 
     // 특정 회원 조회
     @Override
-    public MemberSelectRespDto getMemberByMemberId(CustomUserDetails userDetails) {
+    public MemberSelectRespDto getMemberByMemberId(Long memberId) {
 
         // 로그인한 사용자의 정보 검증
-        Member member = validateMember(userDetails.getMemberId());
+        Member member = validateMember(memberId);
 
         return MemberSelectRespDto.builder().member(member).build();
+    }
+
+
+    // 지역 검증 후 GEO 엔티티 반환
+    private Geo validateGeo(Long geoId) {
+        return geoRepository.findById(geoId)
+                .orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
+    }
+
+    // 사용자 검증 후 MEMBER 엔티티 반환
+    private Member validateMember(Long memberId) {
+        return memberRepository.findByMemberIdAndStatus(memberId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    // 비밀번호 검증
+    public boolean authenticateUser(String rawPassword, String encodedPassword) {
+        return !passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     @Override
@@ -180,20 +198,4 @@ public class MemberServiceImpl implements MemberService {
         return MemberSMSRespDto.builder().randomNum(randomNum).build();
     }
 
-    // 지역 검증 후 GEO 엔티티 반환
-    private Geo validateGeo(Long geoId) {
-        return geoRepository.findById(geoId)
-                .orElseThrow(() -> new CustomException(ErrorCode.GEO_NOT_FOUND));
-    }
-
-    // 사용자 검증 후 MEMBER 엔티티 반환
-    private Member validateMember(Long memberId) {
-        return memberRepository.findByMemberIdAndStatus(memberId, 1)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-    }
-
-    // 비밀번호 검증
-    public boolean authenticateUser(String rawPassword, String encodedPassword) {
-        return !passwordEncoder.matches(rawPassword, encodedPassword);
-    }
 }
