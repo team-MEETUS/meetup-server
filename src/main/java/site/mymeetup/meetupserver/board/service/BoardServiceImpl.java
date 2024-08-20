@@ -28,6 +28,7 @@ import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
+import site.mymeetup.meetupserver.notifacation.service.NotificationService;
 
 import java.util.*;
 
@@ -40,6 +41,7 @@ public class BoardServiceImpl implements BoardService {
     private final S3ImageService s3ImageService;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     // 게시글 등록
     @Override
@@ -243,6 +245,11 @@ public class BoardServiceImpl implements BoardService {
         }
         if (crewMember.getRole() == CrewMemberRole.EXPELLED || crewMember.getRole() == CrewMemberRole.PENDING || crewMember.getRole() == CrewMemberRole.DEPARTED) {
             throw new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND);
+        }
+
+        // 알림 전송
+        if (board.getCrewMember().getMember() != member) {
+            notificationService.notifyComment(crewId, boardId);
         }
 
         // dto -> Entity
