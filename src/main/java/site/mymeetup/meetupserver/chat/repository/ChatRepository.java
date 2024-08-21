@@ -19,5 +19,5 @@ public interface ChatRepository extends ReactiveMongoRepository<Chat, String> {
     Flux<Chat> findAllByCrewIdAndSenderIdAndReceiverId(Long crewId, Long senderId, Long receiverId);
 
     // 특정 모임의 가장 마지막 채팅 조회
-    Mono<Chat> findFirstByCrewIdOrderByCreateDateDesc(Long crewId);
+    Mono<Chat> findFirstByCrewIdAndReceiverIdIsNullOrderByCreateDateDesc(Long crewId);
 }

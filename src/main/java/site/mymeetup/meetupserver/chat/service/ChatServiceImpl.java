@@ -52,7 +52,7 @@ public class ChatServiceImpl implements ChatService {
 
         return chatRepository.save(chat)
                 .doOnNext(savedMessage -> messagingTemplate.convertAndSend("/topic/messages", savedMessage))
-                .map(savedChat -> ApiResponse.success(ChatRespDto.builder().chat(chat).build()));
+                .map(savedChat -> ApiResponse.success(ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(senderId, 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).build()));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ChatServiceImpl implements ChatService {
 
         return chatRepository.findAllByCrewIdAndCreateDateAfter(crewId, crewMember.getCreateDate())
                 .map(chat -> {
-                    ChatRespDto chatRespDto = ChatRespDto.builder().chat(chat).build();
+                    ChatRespDto chatRespDto = ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(chat.getSenderId(), 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).build();
                     return ApiResponse.success(chatRespDto);
                 })
                 .switchIfEmpty(chat -> Flux.just(ApiResponse.success(null))); // 데이터가 없는 경우를 처리
@@ -83,9 +83,12 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Flux<ApiResponse<ChatRespDto>> getAllByCrewIdAndSenderIdAndReceiverId(Long crewId, Long senderId, Long receiverId) {
+        Member member = memberRepository.findByMemberIdAndStatus(senderId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         return chatRepository.findAllByCrewIdAndSenderIdAndReceiverId(crewId, senderId, receiverId)
                 .map(chat -> {
-                    ChatRespDto chatRespDto = ChatRespDto.builder().chat(chat).build();
+                    ChatRespDto chatRespDto = ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(chat.getSenderId(), 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).build();
                     return ApiResponse.success(chatRespDto);
                 })
                 .switchIfEmpty(chat -> Flux.just(ApiResponse.success(null))); // 데이터가 없는 경우를 처리

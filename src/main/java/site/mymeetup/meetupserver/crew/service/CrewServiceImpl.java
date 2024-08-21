@@ -549,7 +549,7 @@ public class CrewServiceImpl implements CrewService {
 
     // MongoDB 에서 마지막 채팅 시간 조회
     private LocalDateTime getLastChatTime(Long crewId) {
-        return chatRepository.findFirstByCrewIdOrderByCreateDateDesc(crewId)
+        return chatRepository.findFirstByCrewIdAndReceiverIdIsNullOrderByCreateDateDesc(crewId)
                 .map(Chat::getCreateDate)
                 .block();
     }
