@@ -78,18 +78,28 @@ public class MemberController {
     // 회원 관심사 등록
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/{memberId}/interests")
-    public ApiResponse<List<MemberInterestSaveRespDto>> createMemberInterest(@RequestBody @Valid MemberInterestSaveReqDto memberInterestSaveReqDto,
-                                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ApiResponse<List<MemberInterestSaveRespDto>> createMemberInterest(
+            @RequestBody @Valid MemberInterestSaveReqDto memberInterestSaveReqDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
         Long memberId = memberInterestSaveReqDto.getMemberId();
         List<Long> interestSmallIds = memberInterestSaveReqDto.getInterestSmallId();
 
-        List<MemberInterestSaveRespDto> response = interestSmallIds.stream()
-                        .map(interestSmallId -> {
-                            return memberService.updateMemberInterest(
-                                    memberId, interestSmallId, userDetails
-                            );
-                        })
-                                .collect(Collectors.toList());
+        List<MemberInterestSaveRespDto> response = memberService.updateMemberInterests(memberId, interestSmallIds, userDetails);
+
+        return ApiResponse.success(response);
+    }
+
+    // 회원 관심사 수정, 삭제
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{memberId}/interests")
+    public ApiResponse<List<MemberInterestSaveRespDto>> updateMemberInterest(
+            @RequestBody @Valid MemberInterestSaveReqDto memberInterestSaveReqDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long memberId = memberInterestSaveReqDto.getMemberId();
+        List<Long> interestSmallIds = memberInterestSaveReqDto.getInterestSmallId();
+
+        List<MemberInterestSaveRespDto> response = memberService.updateMemberInterests(memberId, interestSmallIds, userDetails);
 
         return ApiResponse.success(response);
     }

@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
+import java.util.List;
+
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSMSRespDto;
 
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberSaveReqDto;
@@ -38,7 +40,8 @@ public interface MemberService {
 
     MemberSMSRespDto sendSMS(MemberSMSReqDto memberSMSReqDto);
 
-    MemberInterestSaveRespDto updateMemberInterest(Long memberId, Long interestSmallId,
-                                                   CustomUserDetails userDetails);
+    List<MemberInterestSaveRespDto> createMemberInterests(Long memberId, List<Long> interestSmallIds, CustomUserDetails userDetails);
+
+    List<MemberInterestSaveRespDto> updateMemberInterests(Long memberId, List<Long> interestSmallIds, CustomUserDetails userDetails);
 }
 
