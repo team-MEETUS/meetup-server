@@ -13,7 +13,6 @@ import site.mymeetup.meetupserver.member.service.MemberService;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static site.mymeetup.meetupserver.member.dto.MemberDto.*;
 import static site.mymeetup.meetupserver.member.dto.MemberInterestDto.MemberInterestSaveReqDto;

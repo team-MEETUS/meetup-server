@@ -1,16 +1,9 @@
 package site.mymeetup.meetupserver.member.service;
 
 
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseStatus;
+
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
-import site.mymeetup.meetupserver.response.ApiResponse;
 
 import java.util.List;
 
