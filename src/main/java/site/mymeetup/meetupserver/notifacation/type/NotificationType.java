@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum NotificationType {
-    COMMENT
+    Pending, Approval, COMMENT
 }
 

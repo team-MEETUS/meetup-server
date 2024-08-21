@@ -25,6 +25,8 @@ import site.mymeetup.meetupserver.interest.repository.InterestSmallRepository;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
+import site.mymeetup.meetupserver.notifacation.repository.NotificationRepository;
+import site.mymeetup.meetupserver.notifacation.service.NotificationService;
 
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveReqDto;
 import static site.mymeetup.meetupserver.crew.dto.CrewDto.CrewSaveRespDto;
@@ -46,7 +48,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CrewServiceImpl implements CrewService {
-    private final S3ImageService s3ImageService;
     private final CrewRepository crewRepository;
     private final GeoRepository geoRepository;
     private final InterestBigRepository interestBigRepository;
@@ -55,6 +56,8 @@ public class CrewServiceImpl implements CrewService {
     private final CrewMemberRepository crewMemberRepository;
     private final CrewLikeRepository crewLikeRepository;
     private final ChatRepository chatRepository;
+    private final S3ImageService s3ImageService;
+    private final NotificationService notificationService;
 
     // 모임 등록
     public CrewSaveRespDto createCrew(CrewSaveReqDto crewSaveReqDto, MultipartFile image, CustomUserDetails userDetails) {
@@ -356,6 +359,9 @@ public class CrewServiceImpl implements CrewService {
             }
         }
 
+        // 알림 전송
+        notificationService.notifyPending(crewId);
+
         // 모임멤버 추가
         CrewMember saveCrewMember = CrewMember.builder()
                 .role(CrewMemberRole.PENDING)
@@ -464,6 +470,9 @@ public class CrewServiceImpl implements CrewService {
             }
             crew.changeTotalMember(1);
             crewRepository.save(crew);
+
+            // 알림 전송
+            notificationService.notifyApproval(crewId, targetMember.getMemberId());
         }
         // 회원 강퇴 또는 퇴장 시 총 모임원 수 -1
         if ((target.getRole() == CrewMemberRole.MEMBER && newRole == CrewMemberRole.EXPELLED) || (newRole == CrewMemberRole.DEPARTED)) {
