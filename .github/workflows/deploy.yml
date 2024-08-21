@@ -64,6 +64,8 @@ jobs:
                   value: ${{ secrets.COOLSMS_SECRET }}
                 - name: AES_KEY
                   value: ${{ secrets.AES_KEY }}
+                - name: TZ
+                  value: Asia/Seoul
               buildenv: []
             context:
               git:
