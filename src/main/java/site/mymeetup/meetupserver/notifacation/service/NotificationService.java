@@ -10,9 +10,13 @@ import static site.mymeetup.meetupserver.notifacation.dto.NotificationDto.Notifi
 public interface NotificationService {
     SseEmitter createEmitter(CustomUserDetails userDetails);
 
-    void notifyComment(Long crewId, Long boardId);
-
     List<NotificationRespDto> getNotification(CustomUserDetails userDetails);
 
     void markAsRead(Long notificationId, CustomUserDetails userDetails);
+
+    void notifyPending(Long crewId);
+
+    void notifyApproval(Long crewId, Long memberId);
+
+    void notifyComment(Long crewId, Long boardId);
 }
