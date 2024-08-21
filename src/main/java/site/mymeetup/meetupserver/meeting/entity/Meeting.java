@@ -57,7 +57,7 @@ public class Meeting extends BaseEntity {
     @JoinColumn(name = "crew_and_member_id")
     private CrewMember crewMember;
 
-    @OneToMany(mappedBy = "meeting", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "meeting", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<MeetingMember> meetingMembers;
 
     // updateMeeting
