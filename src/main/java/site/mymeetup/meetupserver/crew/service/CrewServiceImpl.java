@@ -203,7 +203,8 @@ public class CrewServiceImpl implements CrewService {
         InterestSmall interestSmall = null;
         if (crewInterestReqDto.getInterestBigId() != null) {
             interestBig = validateInterestBig(crewInterestReqDto.getInterestBigId());
-        } else if (crewInterestReqDto.getInterestSmallId() != null) {
+        }
+        if (crewInterestReqDto.getInterestSmallId() != null) {
             interestSmall = validateInterestSmall(crewInterestReqDto.getInterestSmallId());
         }
 
