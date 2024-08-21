@@ -47,7 +47,7 @@ public class NotificationServiceImpl implements NotificationService {
             notificationCounts.put(memberId, initialNotificationCount);
 
             // 알림 개수 전송
-            sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(memberId)));
+            sseEmitter.send(SseEmitter.event().name("notification").data(notificationCounts.get(memberId)));
         } catch (IOException e) {
             log.error("Error while sending SSE connection event for memberId {}: {}", memberId, e.getMessage(), e);
         }
@@ -106,13 +106,13 @@ public class NotificationServiceImpl implements NotificationService {
                 eventData.put("url", url);
                 eventData.put("type", save.getType().toString());
 
-                sseEmitter.send(SseEmitter.event().name("addComment").data(eventData));
+                sseEmitter.send(SseEmitter.event().name("notification").data(eventData));
 
                 // 알림 개수 증가
                 notificationCounts.put(receiverId, notificationCounts.get(receiverId) + 1);
 
                 // 현재 알림 개수 전송
-                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(receiverId)));
+                sseEmitter.send(SseEmitter.event().name("notification").data(notificationCounts.get(receiverId)));
             } catch (Exception e) {
                 sseEmitters.remove(receiverId);
             }
@@ -156,7 +156,7 @@ public class NotificationServiceImpl implements NotificationService {
                 notificationCounts.put(memberId, notificationCounts.get(memberId) - 1);
 
                 // 현재 알림 개수 전송
-                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(memberId)));
+                sseEmitter.send(SseEmitter.event().name("notification").data(notificationCounts.get(memberId)));
             } catch (Exception e) {
                 sseEmitters.remove(memberId);
             }
