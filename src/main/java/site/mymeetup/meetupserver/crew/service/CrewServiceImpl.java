@@ -398,9 +398,6 @@ public class CrewServiceImpl implements CrewService {
         // 해당 모임이 존재하는지 검증
         Crew crew = validateCrew(crewId);
 
-        System.out.println(">>>>>>>>>>>>member " + member.getMemberId());
-        System.out.println(">>>>>>>>>>>>crew " + crew.getCrewId());
-
         // 해당 모임의 멤버인지 확인
         if (!crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.LEADER)
             && !crewMemberRepository.existsByCrewAndMemberAndRole(crew, member, CrewMemberRole.ADMIN)) {
