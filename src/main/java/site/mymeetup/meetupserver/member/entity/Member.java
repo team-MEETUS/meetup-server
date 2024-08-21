@@ -8,6 +8,7 @@ import site.mymeetup.meetupserver.geo.entity.Geo;
 import site.mymeetup.meetupserver.member.role.Role;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Builder
@@ -60,6 +61,9 @@ public class Member extends BaseEntity{
     private String originalImg;
 
     private String saveImg;
+
+    @OneToMany(mappedBy = "member")
+    private List<MemberInterest> memberInterest;
 
     // 멤버 수정. 성별, 생년월일 수정 불가
     public void updateMember(Member updateMember) {

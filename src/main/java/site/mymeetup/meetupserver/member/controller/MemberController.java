@@ -4,17 +4,20 @@ package site.mymeetup.meetupserver.member.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.jwt.JWTUtil;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
-import site.mymeetup.meetupserver.member.dto.MemberDto.*;
-
 import site.mymeetup.meetupserver.member.service.MemberService;
 import site.mymeetup.meetupserver.response.ApiResponse;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static site.mymeetup.meetupserver.member.dto.MemberDto.*;
+import static site.mymeetup.meetupserver.member.dto.MemberInterestDto.MemberInterestSaveReqDto;
+import static site.mymeetup.meetupserver.member.dto.MemberInterestDto.MemberInterestSaveRespDto;
 
 
 @RestController
@@ -72,4 +75,23 @@ public class MemberController {
         return ApiResponse.success(memberService.sendSMS(memberSMSReqDto));
     }
 
+    // 회원 관심사 등록
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/{memberId}/interests")
+    public ApiResponse<List<MemberInterestSaveRespDto>> createMemberInterest(@RequestBody @Valid MemberInterestSaveReqDto memberInterestSaveReqDto,
+                                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long memberId = memberInterestSaveReqDto.getMemberId();
+        List<Long> interestSmallIds = memberInterestSaveReqDto.getInterestSmallId();
+
+        List<MemberInterestSaveRespDto> response = interestSmallIds.stream()
+                        .map(interestSmallId -> {
+                            return memberService.updateMemberInterest(
+                                    memberId, interestSmallId, userDetails
+                            );
+                        })
+                                .collect(Collectors.toList());
+
+        return ApiResponse.success(response);
+    }
 }
+

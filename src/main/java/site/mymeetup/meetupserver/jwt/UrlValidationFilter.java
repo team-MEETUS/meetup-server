@@ -33,7 +33,7 @@ public class UrlValidationFilter extends OncePerRequestFilter {
             "/api/v1/notifications/subscribe",
             "/api/v1/geos", "/api/v1/interestBigs", "/api/v1/interestBigs/[0-9]+/interestSmalls",
             "/api/v1/crews/[0-9]+/meetings", "/api/v1/crews/[0-9]+/meetings/[0-9]+",
-            "/api/v1/login", "/api/v1/members/[0-9]+", "/api/v1/members/join", "/api/v1/members/info","/api/v1/members/phoneCheck"
+            "/api/v1/login", "/api/v1/members/[0-9]+", "/api/v1/members/join", "/api/v1/members/info","/api/v1/members/phoneCheck", "/api/v1/members/[0-9]+/interests"
     );
 
 
