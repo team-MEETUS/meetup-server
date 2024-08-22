@@ -66,7 +66,46 @@ public class ChatServiceImpl implements ChatService {
                 .build();
 
         return chatRepository.save(chat)
-                .doOnNext(savedMessage -> messagingTemplate.convertAndSend("/topic/messages", savedMessage))
+                .doOnNext(savedMessage -> messagingTemplate.convertAndSend("/topic/messages/group" + crewId, savedMessage))
+                .map(savedChat -> ApiResponse.success(ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(senderId, 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).crewMemberRole(crewMember.getRole()).build()));
+    }
+
+    @Override
+    public Mono<ApiResponse<ChatRespDto>> createPrivateChat(Long crewId, ChatSaveReqDto chatSaveReqDto, Long senderId) {
+        if (senderId == null || chatSaveReqDto.getMessage() == null) {
+            return Mono.just(ApiResponse.error(ErrorCode.CHAT_NOT_FOUND));
+        }
+
+        // 해당 유저가 존재하는지 검증
+        Member member = memberRepository.findByMemberIdAndStatus(senderId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+        // 해당 유저가 모임원인지 검증
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, member, roles)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
+
+        Long receiverId = chatSaveReqDto.getReceiverId();
+
+        Chat chat = Chat.builder()
+                .id(UUID.randomUUID().toString())
+                .message(chatSaveReqDto.getMessage())
+                .senderId(senderId)
+                .receiverId(chatSaveReqDto.getReceiverId())
+                .createDate(LocalDateTime.now())
+                .crewId(crewId)
+                .build();
+
+        return chatRepository.save(chat)
+                .doOnNext(savedMessage -> messagingTemplate.convertAndSend("/topic/messages/private/" + crewId + "/" + receiverId, savedMessage))
+
                 .map(savedChat -> ApiResponse.success(ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(senderId, 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).crewMemberRole(crewMember.getRole()).build()));
     }
 
