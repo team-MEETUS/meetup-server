@@ -20,8 +20,18 @@ import site.mymeetup.meetupserver.response.ApiResponse;
 public class ChatController {
     private final ChatService chatService;
 
-    @MessageMapping("/send/{crewId}")
-    @SendTo("/topic/messages/{crewId}")
+    // 1:1 채팅 메시지 전송
+    @MessageMapping("/send/private/{crewId}/{receiverId}")
+    @SendTo("/topic/messages/private/{crewId}/{receiverId}")
+    public Mono<ApiResponse<ChatRespDto>> sendPrivateMessage(@DestinationVariable("crewId") Long crewId,
+                                                             @DestinationVariable("receiverId") Long receiverId,
+                                                             ChatSaveReqDto chatSaveReqDto,
+                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return chatService.createPrivateChat(crewId, chatSaveReqDto, userDetails.getMemberId());
+    }
+
+    @MessageMapping("/send/group/{crewId}")
+    @SendTo("/topic/messages/group/{crewId}")
     public Mono<ApiResponse<ChatRespDto>> sendMessage(@DestinationVariable("crewId") Long crewId,
                                                       ChatSaveReqDto chatSaveReqDto,
                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
