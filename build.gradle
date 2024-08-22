@@ -70,7 +70,6 @@ dependencies {
 
     // base64
     implementation group: 'net.iharder', name: 'base64', version: '2.3.9'
-
 }
 
 tasks.named('test') {
