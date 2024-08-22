@@ -2,6 +2,7 @@ package site.mymeetup.meetupserver.chat.dto;
 
 import lombok.*;
 import site.mymeetup.meetupserver.chat.entity.Chat;
+import site.mymeetup.meetupserver.crew.role.CrewMemberRole;
 import site.mymeetup.meetupserver.member.entity.Member;
 
 import static site.mymeetup.meetupserver.member.dto.MemberDto.MemberInfoDto;
@@ -19,16 +20,18 @@ public class ChatDto {
         private Long senderId;
         private Long receiverId;
         private Long crewId;
+        private CrewMemberRole crewMemberRole;
         private MemberInfoDto member;
         private LocalDateTime createDate;
 
         @Builder
-        public ChatRespDto(Chat chat, Member member) {
+        public ChatRespDto(Chat chat, Member member, CrewMemberRole crewMemberRole) {
             this.id = UUID.randomUUID().toString();
             this.message = chat.getMessage();
             this.senderId = chat.getSenderId();
             this.receiverId = chat.getReceiverId();
             this.crewId = chat.getCrewId();
+            this.crewMemberRole = crewMemberRole;
             this.member = new MemberInfoDto(member);
             this.createDate = chat.getCreateDate();
         }

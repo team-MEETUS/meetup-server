@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import static site.mymeetup.meetupserver.chat.dto.ChatDto.ChatRespDto;
-
-import site.mymeetup.meetupserver.chat.dto.ChatDto;
+import static site.mymeetup.meetupserver.chat.dto.ChatDto.ChatSaveReqDto;
 import site.mymeetup.meetupserver.chat.entity.Chat;
 import site.mymeetup.meetupserver.chat.repository.ChatRepository;
 import site.mymeetup.meetupserver.crew.entity.Crew;
@@ -36,10 +35,26 @@ public class ChatServiceImpl implements ChatService {
     private final MemberRepository memberRepository;
 
     @Override
-    public Mono<ApiResponse<ChatRespDto>> createChat(Long crewId, ChatDto.ChatSaveReqDto chatSaveReqDto, Long senderId) {
+    public Mono<ApiResponse<ChatRespDto>> createChat(Long crewId, ChatSaveReqDto chatSaveReqDto, Long senderId) {
         if (senderId == null || chatSaveReqDto.getMessage() == null) {
             return Mono.just(ApiResponse.error(ErrorCode.CHAT_NOT_FOUND));
         }
+
+        // 해당 유저가 존재하는지 검증
+        Member member = memberRepository.findByMemberIdAndStatus(senderId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        // 해당 모임이 존재하는지 검증
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+        // 해당 유저가 모임원인지 검증
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, member, roles)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         Chat chat = Chat.builder()
                 .id(UUID.randomUUID().toString())
@@ -52,7 +67,7 @@ public class ChatServiceImpl implements ChatService {
 
         return chatRepository.save(chat)
                 .doOnNext(savedMessage -> messagingTemplate.convertAndSend("/topic/messages", savedMessage))
-                .map(savedChat -> ApiResponse.success(ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(senderId, 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).build()));
+                .map(savedChat -> ApiResponse.success(ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(senderId, 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).crewMemberRole(crewMember.getRole()).build()));
     }
 
     @Override
@@ -75,7 +90,10 @@ public class ChatServiceImpl implements ChatService {
 
         return chatRepository.findAllByCrewIdAndCreateDateAfter(crewId, crewMember.getCreateDate())
                 .map(chat -> {
-                    ChatRespDto chatRespDto = ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(chat.getSenderId(), 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).build();
+                    ChatRespDto chatRespDto = ChatRespDto.builder()
+                            .chat(chat)
+                            .member(memberRepository.findByMemberIdAndStatus(chat.getSenderId(), 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)))
+                            .crewMemberRole(crewMemberRepository.findByCrew_CrewIdAndMember_MemberId(crewId, chat.getSenderId()).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)).getRole()).build();
                     return ApiResponse.success(chatRespDto);
                 })
                 .switchIfEmpty(chat -> Flux.just(ApiResponse.success(null))); // 데이터가 없는 경우를 처리

@@ -21,7 +21,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @MessageMapping("/send/{crewId}")
-    @SendTo("/topic/messages")
+    @SendTo("/topic/messages/{crewId}")
     public Mono<ApiResponse<ChatRespDto>> sendMessage(@DestinationVariable("crewId") Long crewId,
                                                       ChatSaveReqDto chatSaveReqDto,
                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
