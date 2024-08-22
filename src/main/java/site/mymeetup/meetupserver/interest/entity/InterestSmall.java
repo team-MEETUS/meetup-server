@@ -18,4 +18,5 @@ public class InterestSmall {
     @ManyToOne
     @JoinColumn(name = "interest_big_id")
     private InterestBig interestBig;
+
 }

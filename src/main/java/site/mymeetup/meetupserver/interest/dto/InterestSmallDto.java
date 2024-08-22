@@ -20,5 +20,4 @@ public class InterestSmallDto {
             this.name = interestSmall.getName();
         }
     }
-
 }
