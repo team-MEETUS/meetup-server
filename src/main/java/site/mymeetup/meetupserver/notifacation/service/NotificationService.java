@@ -19,4 +19,7 @@ public interface NotificationService {
     void notifyApproval(Long crewId, Long memberId);
 
     void notifyComment(Long crewId, Long boardId);
+
+    // 1대1 채팅 알림
+    void notifyChat(Long crewId, Long senderId, Long receiverId, String chat);
 }
