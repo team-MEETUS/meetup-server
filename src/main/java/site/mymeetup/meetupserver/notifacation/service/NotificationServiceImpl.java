@@ -157,7 +157,7 @@ public class NotificationServiceImpl implements NotificationService {
             Notification notification = Notification.builder()
                     .message(message)
                     .url(url)
-                    .type(NotificationType.Pending)
+                    .type(NotificationType.PENDING)
                     .isRead(false)
                     .member(receiver)
                     .build();
@@ -216,7 +216,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = Notification.builder()
                 .message(message)
                 .url(url)
-                .type(NotificationType.Approval)
+                .type(NotificationType.APPROVAL)
                 .isRead(false)
                 .member(receiver)
                 .build();
@@ -278,6 +278,67 @@ public class NotificationServiceImpl implements NotificationService {
                 .message(message)
                 .url(url)
                 .type(NotificationType.COMMENT)
+                .isRead(false)
+                .member(receiver)
+                .build();
+        Notification save = notificationRepository.save(notification);
+
+        // Map 에서 memberId 로 사용자 검색
+        if (sseEmitters.containsKey(receiverId)) {
+            SseEmitter sseEmitter = sseEmitters.get(receiverId);
+            // 알림 전송 및 해제
+            try {
+                Map<String, String> eventData = new HashMap<>();
+                eventData.put("notificationId", save.getNotificationId().toString());
+                eventData.put("message", message);
+                eventData.put("url", url);
+                eventData.put("type", save.getType().toString());
+
+                sseEmitter.send(SseEmitter.event().name("notification").data(eventData));
+
+                // 알림 개수 증가
+                notificationCounts.put(receiverId, notificationCounts.get(receiverId) + 1);
+
+                // 알림 개수 전송
+                Map<String, Integer> countData = new HashMap<>();
+                countData.put("notificationCount", notificationCounts.get(receiverId));
+
+                sseEmitter.send(SseEmitter.event().name("notification").data(countData));
+            } catch (Exception e) {
+                sseEmitters.remove(receiverId);
+            }
+        }
+    }
+
+    // 1대1 채팅 알림
+    @Override
+    public void notifyChat(Long crewId, Long senderId, Long receiverId, String chat) {
+        // 모임 정보 조회
+        Crew crew = crewRepository.findByCrewIdAndStatus(crewId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.CREW_NOT_FOUND));
+
+        // 발신자
+        Member sender = memberRepository.findByMemberIdAndStatus(senderId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 수신자
+        Member receiver = memberRepository.findByMemberIdAndStatus(receiverId, 1)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 모임명
+        String crewName = crew.getName();
+
+        // url 생성
+        String url = "/crew/" + crewId + "/chat/" + senderId;
+
+        // 전송할 message 생성
+        String message = "[" + crewName + "]에 새로운 채팅이 왔습니다. : " + sender.getNickname() + " \"" + chat + "\"";
+
+        // 알림 DB 저장
+        Notification notification = Notification.builder()
+                .message(message)
+                .url(url)
+                .type(NotificationType.CHAT)
                 .isRead(false)
                 .member(receiver)
                 .build();

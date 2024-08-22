@@ -18,6 +18,7 @@ import site.mymeetup.meetupserver.exception.CustomException;
 import site.mymeetup.meetupserver.exception.ErrorCode;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
+import site.mymeetup.meetupserver.notifacation.service.NotificationService;
 import site.mymeetup.meetupserver.response.ApiResponse;
 
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ public class ChatServiceImpl implements ChatService {
     private final CrewMemberRepository crewMemberRepository;
     private final CrewRepository crewRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     @Override
     public Mono<ApiResponse<ChatRespDto>> createChat(Long crewId, ChatSaveReqDto chatSaveReqDto, Long senderId) {
@@ -93,6 +95,9 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_MEMBER_NOT_FOUND));
 
         Long receiverId = chatSaveReqDto.getReceiverId();
+
+        // 알림 전송
+        notificationService.notifyChat(crewId, senderId, receiverId, chatSaveReqDto.getMessage());
 
         Chat chat = Chat.builder()
                 .id(UUID.randomUUID().toString())
