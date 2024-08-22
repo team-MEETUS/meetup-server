@@ -105,6 +105,7 @@ public class ChatServiceImpl implements ChatService {
 
         return chatRepository.save(chat)
                 .doOnNext(savedMessage -> messagingTemplate.convertAndSend("/topic/messages/private/" + crewId + "/" + receiverId, savedMessage))
+
                 .map(savedChat -> ApiResponse.success(ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(senderId, 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).crewMemberRole(crewMember.getRole()).build()));
     }
 

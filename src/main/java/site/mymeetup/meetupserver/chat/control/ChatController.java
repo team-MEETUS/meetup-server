@@ -30,6 +30,7 @@ public class ChatController {
         return chatService.createPrivateChat(crewId, chatSaveReqDto, userDetails.getMemberId());
     }
 
+    // 그룹 채팅 메시지 전송
     @MessageMapping("/send/group/{crewId}")
     @SendTo("/topic/messages/group/{crewId}")
     public Mono<ApiResponse<ChatRespDto>> sendMessage(@DestinationVariable("crewId") Long crewId,
