@@ -81,7 +81,7 @@ public class MeetingDto {
         private List<MeetingMemberSimpleDto> meetingMembers;
 
         @Builder
-        public MeetingSelectRespDto(Meeting meeting) {
+        public MeetingSelectRespDto(Meeting meeting, List<MeetingMemberSimpleDto> meetingMembers) {
             this.meetingId = meeting.getMeetingId();
             this.name = meeting.getName();
             this.date = meeting.getDate();
@@ -92,9 +92,7 @@ public class MeetingDto {
             this.attend = meeting.getAttend();
             this.originalImg = meeting.getOriginalImg();
             this.saveImg = meeting.getSaveImg();
-            this.meetingMembers = meeting.getMeetingMembers().stream()
-                                        .map(MeetingMemberSimpleDto::new)
-                                        .toList();
+            this.meetingMembers = meetingMembers;
         }
     }
 

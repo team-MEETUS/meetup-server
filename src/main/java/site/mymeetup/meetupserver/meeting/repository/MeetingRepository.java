@@ -18,11 +18,12 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 
     // 현재 진행 중인 정모 및 지난 정모
     @Query("SELECT m FROM Meeting m " +
-            "LEFT JOIN MeetingMember mm ON m = mm.meeting " +
             "WHERE m.crew.crewId = :crewId AND m.status = :status " +
             "AND ((:isUpcoming = true AND m.date > :now) " +
             "OR (:isUpcoming = false AND m.date < :now)) " +
             "ORDER BY CASE WHEN :isUpcoming = true THEN m.date END ASC, " +
             "CASE WHEN :isUpcoming = false THEN m.date END DESC")
     List<Meeting> findMeetingsWithMembers(Long crewId, int status, LocalDateTime now, boolean isUpcoming);
+
+
 }
