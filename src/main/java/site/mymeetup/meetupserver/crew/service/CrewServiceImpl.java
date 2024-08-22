@@ -423,7 +423,8 @@ public class CrewServiceImpl implements CrewService {
 
         List<CrewMemberRole> roles = Arrays.asList(
                 CrewMemberRole.ADMIN,
-                CrewMemberRole.LEADER
+                CrewMemberRole.LEADER,
+                CrewMemberRole.MEMBER
         );
         CrewMember initiator = crewMemberRepository.findByCrewAndMemberAndRoleIn(crew, initiatorMember, roles)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREW_ACCESS_DENIED));
@@ -450,6 +451,13 @@ public class CrewServiceImpl implements CrewService {
 
         // role 변경 가능한지 확인
         canChangeRole(initiator.getRole(), target.getRole(), newRole);
+
+        // 일반멤버는 탈퇴만 가능
+        if (initiator.getRole() == CrewMemberRole.MEMBER) {
+            if (initiator.equals(target) || newRole != CrewMemberRole.DEPARTED) {
+                throw new CustomException(ErrorCode.CREW_ACCESS_DENIED);
+            }
+        }
 
         // 본인의 상태는 퇴장으로만 변경 가능
         if (initiator == target && newRole != CrewMemberRole.DEPARTED) {
