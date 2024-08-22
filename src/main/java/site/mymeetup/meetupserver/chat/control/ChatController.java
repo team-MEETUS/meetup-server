@@ -21,8 +21,8 @@ public class ChatController {
     private final ChatService chatService;
 
     // 1:1 채팅 메시지 전송
-    @MessageMapping("/send/private/{crewId}/{receiverId}")
-    @SendTo("/topic/messages/private/{crewId}/{receiverId}")
+    @MessageMapping("/send/private/{crewId}/{senderId}/{receiverId}")
+    @SendTo("/topic/messages/private/{crewId}/{senderId}/{receiverId}")
     public Mono<ApiResponse<ChatRespDto>> sendPrivateMessage(@DestinationVariable("crewId") Long crewId,
                                                              @DestinationVariable("receiverId") Long receiverId,
                                                              ChatSaveReqDto chatSaveReqDto,

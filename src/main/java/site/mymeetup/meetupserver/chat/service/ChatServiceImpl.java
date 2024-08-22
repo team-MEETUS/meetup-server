@@ -103,9 +103,15 @@ public class ChatServiceImpl implements ChatService {
                 .crewId(crewId)
                 .build();
 
-        return chatRepository.save(chat)
-                .doOnNext(savedMessage -> messagingTemplate.convertAndSend("/topic/messages/private/" + crewId + "/" + receiverId, savedMessage))
+        String url = null;
+        if(senderId > receiverId) {
+            url = "/" + senderId + "/" + receiverId;
+        } else {
+            url = "/" + receiverId + "/" + senderId;
+        }
 
+        return chatRepository.save(chat)
+                .doOnNext(savedMessage -> messagingTemplate.convertAndSend("/topic/messages/private/" + crewId + (senderId > receiverId ? "/" + senderId + "/" + receiverId : "/" + receiverId + "/" + senderId), savedMessage))
                 .map(savedChat -> ApiResponse.success(ChatRespDto.builder().chat(chat).member(memberRepository.findByMemberIdAndStatus(senderId, 1).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))).crewMemberRole(crewMember.getRole()).build()));
     }
 
