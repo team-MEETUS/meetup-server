@@ -2,6 +2,7 @@ package site.mymeetup.meetupserver.meeting.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import site.mymeetup.meetupserver.common.service.S3ImageService;
 import site.mymeetup.meetupserver.crew.entity.Crew;
@@ -29,6 +30,7 @@ import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSaveRespD
 import static site.mymeetup.meetupserver.meeting.dto.MeetingDto.MeetingSelectRespDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberReqDto;
 import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberRespDto;
+import static site.mymeetup.meetupserver.meeting.dto.MeetingMemberDto.MeetingMemberSimpleDto;
 
 @Service
 @RequiredArgsConstructor
@@ -139,6 +141,7 @@ public class MeetingServiceImpl implements MeetingService {
 
     // 모임별 정모 조회
     @Override
+    @Transactional(readOnly = true)
     public List<MeetingSelectRespDto> getMeetingByCrewId(Long crewId, String status) {
         // crew 검증
         Crew crew = validateCrew(crewId);
@@ -158,7 +161,13 @@ public class MeetingServiceImpl implements MeetingService {
         }
 
         return meetings.stream()
-                .map(MeetingSelectRespDto::new)
+                .map(meeting -> {
+                    List<MeetingMemberSimpleDto> meetingMembers = meetingMemberRepository.findByMeeting(meeting)
+                            .stream()
+                            .map(MeetingMemberSimpleDto::new)
+                            .toList();
+                    return new MeetingSelectRespDto(meeting, meetingMembers);
+                })
                 .toList();
     }
 
@@ -316,6 +325,39 @@ public class MeetingServiceImpl implements MeetingService {
     private Meeting validateMeeting(Long meetingId, Crew crew) {
         return meetingRepository.findByMeetingIdAndCrewAndStatus(meetingId, crew, 1)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+    }
+
+    // 모임 퇴장 시, 정모 참석 취소
+    @Override
+    public void deleteMeetingMember(Crew crew, Member member) {
+        // 모임 멤버인지 확인
+        List<CrewMemberRole> roles = Arrays.asList(
+                CrewMemberRole.MEMBER,
+                CrewMemberRole.ADMIN,
+                CrewMemberRole.LEADER
+        );
+        CrewMember crewMember = validateCrewMember(crew, member, roles);
+
+        // 오늘 정시 날짜
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfToday = today.atStartOfDay();
+
+        List<Meeting> meetings = meetingRepository.findMeetingsWithMembers(crew.getCrewId(), 1, startOfToday, true);
+
+        for (Meeting meeting : meetings) {
+            // 해당 정모에 참여한 멤버인지 확인
+            MeetingMember meetingMember = meetingMemberRepository.findByMeetingAndCrewMember(meeting, crewMember)
+                    .orElse(null);
+
+            if (meetingMember != null) {
+                // 정모 멤버 삭제
+                meetingMemberRepository.delete(meetingMember);
+
+                // 정모 참석인원 -1
+                meeting.changeAttend(-1);
+                meetingRepository.save(meeting);
+            }
+        }
     }
 
 }

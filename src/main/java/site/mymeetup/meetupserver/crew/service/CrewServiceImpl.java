@@ -22,6 +22,7 @@ import site.mymeetup.meetupserver.interest.entity.InterestBig;
 import site.mymeetup.meetupserver.interest.entity.InterestSmall;
 import site.mymeetup.meetupserver.interest.repository.InterestBigRepository;
 import site.mymeetup.meetupserver.interest.repository.InterestSmallRepository;
+import site.mymeetup.meetupserver.meeting.service.MeetingService;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
 import site.mymeetup.meetupserver.member.entity.Member;
 import site.mymeetup.meetupserver.member.repository.MemberRepository;
@@ -58,6 +59,7 @@ public class CrewServiceImpl implements CrewService {
     private final ChatRepository chatRepository;
     private final S3ImageService s3ImageService;
     private final NotificationService notificationService;
+    private final MeetingService meetingService;
 
     // 모임 등록
     public CrewSaveRespDto createCrew(CrewSaveReqDto crewSaveReqDto, MultipartFile image, CustomUserDetails userDetails) {
@@ -471,10 +473,11 @@ public class CrewServiceImpl implements CrewService {
             // 알림 전송
             notificationService.notifyApproval(crewId, targetMember.getMemberId());
         }
-        // 회원 강퇴 또는 퇴장 시 총 모임원 수 -1
+        // 회원 강퇴 또는 퇴장 시 총 모임원 수 -1 & 정모에서 삭제
         if ((target.getRole() == CrewMemberRole.MEMBER && newRole == CrewMemberRole.EXPELLED) || (newRole == CrewMemberRole.DEPARTED)) {
             crew.changeTotalMember(-1);
             crewRepository.save(crew);
+            meetingService.deleteMeetingMember(crew, targetMember);
         }
 
         // 권한 변경

@@ -1,7 +1,10 @@
 package site.mymeetup.meetupserver.meeting.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import site.mymeetup.meetupserver.crew.entity.Crew;
 import site.mymeetup.meetupserver.member.dto.CustomUserDetails;
+import site.mymeetup.meetupserver.member.entity.Member;
 
 import java.util.List;
 
@@ -27,4 +30,6 @@ public interface MeetingService {
     void rejectMeeting(Long crewId, Long meetingId, MeetingMemberReqDto meetingMemberReqDto, CustomUserDetails userDetails);
 
     List<MeetingMemberRespDto> getMeetingMemberByMeetingId(Long crewId, Long meetingId);
+
+    void deleteMeetingMember(Crew crew, Member member);
 }
