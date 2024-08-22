@@ -329,7 +329,7 @@ public class NotificationServiceImpl implements NotificationService {
         String crewName = crew.getName();
 
         // url 생성
-        String url = "/crew/" + crewId + "/chat/" + senderId;
+        String url = "/crew/" + crewId + "/chat/" + receiverId + "/" + senderId;
 
         // 전송할 message 생성
         String message = "[" + crewName + "]에 새로운 채팅이 왔습니다. : " + sender.getNickname() + " \"" + chat + "\"";
