@@ -27,7 +27,7 @@ public class UrlValidationFilter extends OncePerRequestFilter {
             "/api/v1/crews/[0-9]+/boards", "/api/v1/crews/[0-9]+/boards/[0-9]+", "/api/v1/crews/[0-9]+/boards/[0-9]+/pin", "/api/v1/crews/[0-9]+/boards/images",
             "/api/v1/crews/[0-9]+/boards/[0-9]+/comments", "/api/v1/crews/[0-9]+/boards/[0-9]+/comments/[0-9]+",
             "/api/v1/crews/[0-9]+/chats", "/ws/.*", "/ws",
-            "/api/v1/crews", "/api/v1/crews/[0-9]+", "/api/v1/crews/me",
+            "/api/v1/crews", "/api/v1/crews/[0-9]+", "/api/v1/crews/me", "/api/v1/crews/likes",
             "/api/v1/crews/interests", "/api/v1/crews/active", "/api/v1/crews/new", "/api/v1/crews/search",
             "/api/v1/crews/[0-9]+/members/me", "/api/v1/crews/[0-9]+/members", "/api/v1/crews/[0-9]+/likes",
             "/api/v1/notifications/subscribe", "/api/v1/notifications", "/api/v1/notifications/[0-9]+",
