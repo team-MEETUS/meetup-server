@@ -97,6 +97,13 @@ public class CrewController {
         return ApiResponse.success(crewService.getMyCrew(userDetails));
     }
 
+    // 찜한 모임 조회
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/likes")
+    public ApiResponse<List<CrewSelectRespDto>> getMyLikeCrew(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(crewService.getMyLikeCrew(userDetails));
+    }
+
     // 모임 검색
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/search")

@@ -267,6 +267,7 @@ public class CrewServiceImpl implements CrewService {
                 .toList();
     }
 
+    // 가입한 모임 조회
     @Override
     public List<CrewSelectRespDto> getMyCrew(CustomUserDetails userDetails) {
         // 현재 로그인 한 사용자 검증
@@ -281,6 +282,19 @@ public class CrewServiceImpl implements CrewService {
 
         // 사용자가 속한 모임 조회
         List<Crew> crews = crewMemberRepository.findCrewsByMember(member, roles);
+
+        return crews.stream()
+                .map(CrewSelectRespDto::new)
+                .toList();
+    }
+
+    // 찜한 모임 조회
+    @Override
+    public List<CrewSelectRespDto> getMyLikeCrew(CustomUserDetails userDetails) {
+        // 현재 로그인 한 사용자 검증
+        Member member = validateMember(userDetails.getMemberId());
+
+        List<Crew> crews = crewLikeRepository.findCrewsByMember(member);
 
         return crews.stream()
                 .map(CrewSelectRespDto::new)
