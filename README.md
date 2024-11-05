@@ -7,13 +7,10 @@
 <br>
 
 ## ⏰ 개발기간
-<hr>
-
 `2024.07.05 ~ 2024.08.23`
 <br>
 
 ## 🔎 소개
-<hr>
 <blockquote>
 <p>혼자 하면 지루한 취미도, 함께 하면 두 배로 즐거운 법 😃</p>
 <p>동네에 숨겨진 다양한 소모임과 활동을 한눈에 확인하고 참여해보세요.</p>
@@ -21,7 +18,6 @@
 </blockquote>
 
 ## 👥 팀원
-<hr>
 <div align="center">
 
 | 박채윤 | 마정하 | 이현승 | 이연서 |
@@ -34,7 +30,6 @@
 <br>
 
 ## 🛠️ 기술스택
-<hr>
 <div align="center">
 
   <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white">
@@ -65,7 +60,5 @@
 <br>
 
 ## 📄 ERD
-<hr>
-
 ![MEETUP_SPRINGBOOT_ERD](https://github.com/user-attachments/assets/f46e9bee-17cf-416d-9fce-68834b7bcccd)
 
