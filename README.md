@@ -64,3 +64,21 @@
 ## 📄 ERD
 ![MEETUP_SPRINGBOOT_ERD](https://github.com/user-attachments/assets/f46e9bee-17cf-416d-9fce-68834b7bcccd)
 
+<br>
+
+## 🖥️ 주요 기능
+
+### 메인 페이지
+
+### 회원가입 & 로그인
+
+### 모임 상세
+
+### 멤버 관리
+
+### 게시판
+
+### 사진첩
+
+### 채팅 & 알림
+
